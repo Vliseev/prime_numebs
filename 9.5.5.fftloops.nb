@@ -1,0 +1,159 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      5369,        119]*)
+(*NotebookOutlinePosition[      6051,        144]*)
+(*  CellTagsIndexPosition[      6007,        140]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 9.5  .5\ 
+        \((FFT, \ in - place, \ 
+            in - order\ loop\ forms\ with\ \n\ bit - scramble)\) . \t\t\n\ 
+          Support\ code\ for\n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \t\t\t\n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\ \n\t10\ Dec\ 2000\ AH\ 
+        \((Formatting)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n\ *) \n
+    \n (*\ Given\ a\ signal\ of\ length\ 2^d, \ 
+      the\ two\ algorithms\ below\ each\ \nperform\ an\ FFT\ on\ said\ 
+        signal, \ one\ via\ decimation - in - time\ and\ \nthe\ other, \ 
+      decimation - in - frequency . \ \nRemember, \ 
+      signal\ lengths\ must\ be\ a\ power\ of\ \(two . \)\ \t\n*) \n\)\)], 
+  "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n
+    \n (*\ Below, \ the\ reverse - bit\ scramble\ routine, \ 
+      used\ in\ both\ time - \ \nand\ frequency - 
+        decimation\ FFT\ algorithms\ below . \ \ scramble[]\ \nre - 
+        orders\ the\ lists\ in\ reverse - 
+        binary\ to\ realize\ the\ nested\ \nloop\ \(structure . \)\ *) \n\n
+    scramble[x_List] := \n\t
+      Block[{y, n, i, j, k, tmp}, \n\t\ty = x; \n\t\tn = Length[x]; \n\t\t
+        For[i = 0; j = 0, i < n - 1, \(i++\), \n\t\t\t
+          If[i < j, \n\t\t\t\ttmp = y[[j + 1]]; \n\t\t\t\t
+            y[[j + 1]] = y[[i + 1]]; \n\t\t\t\ty[[i + 1]] = tmp\n\t\t\t]; \n
+          \t\t\tk = Floor[n/2]; \n\t\t\t
+          While[k <= j, \n\t\t\t\tj = j - k; \n\t\t\t\tk = Floor[k/2]\n
+            \t\t\t]; \n\t\t\tj = j + k\n\t\t]; \n\t\ty\n\t]; \n
+    \n (*\ Next, \ the\ Cooley - Tukey, \ 
+      decimation - in - time\ \(FFT . \)\ *) \n\n
+    fftDecInTime[y_List] := \n\t
+      Module[{x, n, g, m, j, i, a}, \n\t\tx = scramble[y]; \n\t\t
+        n = Length[x]; \n\t\tg = Exp[2\ Pi\ I/n]; \n\t\t
+        For[m = 1, m < n, m = 2  m, \n\t\t\t
+          For[j = 0, j < m, \(j++\), \n\t\t\t\t
+            a = g^\((\(-\((j\ n)\)\)/\((2\ m)\))\); \n\t\t\t\t
+            For[i = j, i < n, i = i + 2  m, \n
+              \t\t\t\t\t{x[[i + 1]], x[[i + m + 1]]} = \n
+                \t\t\t\t\t\t{x[[i + 1]] + a\ x[[i + m + 1]], \n\t\t\t\t\t\t\t
+                  x[[i + 1]] - a\ x[[i + m + 1]]}\n\t\t\t\t]\n\t\t\t]\n\t\t]; 
+        \n\t\tx\n\t]; \n
+    \n (*\ Next, \ the\ Gentleman - Sande, \ 
+      decimation - in - frequency\ \(FFT . \)\ *) \n\n
+    fftDecInFreq[y_List] := \n\t
+      Module[{x, n, g, m, j, a, i}, \n\t\tx = y; \n\t\tn = Length[x]; \n\t\t
+        g = Exp[2\ I\ Pi/n]; \n\t\t
+        For[m = Floor[n/2], m > 0, m = Floor[m/2], \n\t\t\t
+          For[j = 0, j < m, \(j++\), \n\t\t\t\t
+            a = g^\((\(-\((j\ n)\)\)/\((2\ m)\))\); \n\t\t\t\t
+            For[i = j, i < n, i = i + \ 2  m, \n
+              \t\t\t\t\t{x[[i + 1]], x[[i + m + 1]]} = \n
+                \t\t\t\t\t{x[[i + 1]] + \ x[[i + 1 + m]], \n\t\t\t\t\t\t
+                  a\ \((x[[i + 1]] - x[[i + m + 1]])\)}\n\t\t\t\t]\n\t\t\t]\n
+          \t\t]; \n\t\tscramble[x]\n\t]; \n\)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ *) \n
+    \n (*\ For\ a\ length\ 2^d\ signal\ we\ perform\ both\ decimation\ in\ 
+        time\ \nand\ in\ signal\ and\ compare\ times . \ \ We\ then\ verify\ 
+        the\ \(results . \)\ *) \nd\  = \ 7; \n\n
+    signal\  = \ Table[Random[Real, 2^10], {k, 1, 2^d}]; \n
+    Print["\<For the length 2^\>", d, "\< real signal \>", \ signal]; \n\n
+    \((result1 = Timing[fftDecInTime[signal]])\)[[1]]\n\), 
+    \(\((result2\  = Timing[fftDecInFreq[signal]])\)[[1]]\n\), 
+    \(Chop[result1[[2]] - result2[[2]]]\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{677, 690},
+WindowMargins->{{Automatic, 119}, {-141, Automatic}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 855, 15, 283, "Input"],
+Cell[2567, 66, 2238, 40, 915, "Input"],
+Cell[4808, 108, 557, 9, 200, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

@@ -1,0 +1,167 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      5888,        127]*)
+(*NotebookOutlinePosition[      6568,        152]*)
+(*  CellTagsIndexPosition[      6524,        148]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 9.5  .19\ 
+        \((Integer\ convolution\ on\ a\ CRT\ prime\ set)\) . \t\t\t\n\ Support
+          \ code\ for\n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \t\nc . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\ \n\t10\ Dec\ 2000\ AH\ 
+        \((Formatting\ and\ layout)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n
+      \ *) \n\n (*\ Given\ two\ integer\ signals\ x, 
+      y\ of\ length\ 2^m\ this\ algorithm\ \nreturns\ the\ cyclic\ convolution
+        \ x\ X\ y\ via\ the\ expedient\ of\ a\ CRT\ \nprime\ set . \nThe\ 
+        lists\ x, y\ must\ be\ of\ length\ \(2^m . \)\ \ \n*) \n\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n
+    \n (*\ First\ we\ load\ the\ standard\ Mathematica\ add - 
+        on\ to\ get\ the\ \nfunction, \ \(PrimitiveRoot . \)\ *) \n
+    \n<< NumberTheory`NumberTheoryFunctions`; \n\n
+    crtcon[x_List, y_List] := \n\t
+      Module[{nc, mc, m, p, a, \ h, q, j, xc, yc, zc, z, d, zt, pval, hval}, 
+        \n\t\tnc = Length[x]; \n\t\tmc = Max[Append[x, y]]; \n\t\t
+        m = Log[2, nc]; \n\t\tp = \(a = \(h = {}\)\); \n\t\tproduct = 1; \n
+        \t\tq = 0; \n\t\tj = 1; \n\t\t
+        While[product <= \ nc\ mc^2, \n\t\t\t
+          While[\ Not[IntegerQ[\((Prime[j] - 1)\)/2^m]], \ \(j++\)]; \n\t\t\t
+          p = Append[p, Prime[j]]; \n\t\t\t
+          a = Append[a, \((Prime[j] - 1)\)/2^m]; \n\t\t\t\(q++\); \n\t\t\t
+          product = product\ *\ p[\([q]\)]; \n\t\t\t
+          g = PrimitiveRoot[\ p[\([q]\)]\ ]; \n\t\t\t
+          h = Append[h, Mod[g^a[\([q]\)], p[\([q]\)]\ ]\ ]; \ \n\t\t\t
+          \(j++\); \n\t\t]; \n\t\txc = \(yc = \(zc = \(z = {}\)\)\); \n\t\t
+        For[r = 1, r <= q, \(r++\), \n\t\t\thval = h[\([r]\)]; \n\t\t\t
+          pval = p[\([r]\)]; \n\t\t\td = a[\([r]\)]; \n\t\t\t
+          dc = \((pval - 1)\)/d; \n\t\t\t
+          hinverse = \(ExtendedGCD[hval, pval]\)[\([2, 1]\)]; \n\t\t\t\n
+          \t\t\t (*\ Here, \ 
+            in\ order\ to\ simplify\ the\ testing\ and\ instead\ \n\t\t\tof\ 
+              hassling\ with\ an\ FFT\ based\ routine, 
+            we\ use\ a\ slow\ \n\t\t\tset\ of\ \(transforms . \)\ *) \ \t\t\t
+          \n\t\t\txc = 
+            Append[xc, 
+              Table[\ Mod[\n\t\t\t\t\ \ \ \ \ \ \ 
+                  Sum[x[\([j]\)]*
+                      PowerMod[hinverse, \((j - 1)\)\ \((k - 1)\), pval], \n
+                    \t\t\t\t\t\ \ {j, 1, dc}\n\t\t\t\t\ \ \ \ \ \ ], \n
+                  \t\t\t\tpval], {k, 1, dc}]\ ]; \n\t\t\t
+          yc = Append[yc, 
+              Table[Mod[\n\t\t\t\t\t
+                  Sum[y[\([j]\)]*
+                      PowerMod[\ hinverse, \((\((j - 1)\)\ \((k - 1)\))\), 
+                        pval], \n\t\t\t\t\t\t{j, 1, dc}\n\t\t\t\t\t], \n
+                  \t\t\t\tpval], {k, 1, dc}]\ ]; \n\t\t\t
+          zc = Append[zc, xc[\([r]\)]\ yc[\([r]\)]\ ]; \n\t\t\t
+          z = Append[z, 
+              Table[Mod[\n\t\t\t\t\t
+                  \(-d\)*\ 
+                    Sum[zc[\([r, j]\)]*
+                        PowerMod[hval, \((\((j - 1)\) \((k - 1)\))\), pval], 
+                      \n\t\t\t\t\t\t{j, 1, dc}\n\t\t\t\t\t], \n\t\t\t\t
+                  pval], {k, 1, dc}]]; \n\t\t]; \n\t\tzt\  = \ Transpose[z]; 
+        \n\t\tTable[ChineseRemainderTheorem[zt[\([j]\)], p], {j, 1, dc}]\n
+        \t]; \n\t\)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ *) \n
+    \n (*\ We\ perform\ a\ cyclic\ convolution\ via\ the\ CRT\ then\ literal\ 
+        and\ compare . \ \ \nIt\ is\ interesting\ to\ compare\ the\ timing\ 
+        and\ results\ on\ the\ same\ cyclic\ \nconvolution\ as\ performed\ by
+        \ Algorithm\ 9.5  .21, \ DGT\ \(convolution . \)\ *) \n\nd = 5; \n\n
+    x = Table[Random[Integer, {1, 200}], {j, 1, 2^d}]\n\), 
+    \(y = Table[Random[Integer, {1, 200}], {j, 1, 2^d}]\n\), 
+    \(Timing[result1 = crtcon[x, y]]\n\), 
+    \(result2 = \n\t
+      Table[Sum[x[\([i + 1]\)]\ y[\([Mod[m - i, Length[x]] + 1]\)], \n
+          \t\t{i, 0, Length[x] - 1}], \ {m, 0, Length[x] - 1}\n\t]\n\), 
+    \(result1 - result2\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{807, 753},
+WindowMargins->{{Automatic, 26}, {Automatic, 103}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 772, 12, 270, "Input"],
+Cell[2484, 63, 2678, 48, 807, "Input"],
+Cell[5165, 113, 719, 12, 279, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

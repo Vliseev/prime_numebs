@@ -1,0 +1,275 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[     10350,        225]*)
+(*NotebookOutlinePosition[     10987,        248]*)
+(*  CellTagsIndexPosition[     10943,        244]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\ \ \n\ Algorithm\ 8.5  .2 . \ \ \((Shor\ quantum\ factoring)\); \n
+      \tThis\ version\ is\ by\ D . \ Muldrew, \ 
+      who\ started\ from\n\tPrimeKit' s\ 8.5  .2 . shorfactoring . nb\n\tand\ 
+        effected\ some\ enhancements . \n\t\t\t\n\t\t\t\n\ Support\ code\ for
+        \n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\n\ c . \ 2002\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\t\n\tChange\ 
+        \(history : \n\t\ \ \ \ \ 7\ Jan\ 02\ DM\ \((creation)\)\)\n\t\n\ *) 
+      \n\t\n (*\ 
+      The\ number\ to\ be\ factored\ is\ n . This\ variable\ is\ all\ one\ 
+        needs\ to\ change\ to\ factor\ a\ number, 
+      as\ everything\ else\ is\ calculated\ automatically*) 
+      \[IndentingNewLine]\[IndentingNewLine]\(n = 42; \)\)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ The\ calculation\ of\ q, the\ size\ of\ the\ register*) 
+      \[IndentingNewLine]\[IndentingNewLine]\(d = Ceiling[2\ Log[2, n]]; 
+    \)\), 
+    \(\[IndentingNewLine]\), 
+    \(\(q = 2^d; \)\)}], "Input"],
+
+Cell[BoxData[{
+    \( (*\ This\ function\ picks\ random\ numbers\ between\ 2\ and\ n - 1, 
+      until\ a\ relatively\ prime\ integer\ to\ n\ is\ found*) 
+      \[IndentingNewLine]\[IndentingNewLine]RelPrimeInteger[n_] := 
+      Module[{x}, x = n; \ 
+        While[GCD[x, n] =!= 1, \(x = Random[Integer, {2, n - 1}]; \)]; 
+        \[IndentingNewLine]x]\[IndentingNewLine]\[IndentingNewLine] (*\ 
+      The\ function\ above\ is\ used\ to\ select\ x*) \[IndentingNewLine]\), 
+    \(\(x = RelPrimeInteger[n]; \)\)}], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ Just\ print\ statements, 
+      to\ let\ the\ operator\ know\ the\ parameters*) 
+      \[IndentingNewLine]\[IndentingNewLine]Print["\<n = \>", n]; \n
+    Print["\<q = \>", q]; \nPrint["\<x = \>", x]; \)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ The\ calculation\ of\ the\ first\ register*) 
+      \[IndentingNewLine]s1 = Table[a, {a, 0, q - 1}]; 
+    \[IndentingNewLine]\[IndentingNewLine] (*\ 
+      The\ calculation\ of\ the\ second\ register*) \n
+    s2 = Table[PowerMod[x, s1[\([a + 1]\)], n], {a, 0, q - 1}]; \n\n
+    Print["\<Second register: f(a) = x^a mod n\>"]; \n\[IndentingNewLine]\n
+    ListPlot[s2]\)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ At\ this\ point, 
+      the\ second\ register\ is\ observed\ and\ some\ value\ k\ is\ 
+        measured*) \[IndentingNewLine]\[IndentingNewLine]\(k = 
+      s2[\([Random[Integer, {0, q - 1}] + 1]\)]; \)\), 
+    \(\[IndentingNewLine]\), 
+    \(\(Print["\<Second register: k = \>", k]; \)\)}], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ Because\ the\ two\ registers\ are\ entangled, 
+      the\ first\ register\ changes\ to\ become\ consistent\ with\ the\ 
+        mesurement\ of\ k*) 
+      \[IndentingNewLine]\[IndentingNewLine]s1measured = 
+      Table[If[s2[\([a + 1]\)] \[Equal] k, 1.0, 0.0], {a, 0, q - 1}]; 
+    \[IndentingNewLine]\[IndentingNewLine] (*\ 
+      The\ first\ register\ must\ be\ renormalized\ after\ the\ measurement*) 
+      \nnorm = Apply[Plus, s1measured]; \n
+    \[IndentingNewLine]s1measured = \((1/Sqrt[norm])\)*s1measured; \)\)], 
+  "Input"],
+
+Cell[BoxData[
+    \(\( (*\ For\ next\ step\ in\ the\ algorithm, 
+      the\ first\ register\ is\ Fourier\ transformed*) \n
+    s1trans = Fourier[s1measured]; 
+    \[IndentingNewLine]\[IndentingNewLine] (*\ 
+      A\ plot\ of\ the\ probability\ distribution\ after\ the\ Fourier\ 
+        transform\ is\ created*) \nprobs = Abs[s1trans^2]; \n
+    \[IndentingNewLine]Print[
+      "\<First register: probability distribution after the Fourier transform\
+\>"]; \n\nListPlot[probs]\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ 
+      For\ a\ given\ index\ i\ from\ the\ list\ "\<probs,\>"\ all\ elements\ 
+        with\ an\ index\ less\ than\ i\ are\ added\ together\ and\ put\ into\ 
+        the\ ith\ position\ in\ "\<distrib\>"*) 
+      \[IndentingNewLine]\[IndentingNewLine]\(distrib = 
+      FoldList[Plus, 0, probs]; \)\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ 
+      This\ function\ simulates\ a\ measurement\ of\ the\ Fourier - 
+        transformed\ first\ register . It\ does\ this\ by\ first\ generating\ 
+          a\ random\ number\ between\ 0\ and\ 1, and\ then, 
+      sequentially\ finding\ the\ index\ just\ before\ the\ first\ element\ in
+        \ "\<distrib\>"\ greater\ than\ this\ random\ number . This\ index\ 
+        corresponds\ to\ a\ state\ of\ the\ quantum\ \(register . \)*) 
+      \[IndentingNewLine]\[IndentingNewLine]\(meas[rand_] := 
+      Module[{i}, i = 0; 
+        \[IndentingNewLine]While[rand > distrib[\([i + 1]\)], \(i++\)]; 
+        \[IndentingNewLine]i]; \)\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ 
+      This\ function\ generates\ a\ list\ of\ terms\ in\ the\ continued\ 
+        fraction\ expansion\ of\ a\ given\ fraction*) 
+      \[IndentingNewLine]\[IndentingNewLine]\(scf[x_, len_] := 
+      Module[{lis, a, q, y}, lis = {}; \[IndentingNewLine]y = x; 
+        \[IndentingNewLine]Do[a = Floor[y]; 
+          \[IndentingNewLine]lis = Append[lis, a]; 
+          \[IndentingNewLine]If[y \[Equal] a, Break[]]; 
+          \[IndentingNewLine]y = 1/\((y - a)\), {q, 1, len}]; 
+        \[IndentingNewLine]lis]; \)\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ Some\ initialization\ business*) 
+      \[IndentingNewLine]\[IndentingNewLine]rlist = {}; 
+    \[IndentingNewLine]\[IndentingNewLine] (*\ 
+      The\ code\ in\ this\ loop\ statement\ measures\ the\ first\ register\ 
+        and\ divides\ by\ q, \ making\ a\ fraction . \ Then, 
+      it\ calculates\ a\ convergent\ for\ this\ fraction, 
+      according\ to\ the\ criteria\ that\ the\ all\ of\ the\ terms\ in\ the\ 
+        continued\ fraction\ expansion\ are\ less\ than\ n . \ This\ code\ is
+        \ repeated\ 20\ times\ and\ periods\ r\ that\ meet\ the\ required\ 
+        criteria\ are\ \(acculmulated . \)*) \[IndentingNewLine]\n
+    Do[\[IndentingNewLine] (*\ The\ fraction*) 
+        \[IndentingNewLine]\[IndentingNewLine]f = meas[Random[]]/q; 
+      \[IndentingNewLine]\[IndentingNewLine] (*\ 
+        Calculation\ of\ the\ continued\ fraction\ expansion; \ 
+        it\ is\ assumed\ that\ only\ the\ first\ 20\ terms\ of\ the\ continued
+          \ fraction\ expansion, \ if\ there\ are\ that\ many, 
+        are\ relevant\ to\ the\ \(calculation . \)*) 
+        \[IndentingNewLine]\[IndentingNewLine]lis = scf[f, 20]; 
+      \[IndentingNewLine]\[IndentingNewLine] (*\ 
+        Calculation\ of\ of\ closest\ convergent\ "\<listconv,\>"\ in\ 
+          continued\ fraction\ form*) 
+        \[IndentingNewLine]\[IndentingNewLine]lisconv = {}; 
+      \[IndentingNewLine]\[IndentingNewLine]len = Length[lis]; 
+      \[IndentingNewLine]\[IndentingNewLine]Do[
+        \[IndentingNewLine]If[lis[\([q]\)] < n, \ , Break[]]; \ 
+        \(lisconv = Append[lisconv, lis[\([q]\)]];\)\[IndentingNewLine], {q, 
+          1, len}]; 
+      \[IndentingNewLine]\[IndentingNewLine] (*\ 
+        Calculation\ of\ the\ corresponding\ fraction\ to\ "\<listconv\>"*) 
+        \[IndentingNewLine]\[IndentingNewLine]len = Length[lisconv]; 
+      \[IndentingNewLine]f = lisconv[\([len]\)]; 
+      \[IndentingNewLine]\[IndentingNewLine]Do[
+        \[IndentingNewLine]\(f = lisconv[\([len - q]\)] + 1/f; 
+        \)\[IndentingNewLine], {q, 1, len - 1}]; 
+      \[IndentingNewLine]\[IndentingNewLine] (*\ 
+        The\ denominator\ of\ the\ fraction\ f\ is\ assumed\ to\ be\ r\ and\ 
+          tested\ for\ two\ criterion . If\ these\ conditions\ are\ met, 
+        the\ value\ of\ r\ is\ \(stored . \)*) 
+        \[IndentingNewLine]\[IndentingNewLine]r = Denominator[f]; 
+      \[IndentingNewLine]\[IndentingNewLine]\(If[
+          Mod[r, 2] \[NotEqual] 1 && PowerMod[x, r/2, n] \[NotEqual] \(-1\), 
+          rlist = Append[rlist, r]];\)\[IndentingNewLine], {20}]\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ 
+      The\ function\ "\<Union\>"\ generates\ a\ list\ "\<distinctr\>"\ of\ the
+        \ distinct\ values\ of\ r\ in\ "\<rlist.\>"*) \n
+    distinctr = Union[rlist]; \[IndentingNewLine]\n
+    Print["\<Distinct r = \>", distinctr]\)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ Finally, 
+      a\ list\ of\ potential\ factors\ is\ calculated\ from\ the\ r\ 
+        \(values . \)*) \[IndentingNewLine]FindFactors[r_] := 
+      \((a = GCD[PowerMod[x, r/2, n] + 1, n]; 
+        \[IndentingNewLine]b = GCD[PowerMod[x, r/2, n] - 1, n]; 
+        \[IndentingNewLine]{a, b})\)\[IndentingNewLine]\), 
+    \(fac = FindFactors[distinctr]; \n
+    Print["\<Possible factors = \>", fac]\)}], "Input"],
+
+Cell[BoxData[
+    \(FactorInteger[n]\)], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowSize->{633, 733},
+WindowMargins->{{Automatic, 88}, {40, Automatic}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 903, 14, 347, "Input"],
+Cell[2615, 65, 231, 5, 92, "Input"],
+Cell[2849, 72, 522, 8, 146, "Input"],
+Cell[3374, 82, 242, 4, 78, "Input"],
+Cell[3619, 88, 408, 7, 146, "Input"],
+Cell[4030, 97, 326, 6, 106, "Input"],
+Cell[4359, 105, 560, 10, 134, "Input"],
+Cell[4922, 117, 491, 9, 173, "Input"],
+Cell[5416, 128, 340, 6, 80, "Input"],
+Cell[5759, 136, 674, 11, 146, "Input"],
+Cell[6436, 149, 554, 10, 149, "Input"],
+Cell[6993, 161, 2588, 42, 667, "Input"],
+Cell[9584, 205, 272, 5, 77, "Input"],
+Cell[9859, 212, 435, 8, 103, "Input"],
+Cell[10297, 222, 49, 1, 25, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

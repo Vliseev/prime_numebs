@@ -1,0 +1,179 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3904,        138]*)
+(*NotebookOutlinePosition[      4585,        163]*)
+(*  CellTagsIndexPosition[      4541,        159]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell["\<\
+(* 
+Algorithm 2.3.9 (Square roots (mod p) via F_p^2 arithmetic).\t\t\t
+Support code for
+R. Crandall and C. Pomerance,
+\"Prime Numbers: a Computational Perspective,\"
+Springer-Verlag 2001.
+c. 2000 Perfectly Scientific, Inc.
+All Rights Reserved.
+      
+ \t30 Nov 2000 AH (slight changes, formatting)
+  \t14 Sep 2000 RT (Creation)
+*)
+
+(* Given an odd prime p and quadratic residue a modulo p, 
+  this algorithm returns a solution x to x^2=a(mod p). *)
+  \
+\>", "Input",
+  PageWidth->Infinity],
+
+Cell["\<\
+(* CODE *)
+
+(* First, we include some subroutines for the main routine. *)
+
+(* Next, perform (a + b w)^n (mod p), where pair = {a,b}, w2 = w^2. *)
+fieldpow[pair_, w2_, n_, p_] := Block[{bitlist, z},
+    bitlist = IntegerDigits[n,2];
+    z = pair;
+\tDo[\t
+\t   zi = Mod[z[[2]]^2,p];
+\t   z = {Mod[z[[1]]^2 + w2 zi, p], Mod[2 z[[1]] z[[2]], p]};   
+\t   If[bitlist[[q]] == 1,
+\t       zi = Mod[pair[[2]] z[[2]], p];
+\t   \t   z = {Mod[pair[[1]] z[[1]] + w2 zi, p],
+\t   \t         Mod[pair[[1]] z[[2]] + pair[[2]] z[[1]], p]};
+\t   ],
+\t   {q,2,Length[bitlist]}
+    ];
+    Return[z]
+];
+    
+(* Now, the main routine. *)
+sqrtmodredux[b_,p_]:=
+\tModule[{a,tst,t,x},
+    \ta = b;
+    \ttst = 1;
+    \tWhile[Not[tst == -1],
+      \t\tt=Random[Integer,{1,p-1}];
+      \t\ttst=JacobiSymbol[t^2-a,p]
+      \t];
+    \tx = fieldpow[{t,1},t^2-a, (p+1)/2, p];
+    \tIf[ Expand[x[[2]]] == 0,
+    \t\tx[[1]], 
+    \t\tPrint[\"Error: check your input.\"] 
+      \t]
+  \t]
+\t\t\
+\>", "Input",
+  PageWidth->Infinity],
+
+Cell[BoxData[
+    \(]\)], "Input"],
+
+Cell["\<\
+(* EXAMPLE *)
+
+(* First we pick a random prime.It is important that this 
+is a prime,since the Jacobi symbol does not indicate solvability 
+as the Legendre symbol does. *)
+
+Print[\"p = \",p=Prime[Random[Integer,{1,2^20}]]];
+
+
+(* Next we find an integer a that is a square (mod p). *)
+While[True,JacobiSymbol[a,p] == -1,
+\tIf[JacobiSymbol[a = Mod[Random[Integer,{1,2^10}],p],p] > -1, Break[]]
+]
+a = Mod[a,p];
+
+(* Now we find r such that r^2 = l (mod p). *)
+Print[\"r = \",r = sqrtmodredux[a,p]];
+
+(* And now,verify our solution. *)
+Print[\"a = \",a];
+Print[\"r^2 = \",Mod[r^2,p],\" (mod p).\"];\
+\>", "Input",
+  PageWidth->Infinity]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{622, 720},
+WindowMargins->{{Automatic, 128}, {-6, Automatic}},
+LineIndent->4
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 499, 18, 204, "Input"],
+Cell[2211, 69, 1008, 39, 456, "Input"],
+Cell[3222, 110, 34, 1, 24, "Input"],
+Cell[3259, 113, 641, 23, 264, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

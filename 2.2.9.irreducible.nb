@@ -1,0 +1,134 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      4018,         94]*)
+(*NotebookOutlinePosition[      4699,        119]*)
+(*  CellTagsIndexPosition[      4655,        115]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[TextData[
+"(*\n Algorithm 2.2.9 (Irreducibility test).\t\t\t\n Support code for\n R. \
+Crandall and C. Pomerance,\n \"Prime Numbers: a Computational Perspective,\"\n\
+ Springer-Verlag 2001.\n c. 2000 Perfectly Scientific, Inc.\n All Rights \
+Reserved.\n      \n   \t30 Nov 2000 AH (avoided using polynominal norm, \
+formatted)\n\t14 Sep 2000 RT (Creation)\n*)\n\n(* Given prime p and \
+polynomial f in F_p where deg(f) \[GreaterEqual] 2, this \nalgorithm \
+determines if f is irreducible over F_p (True) or not (False). \n\nRemember \
+to observe that the indeterminate of given polynomials \nmust be the global \
+'x'. Before starting, clear any existing value for x with Clear[x].\n*)\n  \t\
+"], "Input",
+  PageWidth->Infinity],
+
+Cell[BoxData[
+    \(\(\n (*\ CODE\ *) \n\n
+    polypowermod[base_, \ exp_, \ divpoly_, \ p_]\  := \ \n\t
+      Module[{bit\  = \ IntegerDigits[exp, \ 2], \ acc}, \n\t\t
+        acc\  = \ PolynomialMod[base, \ divpoly, \ Modulus -> p]; \n\t\t
+        Do[\n\t\t\t
+          acc\  = \ \ PolynomialMod[acc*acc, divpoly, \ Modulus -> \ p]; \n
+          \t\t\tIf[bit[\([q]\)]\  == \ 1, \n\t\t\t\t
+            acc\  = \ PolynomialMod[acc\ *\ base, \ divpoly, \ Modulus -> p]\n
+            \t\t\t], \n\t\t\t{q, 2, Length[bit]}\n\t\t]; \n\t\tacc\n\t]; \t\n
+    \t\t\t\t\t\t\ \ \ \t\t\n
+    irreducibleQ[p_, f_] := 
+      Module[{g, i, d, k}, \n\t\tg\  = \ x; \n\t\tk = Exponent[f, x]; \n\t\t
+        For[i = 1, i <= Floor[k/2], \(i++\), \n\t\t\t
+          g\  = \ polypowermod[g, \ p, \ f, \ p]; 
+          \ \  (*\ g\  := \ g^p\ mod\ \(f . \)\ *) \n\t\t\t
+          d = PolynomialGCD[f, Expand[g - x], Modulus \[Rule] p]; \n\t\t\t
+          If[\((Exponent[d, x]\  != 0)\), \n\t\t\t\t\(Return[False]; \)\n
+            \t\t\t\t]; \n\t\t\t]; \n\t\tReturn[True]; \n\t\t]; \n\)\)], 
+  "Input"],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ *) \n
+    \n (*\ We\ pick\ a\ prime\ p\ and\ a\ degree\ k, \ 
+      generate\ a\ random\ polynomial\ of\ degree\ k\ and\ check\ its\ 
+        irreducibility\ in\ F_p . \ \ We\ then\ attempt\ to\ factor\ said\ 
+        \(polynomial . \)\ *) \n\np = Prime[Random[Integer, {1, 20}]]\), 
+    \(k = Random[Integer, {2, 7}]\), 
+    \(f = Sum[Random[Integer, p - 1]\ x^i, {i, 0, k}]\), 
+    \(irreducibleQ[p, f]\), 
+    \(Factor[f, Modulus -> p]\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{662, 672},
+WindowMargins->{{Automatic, 87}, {-10, Automatic}},
+LineIndent->3
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 732, 11, 252, "Input"],
+Cell[2444, 62, 1080, 19, 401, "Input"],
+Cell[3527, 83, 487, 9, 162, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

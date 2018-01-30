@@ -1,0 +1,134 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      4006,         94]*)
+(*NotebookOutlinePosition[      4686,        119]*)
+(*  CellTagsIndexPosition[      4642,        115]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 9.6  .7\ 
+        \((Evaluation\ of\ polynomial\ at\ arbitrary\ points)\) . \t\t\t\n\ 
+          Support\ code\ for\n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2000. \t\t\t\n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\ \n\t11\ Dec\ 2000\ AH\ 
+        \((Formatting)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n\ *) \n
+    \n (*\ Given\ a\ polynomial\ x \((t)\)\ of\ degree\ dc - 
+        1\ where\ dc\ is\ a\ power\ of\ \n2, \ 
+      a\ list\ {a_  1, a_  2,  ... , a_ \((dc - 1)\)}\ of\ evaluation\ points
+        \ and\ a\ \nbreakover\ value, 
+      this\ routines\ returns\ the\ list\ of\ x \((a_i)\), \ i = 0,  .. , 
+      dc - 1. \n\t < \ 
+        Remember\ to\ use\ t\ as\ the\ indeterminate\ in\ \(xpoly . \)\  > 
+        \n*) \n\t\t\t\t\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n\n
+    \(geneval[xpoly_, pts_, brkovr_] := \[IndentingNewLine]\t
+      Module[{dc, dl, xcofs, u, v, w, z, a, b}, \n\t\t
+        dc = Exponent[xpoly, t] + 1; \n\t\tdl = Length[pts]; \n\t\t
+        If[dl <= brkovr, \n\t\t\tTable[xpoly /. t -> pts[[j]], {j, 1, dl}]\n
+          \t\t\t, \n\t\t\tu = Take[pts, dl/2]; \n\t\t\t
+          v = Take[pts, \(-dl\)/2]; \n\t\t\t
+          w = Product[\((t - u[[m + 1]])\), {m, 0, dl/2 - 1}]; \n\t\t\t
+          z = Product[\((t - v[[m + 1]])\), {m, 0, dl/2 - 1}]; \n\t\t\t
+          a = PolynomialMod[xpoly, w]; \n\t\t\tb = PolynomialMod[xpoly, z]; \n
+          \t\t\tJoin[geneval[a, u, brkovr], geneval[b, v, brkovr]]\n\t\t]\n
+        \t]; \)\)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ *) \n
+    \n (*\ First, \ 
+      we\ generate\ an\ arbitrary\ list\ of\ degree \((x \((t)\))\)\ 
+        \(points . \)\ *) \n\nxdeg = 2^Random[Integer, {2, 7}] - 1; \n\n
+    xpoly = Sum[Random[Integer, {\(-200\), 200}]*t^i, {i, 0, xdeg - 1}] + \n
+        \t\t\tRandom[Integer, {1, 200}]*t^xdeg\n\), 
+    \(b\  = \ 15; \n\n
+    A = Table[Random[Integer, {\(-2^b\), 2^b}], {i, 0, xdeg}]\n (*\ 
+      Evaluate\ at\ these\ points\ via\ the\ algorithm\ and\ compare\ \nwith\ 
+        an\ explicit\ \(evaluation . \)\ *) \n\), 
+    \(geneval[xpoly, A, 5] - ReplaceAll[xpoly, t -> A]\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{749, 753},
+WindowMargins->{{Automatic, 37}, {Automatic, 288}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 929, 16, 269, "Input"],
+Cell[2641, 67, 733, 12, 254, "Input"],
+Cell[3377, 81, 625, 11, 227, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

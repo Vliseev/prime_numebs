@@ -1,0 +1,97 @@
+PRIMEKIT
+
+   A support-code collection for the textbook
+
+  "Prime numbers: A computational perspective,"
+        by R. Crandall and C. Pomerance,
+        Springer-Verlag 2001, New York.
+
+
+Code (Mathematica and C source):
+c. 2000 Perfectly Scientific
+________________________________________________________
+
+OVERVIEW
+
+PrimeKit is a collection of 112 (one hundred twelve)
+algorithms.  The aforementioned textbook by Crandall and Pomerance
+has this exact number---112---of pseudocode displays.
+
+The 112 programs in Mathematica were created by various
+authors: Student interns, professors, programming experts (not
+to imply these affiliations have no intersection!); some of
+whom were given advance drafts of the textbook and challenged
+in regard to implementation of the (sometimes tough) algorithms.  
+The Mathematica renditions herein therefore have a nonuniform flavor,
+sometimes for good reason; experts, as we all are aware, differ
+in style, design, intent, etc.
+
+NOTEBOOK STRUCTURE
+
+A typical title for a Notebook is:
+
+ 9.5.6.pingpongfft.nb -- Corresponds to Algorithm 9.5.6 of textbook
+
+Generally, any one of the 112 Mathematica Notebooks has the structure:
+
+(* CODE *)
+(* Herein is the set of necessary functions and definitions. *)
+
+(* EXAMPLE *)
+(* Herein is an example of teh workings of the algorithm. *)
+
+One expects to evaluate CODE then evaluate EXAMPLE, in that order.
+
+PEDAGOGY & PROTOTYPING 
+
+We stress that one cannot expect any particular implementations herein to be state-of-the-art as regards performance (speed).  For example, the factoring algorithms (QS, ECM, NFS) are not supposed to be fast.  They are tutorial, pedagogical creations, in the same
+spirit as the flow of the textbook's pseudocode.  We are
+of the strong belief that one of the strongest applications of
+Mathematica is in the "prototyping" of algorithms.  Thus for
+example, one might use the QS factoring implementation
+herein, as a protype (model) for an eventual, fast,
+C program.
+
+Because of the pedagogical design of the 112 Mathematica
+sources, we have inserted an "Extras" directory in this
+release.  "Extras" contains C sources, along with some
+specially-written Mathmatics variants of textbook theorems/
+algorithms.
+
+LIBRARIES?
+
+After considerable deliberation, the designing team of the present
+collection elected not to construct loadable modules or library
+Notebooks.  There are pros and cons to this.  A drawback is, when
+you need the square-root-modulo-p algorithm implementated within
+some larger algorithm, the square-rooting part is simply listed out all over again in the larger algorithm.  That is a "con," and admittedly makes for longer sources, plus this adds to the consternation of users (or the PSI team) who wish to update a function and therefore need to update in nonintegrated, multiple places.
+
+On the other hand there is a big "pro," namely, because of the
+abject absence of custom libraries/modules, every source
+stands entirely on its own.  (Caveat: In a few instances, standard Mathematica libraries are invoked, such as NumberTheoryFunctions---however the aspiring programmer can easily dispense with these calls by doing some fairly simple side-coding, as nothing more sophisticated than ContinuedFraction[] and ChineseRemainderTheorem[] functions are involved.) 
+
+Perhaps the best "pro" is that If two users exchange a PrimeKit source over email, they do not need to attach any accompanying PSI libraries, for there are no such libraries in this design, is the point. We should add that another "pro" is historical: It is in some ways easier to integrate a team programming effort (after all, we are talking about
+112 separate programs here) if there are no constantly
+evolving libraries.  What we did instead was to take the "fundamental" algorithms---mainly from earlier chapters of the
+textbook, and paste these into larger implementations.
+
+In any case, there is nothing preventing the aspiring algorithm implementor from creating a sleek, efficient library structure out of
+the various functions that the PSI team has literally pasted
+into the longer programs.
+
+FUTURE UPDATES
+
+PrimeKit will need updates frequently, as users do three important
+things:
+
+1) Find bugs, either in code or in textbook,
+2) Improve/replace a given source with a superior rendition
+3) Create new examples relevant to textbook Exercises/concepts.
+
+Perfectly Scientific, Inc. will be announcing a liberal
+update policy, as well as a reward system for customer improvements
+and creations (2), (3), respectively.
+
+________________________________________________________ 
+END
+ 

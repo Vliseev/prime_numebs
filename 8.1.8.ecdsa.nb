@@ -1,0 +1,256 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[     11011,        216]*)
+(*NotebookOutlinePosition[     11668,        240]*)
+(*  CellTagsIndexPosition[     11624,        236]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 8.1  .8\ 
+        \((Elliptic\ curve\ digital\ signature\ algorithm\ \((ECDSA)\))\) . 
+          \t\t\t\n\ Support\ code\ for\n\ R . \ Crandall\ and\ 
+        C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\t\n\t10\ Dec\ 2000\ AH\ 
+        \((Formatting)\)\n\t28\ Sep\ 2000\ RT\ \((Changed\ presentation)\)\t\n
+        \t14\ Sep\ 2000\ RT\ \((Creation)\)\[IndentingNewLine]\n\ *) 
+      \[IndentingNewLine]\[IndentingNewLine] (*\ 
+      This\ algorithm\ provides\ functions\ for\ key\ generation, \ signing, 
+      \ \nand\ verification\ of\ messages . \ \ A\ message\ is\ generally\ 
+        denoted\ \nby\ M, \ an\ integer, \ 
+      and\ it\ is\ assumed\ that\ a\ suitable\ has\ function\ \nh\ is\ in\ 
+        \(hand . \)\ *) \n\)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ CODE\ *) \n
+    Off[General::spell, \ General::spell1]\[IndentingNewLine] (*\ 
+      We\ include\ algorithm\ 7.2  .2\ for\ performing\ elliptic\ arithmetic\ 
+        \nand\ algorithm\ 7.2  .1\ for\ finding\ random\ points\ on\ a\ given
+        \ elliptic\ \n\(curve . \)\ *) \n
+    \n (*\ First, \ 
+      a\ function\ that\ negates\ a\ point\ pt\ on\ an\ elliptic\ 
+        \(curve . \)\ *) \), 
+    \(\n\n\(ellneg[pt_]\  := \ Mod[pt\ *\ {1, \(-1\), \ 1}, \ p]; \)\n
+    \n (*\ Next, \ elliptic\ subtraction\ pt1 - \(pt2 . \)\ *) \), 
+    \(\n\n\(ellsub[pt1_, \ pt2_]\  := \ elladd[pt1, \ ellneg[pt2]]; \)\n
+    \n (*\ Next, \ the\ double\ of\ a\ \(point . \)\ *) \), 
+    \(\n\n\(elldouble[pt_]\  := \ elladd[pt, pt]; \)\n
+    \n (*\ Next, \ elliptic\ addition\ pt1 + \(pt2 . \)\ *) \), 
+    \(\n\nelladd[pt1_, \ pt2_]\  := \ \n\t
+      Block[{x1, y1, x2, y2, x3, y3, m}, \n\t\t
+        If[pt1[[3]]\  == \ 0, \ Return[pt2]]; \n\t\t
+        If[pt2[[3]]\  == \ 0, \ Return[pt1]]; \n\t\tx1\  = \ pt1[[1]]; \ 
+        y1\  = \ pt1[[2]]; \n\t\tx2\  = \ pt2[[1]]; \ y2\  = \ pt2[[2]]; \n
+        \t\tIf[x1\  == \ x2, \ \n\t\t\t
+          If[Mod[y1 + y2, p] == 0, \ Return[{1, 1, 0}]]; \n\t\t\t
+          m\  = \ Mod[\((3\ x1^2\  + \ a)\)\ *\ PowerMod[2  y1, \(-1\), p], \ 
+              p], \n\t\t\t
+          m\  = \ Mod[\((y2 - y1)\)\ PowerMod[x2 - x1, \(-1\), p], p]\n\t\t]; 
+        \n\t\tx3\  = \ Mod[m^2\  - \ x1\  - \ x2, p]; \n\t\t
+        y3\  = \ Mod[m \((x1 - x3)\)\  - \ y1, \ p]; \n\t\t
+        Return[{x3, y3, 1}]\n\t]; \n\ \ 
+    \n (*\ Next, \ elliptic - multiply\ a\ point\ pt\ by\ \(k . \)\ *) \n\n\n
+    elliptic[pt_, \ k_]\  := \ \n\t
+      Block[{hh, \ kk, pt2, \ lenh, \ lenk, \ hb, \ kb}, \n\t\t
+        If[k == 0, \ Return[{1, 1, 0}]]; \n\t\t
+        hh\  = \ Reverse[IntegerDigits[3  k, 2]]; \n\t\t
+        kk\  = \ Reverse[IntegerDigits[k, 2]]; \n\t\tpt2\  = \ pt; \n\t\t
+        lenh\  = \ Length[hh]; \n\t\tlenk\  = \ Length[kk]; \n\t\t
+        Do[\n\t\t\tpt2\  = \ elldouble[pt2]; \n\t\t\thb\  = \ hh[[b]]; \n
+          \t\t\tIf[b\  <= \ lenk, \ kb\  = \ kk[[b]], \ kb\  = \ 0]; \n\t\t\t
+          If[{hb, kb}\  == \ {1, 0}, \n\t\t\t\tpt2\  = \ elladd[pt2, \ pt]\n
+            \t\t\t\t, \n\t\t\t\t
+            If[{hb, \ kb}\  == \ {0, 1}, \n\t\t\t\t
+              pt2\  = \ ellsub[pt2, \ pt]]\n\t\t]\n
+          \t\ \ \ , {b, \ lenh - 1, \ 2, \(-1\)}\n\t\ ]; \n\tReturn[pt2]\n]; 
+    \n\n (*\ Next, \ 
+      we\ include\ algorithm\ 2.3  .8\ for\ finding\ square\ roots\ \nmodulo\ 
+        a\ prime\ p, \ 
+      to\ be\ used\ in\ the\ random\ point\ finding\ \(routine . \)\ *) \n\n\n
+    \nsqrtmod[b_, p_] := \n\t
+      Module[{a, x, c, tst, d, cd, t, m}, \n\t\ta = Mod[b, p]; \n\t\t
+        If[MemberQ[{3, 7}, Mod[p, 8]], \n\t\t\t
+          x = Mod[a^\((\ \((p + 1)\)/4)\), p]\n\t\t]; \n\t\t
+        If[Mod[p, 8] == 5, \n\t\t\tx = Mod[a^\((\((p + 3)\)/8)\), p]; \n\t\t\t
+          c = Mod[x^2, p]; \n\t\t\t
+          If[Not[c == Mod[a, p]], \n\t\t\t\t
+            x = Mod[x\ 2^\((\((p - 1)\)/4)\), p]\n\t\t\t]\n\t\t]; \n\t\t
+        If[1 == Mod[p, 8], \n\t\t\ttst = 1; \n\t\t\t
+          While[Not[tst == \(-1\)], \n\t\t\t\td = Random[Integer, {1, p}]; \n
+            \t\t\t\ttst = JacobiSymbol[d, p]; \n\t\t\t]; \n\t\t\tt = p - 1; \n
+          \t\t\tWhile[EvenQ[t], \n\t\t\t\t\(t = t/2; \)\n\t\t\t]; \n\t\t\t
+          s = Log[2, \((p - 1)\)/t]; \n\t\t\tca = Mod[a^t, p]; \n\t\t\t
+          cd = Mod[d^t, p]; \n\t\t\tm = 0; \n\t\t\t
+          For[i = 0, i <= s - 1, i = i + 1, \n\t\t\t\t
+            \(If[Mod[\((ca\ cd^m)\)^\((2^\((s - 1 - i)\))\), p] == 
+                Mod[\(-1\), p], \n\t\t\t\t\t\(m = m + 2^i; \)\n\t\t\t\t]; \)\n
+            \t\t\t]; \n\t\t\tx = Mod[a^\((\((t + 1)\)/2)\)\ cd^\((m/2)\), p]; 
+          \ \n\t\t]; \ \n\t\tx\ \ \n\t]; \n
+    \n (*\ Next, \ the\ point\ \(finder . \)\ *) \n\n
+    pointFinder[a_, b_, p_] := \n\t
+      Module[{t, x}, \n\t\tLabel[loop]; \n\t\tx = Random[Integer, p - 1]; \n
+        \t\tt = Mod[\((x \((x^2 + a)\) + b)\), p]; \n\t\t
+        If[JacobiSymbol[t, p] == \(-1\), \ Goto[loop]]; \n
+        \t\t{x\ , sqrtmod[t, p]}\n\t]; 
+    \[IndentingNewLine]\[IndentingNewLine] (*\ Next, \ Algorithm\ 8.1  .7, \ 
+      to\ be\ used\ in\ the\ main\ \(routine . \)\ *) \n\n\n
+    primeordpnt[f_] := \n\t
+      Block[{P, Q}, \n\t\tLabel[Start]; \n\t\t
+        P = Append[pointFinder[a, b, p], 1]; \n\t\tQ = elliptic[P, f]; \n\t\t
+        If[Q[[3]] == 0, \ Goto[Start]]; \n\t\tQ\n\t]; \)}], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ Now, \ 
+      the\ main\ routine . \ It\ is\ divided\ up\ into\ two\ blocks; \ 
+      one\ \nfor\ Alice' s\ key\ generation\ and\ signing, \ 
+      and\ another\ for\ Bob' s\ \n\(verification . \)\ *) 
+      \[IndentingNewLine]\[IndentingNewLine]AliceKeySign[M_] := \n\t
+      Block[{p, a, b, order, r, P, d, Q, k, S, R, s}, 
+        \[IndentingNewLine]\t\t (*\ First, \ 
+          Alice\ picks\ a\ curve\ and\ generates\ the\ desired\ \n\t\t
+            \(point . \)\ *) \[IndentingNewLine]\t\t
+        While[True, \[IndentingNewLine]\t\t\t
+          p = Prime[Random[Integer, {300, 50}]]; \[IndentingNewLine]\t\t\t
+          For[a = 0; \(b = 0; \), Mod[4\ a^3 + 27\ b^2, p] == 0, 
+            \[IndentingNewLine]\t\t\t\ta = Random[Integer, {0, p - 1}]; 
+            \[IndentingNewLine]\t\t\t\tb = Random[Integer, {0, p - 1}]; 
+            \[IndentingNewLine]\t\t\t]; \[IndentingNewLine]\t\t\t
+          order = p + 1 + 
+              Sum[JacobiSymbol[x^3 + a\ x + b, p], {x, 0, p - 1}]; 
+          \[IndentingNewLine]\t\t\tr = \(Last[FactorInteger[order]]\)[[1]]; 
+          \[IndentingNewLine]\t\t\t (*\ 
+            We\ choose\ here\ "\<large\>"\ to\ be\  > \ 300, \ 
+            as\ is\ practical\ \n\t\t\tfor\ this\ demonstrative\ 
+              \(implemention . \)\ *) \[IndentingNewLine]\t\t\t
+          If[r > 300, \[IndentingNewLine]\t\t\t\t
+            Break[]\[IndentingNewLine]\t\t\t]\[IndentingNewLine]\t\t]; 
+        \[IndentingNewLine]\t\t (*\ Next, \ 
+          Alice\ generates\ her\ \(key . \)\ *) \[IndentingNewLine]\t\t
+        P = primeordpnt[order/r]; \[IndentingNewLine]\t\t
+        d = Random[Integer, {2, r - 2}]; \[IndentingNewLine]\t\t
+        Q = elliptic[P, d]; 
+        \[IndentingNewLine]\t\t (*\ Next, \ Alice\ \(signs . \)\ *) 
+          \[IndentingNewLine]\t\tLabel[AliceSigns]; \[IndentingNewLine]\t\t
+        k = Random[Integer, {2, r - 2}]; \[IndentingNewLine]\t\t
+        S = elliptic[P, k]; \[IndentingNewLine]\t\tR = Mod[S[[1]], r]; 
+        \[IndentingNewLine]\t\t
+        s = Mod[PowerMod[k, \(-1\), r]\ \((M + R\ d)\), r]; 
+        \[IndentingNewLine]\t\t
+        If[s == 0, \[IndentingNewLine]\t\t\t
+          Goto[AliceSigns]\[IndentingNewLine]\t\t]; 
+        \[IndentingNewLine]\t\t (*\ Next, \ 
+          return\ {public\ key, signature}\ \(simultaneously . \)\ *) 
+          \[IndentingNewLine]\t\t{{P, r, Q}, {M, R, s}}
+          \[IndentingNewLine]\t]; \[IndentingNewLine]\n\[IndentingNewLine]\n
+    BobVerifies[pubkey_, sig_] := \n\t
+      Block[{M, R, s, P, r, Q, w, u1, u2, S, v}, 
+        \[IndentingNewLine]\t\t{M, R, s} = sig; \ \ 
+        \[IndentingNewLine]\t\t{P, r, Q} = pubkey; \[IndentingNewLine]\t\t
+        w = PowerMod[s, \(-1\), r]; \[IndentingNewLine]\t\tu1 = Mod[M\ w, r]; 
+        \[IndentingNewLine]\t\tu2 = Mod[R\ w, r]; \[IndentingNewLine]\t\t
+        S = elladd[elliptic[P, u1], elliptic[Q, u2]]; \ \ 
+        \[IndentingNewLine]\t\tv = Mod[S[[1]], r]; \[IndentingNewLine]\t\t
+        If[v == R, \[IndentingNewLine]\t\t\t
+          \(Print["\<Bob accepts signature.\>"]; \)\[IndentingNewLine]\t\t\t, 
+          \[IndentingNewLine]\t\t\t
+          Print["\<Bob rejects signature.\>"]\[IndentingNewLine]\t\t]
+          \[IndentingNewLine]\t]; 
+    \[IndentingNewLine]\[IndentingNewLine]\)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ *) \ \n
+    \n (*\ We\ pick\ a\ random\ message, \ 
+      give\ it\ to\ Alice\ to\ be\ signed, \ 
+      then\ \ngive\ Bob\ the\ signature\ to\ be\ verified . \ \ We\ then\ 
+        change\ the\ signature\ \njust\ a\ little\ and\ see\ if\ Bob\ still\ 
+        accepts\ \(it . \)\ *) \n
+    \[IndentingNewLine]message = Random[Integer, 300]\n\), 
+    \({pubkey, sig} = AliceKeySign[message]\n\), 
+    \(BobVerifies[pubkey, sig]\n\), 
+    \(sig[[3]] += 1; \n\[IndentingNewLine]BobVerifies[pubkey, sig]\)}], 
+  "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{827, 690},
+WindowMargins->{{70, Automatic}, {Automatic, -7}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 945, 16, 283, "Input"],
+Cell[2657, 67, 4494, 76, 1766, "Input"],
+Cell[7154, 145, 3300, 56, 795, "Input"],
+Cell[10457, 203, 550, 11, 214, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

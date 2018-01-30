@@ -1,0 +1,159 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      4723,        120]*)
+(*NotebookOutlinePosition[      5388,        144]*)
+(*  CellTagsIndexPosition[      5344,        140]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell["\<\
+(*
+Algorithm 3.4.13 (Miller primality test).\t\t\t
+Support code for
+R. Crandall and C. Pomerance,
+\"Prime Numbers: a Computational Perspective,\"
+Springer-Verlag 2001.
+c. 2000 Perfectly Scientific, Inc.
+All Rights Reserved.
+\t
+\t03 Dec 2000 AH (
+\t14 Sep 2000 RT (Creation)
+*)
+
+(* We are given an odd number n>1.  This algorithm decides if n is 
+prime (YES) or composite (NO). *)
+\
+\>", "Input",
+  PageWidth->Infinity,
+  LineIndent->0],
+
+Cell[BoxData[{
+    \( (*\ CODE\ *) \n
+    \[IndentingNewLine] (*\ First, \ we\ include\ algorithm\ 3.4  .2, 
+      with\ output\ slightly\ modified\ \[IndentingNewLine]for\ convenient\ 
+        use\ in\ the\ main\ \(routine . \)\ *) \n
+    \[IndentingNewLine]strongprobprime[s_, t_, a_] := \ \[IndentingNewLine]\t
+      Module[{n, b, j}, \[IndentingNewLine]\t\tn = 1 + t*2^s; 
+        \[IndentingNewLine]\t\tb\  = \ PowerMod[a, t, n]; 
+        \[IndentingNewLine]\t\t
+        If[Or[b \[Equal] 1, b \[Equal] n - 1], \ \[IndentingNewLine]\t\t\t
+          Return[True]\[IndentingNewLine]\t\t]; \[IndentingNewLine]\t\t
+        j\  = 1; \[IndentingNewLine]\t\t
+        While[j < s, \[IndentingNewLine]\t\t\t\(j++\); 
+          \[IndentingNewLine]\t\t\tb\  = \ Mod[b^2, n]; 
+          \[IndentingNewLine]\t\t\t
+          If[b == n - 1, \[IndentingNewLine]\t\t\t\t
+            Return[True]\[IndentingNewLine]\t\t\t]\[IndentingNewLine]\t\t]; 
+        \[IndentingNewLine]\t\tReturn[False]\[IndentingNewLine]\t]\n
+    \[IndentingNewLine] (*\ Next, \ the\ main\ \(routine . \)\ *) \n\), 
+    \(millerstest[n_]\  := \ \[IndentingNewLine]\t
+      Module[{W, t, s, \ a}, 
+        \[IndentingNewLine]\t\t (*\ Set\ the\ witness\ bound\ *) 
+          \[IndentingNewLine]\t\tW = Min[2\ Log[n]^2, n - 1]; 
+        \[IndentingNewLine]\t\tt = n - 1; \[IndentingNewLine]\t\t
+        While[EvenQ[t], \ t = t/2]; \[IndentingNewLine]\t\t
+        s = Log[2, \((n - 1)\)/t]; 
+        \[IndentingNewLine]\t\t (*\ Strong\ probable\ prime\ \(tests . \)\ *) 
+          \[IndentingNewLine]\t\t
+        For[a = 2, a\  <= \ W, \(a++\), \[IndentingNewLine]\t\t\t
+          If[Not[strongprobprime[s, t, a]], \[IndentingNewLine]\t\t\t\t
+            Return["\<NO\>"]\[IndentingNewLine]\t\t\t]
+            \[IndentingNewLine]\t\t]; \[IndentingNewLine]\t\t
+        Return["\<YES\>"]\[IndentingNewLine]\t]\)}], "Input",
+  PageWidth->Infinity,
+  LineIndent->0],
+
+Cell[BoxData[
+    \(\(\[IndentingNewLine] (*\ EXAMPLE\ *) \n
+    \[IndentingNewLine] (*\ 
+      We\ compare\ the\ Miller\ test\ with\ M' ca' s\ PrimeQ\ for\ a\ random\ 
+        list\ \[IndentingNewLine]of\ \(integers . \)\ *) 
+      \[IndentingNewLine]Do[\[IndentingNewLine]\t
+      n = Random[Integer, {2, 2^30}]; \[IndentingNewLine]\t
+      If[EvenQ[n], \(n++\)]; \[IndentingNewLine]\tPrint["\<n = \>", n]; 
+      \[IndentingNewLine]\tPrint[millerstest[2^20 + 1]]; \[IndentingNewLine]\t
+      Print[PrimeQ[n]]\[IndentingNewLine]\t, 
+      \[IndentingNewLine]\t{10}\[IndentingNewLine]]\)\)], "Input",
+  PageWidth->Infinity,
+  LineIndent->0]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{783, 522},
+WindowMargins->{{Automatic, 11}, {Automatic, -1}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 445, 19, 204, "Input"],
+Cell[2157, 70, 1918, 34, 541, "Input"],
+Cell[4078, 106, 641, 12, 196, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

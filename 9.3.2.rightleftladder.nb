@@ -1,0 +1,119 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3047,         79]*)
+(*NotebookOutlinePosition[      3734,        104]*)
+(*  CellTagsIndexPosition[      3690,        100]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 9.3  .2\ 
+        \((Binary\ ladder\ exponentiation\ \((right - left\ form)\))\) . 
+          \t\t\t\n\ Support\ code\ for\n\ R . \ Crandall\ and\ 
+        C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\ \n\t10\ Dec\ 2000\ AH\ 
+        \((Formatting)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n*) \n
+    \n (*\ This\ algorithm\ computes\ \(x^y . \)\ *) \n\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n\n
+    \(RightLeft[x_, y_] := \n\t
+      Module[{z, ybinary, cd, k, a}, \n\t\tz = x; \n\t\ta = 1; \n\t\t
+        ybinary = Reverse[IntegerDigits[y, 2]]; \n\t\t
+        cd\  = \ Length[ybinary]; \n\t\t
+        For[k = 0, k < cd - 1, \(k++\), \n\t\t\t
+          If[ybinary[[k + 1]] == 1, \n\t\t\t\ta = z\ a\n\t\t\t]; \n\t\t\t
+          z = z^2\n\t\t]; \n\t\ta\ z\n\t]; \)\)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ *) \n
+    \[IndentingNewLine] (*\ We\ choose\ random\ integers\ x, y, \ 
+      compute\ x^y\ via\ the\ binary\ ladder\ \nand\ verify\ our\ 
+        \(result . \)\ *) \n\[IndentingNewLine]x = Random[Integer, {1, 500}]; 
+    \ny = Random[Integer, {1, 20}]; \n\nRightLeft[x, y]\n\), 
+    \(x^y\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{776, 518},
+WindowMargins->{{Automatic, 19}, {70, Automatic}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 567, 10, 215, "Input"],
+Cell[2279, 61, 422, 8, 224, "Input"],
+Cell[2704, 71, 339, 6, 160, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

@@ -1,0 +1,133 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3314,         93]*)
+(*NotebookOutlinePosition[      4000,        118]*)
+(*  CellTagsIndexPosition[      3956,        114]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell["\<\
+(*
+ Algorithm 3.5.7 (Lucas chain).\t\t\t
+ Support code for
+ R. Crandall and C. Pomerance,
+ \"Prime Numbers: a Computational Perspective,\"
+ Springer-Verlag 2001.
+ c. 2000 Perfectly Scientific, Inc.
+ All Rights Reserved.
+\t
+\t1  Dec 2000 AH (small changes)
+\t14 Sep 2000 RT (Creation)
+*)
+
+(* In a semigroup with operation * we are to compute the pair 
+(x^n,x^(n+1)) given the semigroup element x, the positive integer 
+n and the binary bits of n.  At each step in the for-loop in the 
+algorithm we have u=x^a v=x^(a+1) for some non-negative integer a. *)
+\
+\>", "Input",
+  PageWidth->Infinity],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n
+    \[IndentingNewLine]lucas[x_, n_] := 
+      \[IndentingNewLine]Module[{bn, u, v, cb, j}, 
+        \[IndentingNewLine]bn\  = \ Reverse[IntegerDigits[n, 2]]; 
+        \[IndentingNewLine]u = 1; \[IndentingNewLine]v = x; 
+        \[IndentingNewLine]cb\  = \ Length[bn]; 
+        \[IndentingNewLine]For[j = cb - 1, j >= 0, \(j--\), \ 
+          \[IndentingNewLine]Print[{u, v}]; 
+          \[IndentingNewLine]If[bn[\([j + 1]\)] == 1, 
+            \[IndentingNewLine]{u, v} = {u*v, v*v}\[IndentingNewLine], 
+            \[IndentingNewLine]{u, v} = {u*u, u*v}\[IndentingNewLine]]
+            \[IndentingNewLine]]; \[IndentingNewLine]{u, v}\n\t]\)\)], "Input",\
+
+  LineIndent->3],
+
+Cell[BoxData[
+    \(\( (*\ EXAMPLE\ *) \n\nPrint["\<x = \>", x\  = \ Random[Integer, 30]]; 
+    \n\nPrint["\<n = \>", n\  = \ Random[Integer, 40]]; \n\n
+    Print[lucas[x, n]]; \n (*\ Check\ the\ \(answer . \)\ *) \n\n
+    Print["\<Check: \>", {x^n, x^\((n + 1)\)}]\)\)], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{663, 643},
+WindowMargins->{{36, Automatic}, {Automatic, 0}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 602, 20, 228, "Input"],
+Cell[2314, 71, 713, 14, 250, "Input"],
+Cell[3030, 87, 280, 4, 143, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

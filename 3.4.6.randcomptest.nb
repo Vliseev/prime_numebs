@@ -1,0 +1,136 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3600,         97]*)
+(*NotebookOutlinePosition[      4266,        121]*)
+(*  CellTagsIndexPosition[      4222,        117]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell["\<\
+(*
+ Algorithm 3.4.6 (Random compositeness test).\t\t\t
+ Support code for
+ R. Crandall and C. Pomerance,
+ \"Prime Numbers: a Computational Perspective,\"
+ Springer-Verlag 2001.
+ c. 2000 Perfectly Scientific, Inc.
+ All Rights Reserved.
+ 
+ \t1  Dec 2000 AH (adjusted layout;small program corrections)
+ \t14 Sep 2000 RT (Creation)
+ \t
+ *)
+
+(* Given an odd number n>3, this probabilistic algorithm attempts to 
+find a witness of n and thus prove that n is composite.  If a is a 
+witness (a, YES) is returned, otherwise (a, NO) is returned. *)\
+\>", "Input",
+  LineBreakWithin->False,
+  LineIndent->0],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n\n
+    \(compositenesstest[n_] := \[IndentingNewLine]\t
+      Module[{t, s, a, b, outp}, \[IndentingNewLine]\t\tt = n - 1; 
+        \[IndentingNewLine]\t\tWhile[EvenQ[t], t = t/2\ ]; 
+        \[IndentingNewLine]\t\ts = Log[2, \((n - 1)\)/t]; 
+        \[IndentingNewLine]\t\ta = Random[Integer, {2, n - 2}]; 
+        \[IndentingNewLine]\t\tb = Mod[a^t, n]; \[IndentingNewLine]\t\t
+        outp = {a, "\<YES\>"}; \[IndentingNewLine]\t\t
+        If[b == Mod[\(-1\), n]\  || \ b == Mod[1, n], \n\t\t\t
+          outp = {a, "\<No\>"}\[IndentingNewLine]\t\t]; 
+        \[IndentingNewLine]\t\tj = 1; \[IndentingNewLine]\t\t
+        While[j < s, \ \[IndentingNewLine]\t\t\t\(j++\); 
+          \[IndentingNewLine]\t\t\tb = Mod[b^2, n]; \n\t\t\t
+          If[b == Mod[\(-1\), n], \[IndentingNewLine]\t\t\t\t
+            outp = {a, "\<No\>"}\n\t\t\t]\n\t\t]; \n\t\toutp\n\t]; \)\n\)\)], 
+  "Input"],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ *) \n
+    \n (*\ We\ apply\ the\ compositeness\ test\ to\ a\ random\ integer, \ 
+      then\ \[IndentingNewLine]verify\ our\ \(answer . \)\ *) \n\n
+    If[EvenQ[n\  = \ Random[Integer, {3, 2^13 - 1}]], \(n++\); n, n]\), 
+    \(result = compositenesstest[n]\), 
+    \(PowerMod[result[\([1]\)], n - 1, n]\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{851, 664},
+WindowMargins->{{Automatic, -58}, {23, Automatic}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 605, 20, 216, "Input"],
+Cell[2317, 71, 925, 16, 334, "Input"],
+Cell[3245, 89, 351, 6, 119, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

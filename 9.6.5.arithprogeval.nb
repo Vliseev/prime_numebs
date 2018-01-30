@@ -1,0 +1,142 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      4437,        102]*)
+(*NotebookOutlinePosition[      5118,        127]*)
+(*  CellTagsIndexPosition[      5074,        123]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 9.6  .5\ 
+        \((Evaluation\ of\ polynomial\ on\ arithmetic\ progression)\) . \t\t\t
+          \n\ Support\ code\ for\n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\ \n\t11\ Dec\ 2000\ AU\ 
+        \((Formatting)\)\n\t12\ Oct\ 2000\ RT\ \((Revised\ form)\)\n\t14\ Sep
+        \ 2000\ RT\ \((Creation)\)\n*) \n
+    \n (*\ Given\ a\ polynomial\ x\ of\ degree\ d\ with\ coefficients\ x_j, \ 
+      a\ number\ a, \ \nan\ integer\ n\ and\ an\ increment\ del, \ 
+      this\ algorithm\ returns\ the\ n\ \nevaluations\ x \((a)\), 
+      x \((a + del)\),  ... , x \(\((a + \((n - 1)\) del)\) . \)\ *) \n\)\)], 
+  "Input"],
+
+Cell[BoxData[{
+    \( (*\ CODE\ *) \n\nClear[t]\  (*\ Indeterminate\ for\ polynomials\ *) \n
+    \), 
+    \(\(arithprogeval[poly_, a_, n_, del_] := \n
+      Module[{x = poly, d, j, q, ee, k}, \[IndentingNewLine]\t
+        d = Exponent[x[t], t] + 1; \[IndentingNewLine]\t
+        For[j = 0, j < d, \(j++\), \n\t\t
+          e[j]\  = \ x[a\  + \ j\ del]\[IndentingNewLine]\t]; 
+        \[IndentingNewLine]\t
+        For[q = 1, q < d, \(q++\), \[IndentingNewLine]\t\t
+          \(For[k = d - 1, k >= q, \(k--\), \n\t\t\t
+            e[k]\  = \ e[k]\  - \ e[k - 1]\[IndentingNewLine]\t\t]; 
+          \)\[IndentingNewLine]\t]; \[IndentingNewLine]\tee[0]\  = \ e[0]; 
+        \[IndentingNewLine]\t
+        For[q = 1, q < n, \(q++\), \[IndentingNewLine]\t\t
+          ee[q]\  = \ ee[q - 1]\  + \ e[1]; \[IndentingNewLine]\t\t
+          For[k = 1, k < \((d - 1)\), \(k++\), \[IndentingNewLine]\t\t\t
+            \(e[k]\  = \ e[k]\  + \ e[k + 1]; \)\[IndentingNewLine]\t\t]; 
+          \[IndentingNewLine]\t]; \[IndentingNewLine]\t
+        Table[ee[q], {q, 0, n - 1}]\[IndentingNewLine]]; \)\n\)}], "Input"],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ *) \n\n
+    \  (*\ We\ choose\ reasonable\ random\ values\ for\ del, a, n, \ 
+      create\ an\ x, \ 
+      run\ \n\ the\ algorithm\ and\ check\ the\ answer . \ \ Note\ the\ form\ 
+        of\ x\ \((a\ polynomial\ \n\ function, \ not\ a\ \(polynomial . \)\ 
+          \)*) \n\n\ Clear[x, t]; \n\nd\  = \ Random[Integer, {3, 10}]\n\), 
+    \(del\  = \ 1/Random[Integer, {2, 4}]\n\), 
+    \(a\  = \ Random[Integer, {1, 5}]\n\), 
+    \(A[n = Random[Integer, {3, 8}]]\n\), 
+    \(coefficientlist = Table[Random[Integer, {1, 10}], {i, 1, d}]; \n
+    x[t_]\  := \ Sum[coefficientlist[[j + 1]]\ t^j, \ {j, 0, d - 1}]; \n
+    \[IndentingNewLine]x[t]\n\), 
+    \(arithprogeval[x, a, n, del]\n\), 
+    \(Table[x[a + i\ del], {i, 0, n - 1}]\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{776, 517},
+WindowMargins->{{63, Automatic}, {-126, Automatic}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 841, 14, 255, "Input"],
+Cell[2553, 65, 1099, 19, 347, "Input"],
+Cell[3655, 86, 778, 14, 332, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

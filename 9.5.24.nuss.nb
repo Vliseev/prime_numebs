@@ -1,0 +1,188 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      6800,        144]*)
+(*NotebookOutlinePosition[      7631,        173]*)
+(*  CellTagsIndexPosition[      7587,        169]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[TextData[{
+  "(*\n Algorithm 9.5.24 (Nussbaumer convolution, cyclic and negacyclic).\n \
+Support code for\n R. Crandall and C. Pomerance,\n \"Prime Numbers: a  \
+Computational Perspective,\"\n Springer-Verlag 2001.\n c. 2000 Perfectly  \
+Scientific, Inc.\n All Rights Reserved.\n \n    14 Mar 2001 RC (Added cyc[])\n\
+ \t11 Dec 2000 AH (Formatting)\n \t14 Sep 2000 RT (Creation)\n*)\n\n",
+  StyleBox[
+  "(* Given two signals x,y of length 2^k in a ring in which 2 is not \na \
+zero  divisor, this algorithm returns the cyclic or negacyclic \nconvolution \
+of x and  y.  This is adapted from an implementation \nof [Buhler 1995]. *)\n\
+",
+    AspectRatioFixed->True]
+}], "Input",
+  AutoIndent->True,
+  LineBreakWithin->False,
+  LineIndent->0,
+  AspectRatioFixed->True],
+
+Cell[TextData[StyleBox[
+"(* CODE *)\n\n(* First, a literal negacylic. *)\nneglit[x_, y_] := \n\t\
+Table[ \n     \tSum[ If[m < i, -1,1] * x[[i+1]] y[[Mod[m-i,Length[x]]+1]] \n  \
+   \t\t,{i,0,Length[x]-1} \n     \t]\n\t\t,{m,0,Length[x]-1}\n  \t]\n\n(* \
+Next, a literal cyclic. *)\n cyclit[x_, y_] := \n \tTable[ Sum[ \
+x[[i+1]]*y[[Mod[m-i,Length[x]]+1]], {i,0,Length[x]-1} ]\n\t\t\
+,{m,0,Length[x]-1}\n     ];     \t\t  \n\ntwist[a_, r_, u_, off_] := \n\t\
+With[{q =  Mod[u, 2r]},\n\t\tIf[q < r,\n\t\t\tJoin[ -Take[a,{r-q+off+1, \
+r+off}], Take[a,{off+1,r-q+off}]]\n\t\t  ,\tJoin[ Take[a,{2r-q+off+1, \
+r+off}], -Take[a,{off+1,2r-q+off}]]\n\t\t]\n\t]\n\n(* Next, the  \
+transposition routine. *)\ntrans[r_, m_, a_] := \n\tModule[{b = a, i, j},\n\t\
+\t Do[\n\t\t  \tDo[\n\t\t    \tb[[i+j*r+1]] = a[[m*i+j+1]],\n\t\t  \t\t\
+{j,0,m-1}\n\t\t  \t],\n\t\t  \t{i,0,r-1}\n\t\t];\n\t\tb\n\t];\n\n(* Below, a \
+faster trans option, courtesy  S. Wagon. *)\n(* trans[r_, m_, a_] :=  \n\t\
+Join[Flatten[Transpose[Partition[Take[a, m r], m]]],\n\t\tDrop[a, m r]\n\t]; \
+*)\n \t\t\t\nnega[x_, y_] := \n\tModule[{n =  \
+Length[x],a,b,c,k,m,r,u,v,i,j,g,s,t,w},\n        If[n <= 16,  \
+Return[neglit[x,y]]];\n        k = Floor[Log[2,n]];\n\t\tm = 2^Floor[k/2]; r \
+=  n/m; w = r/m;\n\t\n\t\t(* Next, form polynomials and zero-pad. *)\n\t\ta = \
+trans[r,  m, x]; b = trans[r, m, y];\n\t\ta = Join[a, Table[0,{n}]]; b = \
+Join[b,  Table[0,{n}]];\n\t\t\n\t\t(* Next, perform DIF FFT on a,b using root \
+w. *)\n\t\tFor[k =  m, k > 0, k = Floor[k/2],\n\t\t\tv = w*m/k;\n\t\t\tFor[u \
+= 0; j = 0, j < k, u +=  v; j++,\n\t\t\t\tFor[i = j, i < 2m, i += 2k,\n\t\t\t\
+\t\n\t\t\t\t\t(* Next, butterfly action. *)\n\t\t\t\t\ts = i*r+1; t = \
+(i+k)*r+1;\n\t\t\t\t\tFor[g = 0, g < r, g++,\n\t\t\t \t  \t\t{a[[s+g]], \
+a[[t+g]]} =\n\t\t\t\t\t\t\t{a[[s+g]] + a[[t+g]],  a[[s+g]]-a[[t+g]]};\n\t\t\t\
+\t  \t\t{b[[s+g]], b[[t+g]]} =\n\t\t\t\t\t\t\t{b[[s+g]] +  b[[t+g]], \
+b[[s+g]]-b[[t+g]]};\t\t\t\t\n\t\t\t\t\t];\n\t\t\t\t\ta =  \
+Join[Take[a,{1,t-1}], twist[a, r, u, t-1],\n\t\t\t\t\tTake[a, {t+r, 2n}]];\n\t\
+ \t\t\t\tb = Join[Take[b,{1,t-1}], twist[b, r, u, t-1],\n\t\t\t\t\tTake[b, \
+{t+r,  2n}]];\n\t\t\t\t];\n\t\t\t];\n\t\t];\n\t\n\t\t(* Next, form the dyadic \
+product as a set  of negacyclics. *)\n\t\tFor[i = 0; c = {},  i < 2 m, i++,\n\
+\t\t\tc =  Join[c,\n\t\t\t\t\tnega[Take[a,{i*r+1, (i+1)*r}], \n\t\t\t\t\t\
+Take[b,{i*r+1, (i+1)*r}]]\n\t\t\t\t ]\n\t\t];\n\t\t\n\t \t(* Next, the DIT \
+IFFT. *)\n\t\tFor[k = 1, k < 2m, k *= 2,\n\t\t\tv = -w*m/k;\n\t\t \tFor[u = \
+0; j = 0, j < k, u += v; j++,\n\t\t\t\tFor[i = j, i < 2m, i += 2k,\n\t\t \t\t\
+\t(* Next, inverse butterfly action. *)\n\t\t\t\t\ts = i*r+1; t = (i+k)*r+1;\n\
+\t \t\t\t\tc = Join[Take[c,{1,t-1}], twist[c, r, u, t-1],\n\t\t\t\t\tTake[c, \
+{t+r,  2n}]];\n\t\t\t\t\tFor[g = 0, g < r, g++,\n\t\t\t\t  \t\t{c[[s+g]], \
+c[[t+g]]} =\n\t\t \t\t\t\t{c[[s+g]] + c[[t+g]], c[[s+g]]-c[[t+g]]};\n\t\t\t\t\
+\t];\n\t\t\t\t];\n\t\t\t]; \t\t\t\n\t\t];\n\t\tFor[k = 0, k < m-1, k++,\n\t   \
+ \tt = (k+m)*r+1;\n\t\t\tc =  Join[Take[c,{1,t-1}], twist[c, r, 1, t-1], \
+Take[c, {t+r, 2n}]];\n\t\t\tc =  Join[Take[c,{1,k*r}], Take[c,{k*r+1, \
+k*r+r}]+Take[c,{t, t+r-1}],\n\t\t\t Take[c,{(k+1)*r+1,2n}]]; \n\t\t];\n\t\t\
+Take[trans[m,r,c],{1,n}]/(2m)\n\t];\n\t\n\tcyc[x_, y_] := Module[{len = \
+Length[x], up, um, vp, vm, cy, ne},\n          If[len < 256, \
+Return[cyclit[x,y]]];\n          up = Take[x,{1,len/2}];\n          um = \
+Take[x, {len/2+1, len}];\n          {up, um} = {up+um, up -um};\n          vp \
+= Take[y,{1,len/2}];\n          vm = Take[y, {len/2+1, len}];\n          {vp, \
+vm} = {vp+vm, vp-vm};\n          cy = cyc[up, vp];\n          ne = nega[um, \
+vm];\n          1/2(Join[cy + ne, cy - ne])\n    ];",
+  AspectRatioFixed->True]], "Input",
+  AutoIndent->True,
+  LineBreakWithin->False,
+  LineIndent->0,
+  AspectRatioFixed->True],
+
+Cell["\<\
+
+(* EXAMPLE *) 
+
+(* We perform a length len Nussbaumer negacylic convolution, 
+then a literal negacylic, then compare. *)
+
+k=10;
+len = 2^k;
+xx = Table[Random[Integer, 1000],{len}];
+yy = Table[Random[Integer, 1000],{len}];
+Timing[nuss = Expand[nega[xx,yy]]] [[1]]
+Timing[lit = Expand[neglit[xx,yy]]] [[1]]
+(nuss-lit).(nuss-lit)\
+\>", "Input",
+  AutoIndent->True,
+  LineBreakWithin->False,
+  LineIndent->0,
+  AspectRatioFixed->True]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{921, 683},
+WindowMargins->{{Automatic, -43}, {-95, Automatic}},
+PrivateNotebookOptions->{"ColorPalette"->{RGBColor, -1}},
+ShowCellLabel->False,
+ShowCellTags->False,
+RenderingOptions->{"ObjectDithering"->True,
+"RasterDithering"->False}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 772, 16, 240, "Input"],
+Cell[2484, 67, 3869, 55, 1464, "Input"],
+Cell[6356, 124, 440, 18, 168, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

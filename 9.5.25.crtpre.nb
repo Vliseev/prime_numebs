@@ -1,0 +1,156 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      5230,        117]*)
+(*NotebookOutlinePosition[      5895,        141]*)
+(*  CellTagsIndexPosition[      5851,        137]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 9.5  .25\ 
+        \((Fast\ CRT\ reconstruction\ with\ preconditioning)\) . \t\t\t\n\ 
+          Support\ code\ for\n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\ \n\t11\ Dec\ 2000\ AH\ 
+        \((Formatting)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n\ *) \n
+    \n (*\ We\ assume\ a\ list\ of\ fixed\ pairwise\ coprime\ moduli\ m\ and\ 
+        a\ list\ \nof\ residues\ nin, \ 
+      both\ of\ length\ 2^k\ for\ convenience . \ \ The\ goal\ of\ \nthe\ 
+        algorithm\ is\ to\ reconstruct\ the\ integer\ n\ from\ its\ list\ of\ 
+        \nresidues . \ \ This\ process\ is\ split\ into\ two\ \(steps--\) the
+        \ preconditioning, \ \n
+      which\ constructs\ a\ list\ q[i, j]\ of\ partial\ products\ from\ the\ 
+        list\ of\ \nmoduli, \ and\ the\ computation, \ 
+      which\ constructs\ a\ list\ nt[i, j]\ of\ \npartial\ residues\ and\ the
+          \ solution\ to\ the\ system . \ Note\ that\ the\ residue\ \nlist\ 
+          may\ change\ without\ re - 
+        running\ the\ crtpre[]\ step\ if\ the\ moduli\ \nremain\ 
+          \(unchanged . \)\ *) \n\)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ CODE\ *) \n
+    \n (*\ First, \ the\ precondition\ step, \ 
+      taking\ a\ list\ of\ fixed\ moduli\ of\ \nlength\ r\  = \ 
+        2^k\ and\ returning\ the\ table\ q[i, j]\ of\ partial\ 
+          \(products . \)\ *) \n\n
+    crtpre[m_] := \ \ \n\t
+      Module[{r, k, prod, mc}, \n\t\t (*q\ and\ v\ are\ global\ symbols*) \n
+        \t\tr\  = \ Length[m]; \n\t\tk = Log[2, r]; \n\t\t
+        prod = Product[m[[i]], {i, 1, r}]; \n\t\t
+        mc = Table[prod/m[[i]], {i, 1, r}]; \n\t\t
+        v = Table[PowerMod[mc[[i]], \(-1\), m[[i]]], {i, 1, r}]; \n\t\t
+        Do[\n\t\t\tq[i, j]\  = \ Product[m[[a]], \ {a, i + 1, i\  + \ 2^j}], 
+          \n\t\t\t{j, 0, k}, {i, 0, \ r - 2^j}\n\t\t]\n\t]\n
+    \n (*\ Th\ next\ routine\ uses\ the\ table\ q[i, j]\ along\ with\ the\ 
+        residues\ \nnin[[i]] to\ construct\ the\ desired\ \(solution . \)\ *) 
+      \n\), 
+    \(\(crtcomp[nin_] := \n\t
+      Module[{r, k, nt, i, j}, \n\t\tr\  = \ Length[nin]; \n\t\t
+        k = Log[2, r]; \n\t\tnt = Table[0, {i, 1, r}, {j, 1, k + 1}]; \n\t\t
+        For[i = 0, i < r, \(i++\), \n\t\t\t
+          nt[[i + 1, 1]] = v[[i + 1]] nin[[i + 1]]\n\t\t]; \n\n\t\t
+        For[j = 1, j <= k, \(j++\), \n\t\t\t
+          For[i = 0, i < r, i = i + 2^j, \n\t\t\t\t
+            \(nt[[i + 1, j + 1]] = \n\t\t\t\t
+              nt[[i + 1, j]]\ q[i + 2^\((j - 1)\), j - 1]\  + \n\t\t\t\t\t
+                nt[[i + 2^\((j - 1)\) + 1, j]]\ q[i, j - 1]; \)\n\t\t\t]\n
+          \t\t]; \n\t\tReturn[\ Mod[\ nt[[1, k + 1]], \ q[0, k]\ ]\ ]; \n
+        \t\t]; \)\t\t\t\)}], "Input"],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ *) \n
+    \n (*\ We\ construct, \ for\ convenience, \ 
+      a\ list\ of\ distinct\ prime\ moduli\ \nand\ a\ random\ list\ of\ 
+        residues, \ both\ of\ lenght\ r, \ 
+      then\ compute\ n\ \nand\ verify\ that\ it\ is\ the\ solution\ to\ the\ 
+        \(system . \)\ *) \n\nk = 2; \nr = 2^k; \n\n
+    mlist = Table[
+        Prime[i], {i, index = Random[Integer, {1, 100}], index + r - 1}]\n
+    \), 
+    \(nlist = Table[Random[Integer, Prime[index]], {i, 1, r}]\n\), 
+    \(crtpre[mlist]\n\), 
+    \(n = crtcomp[nlist]\n\), 
+    \(Table[Mod[n, mlist[[i]]], {i, 1, r}]\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{886, 696},
+WindowMargins->{{Automatic, 9}, {-97, Automatic}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 1308, 21, 327, "Input"],
+Cell[3020, 72, 1581, 28, 554, "Input"],
+Cell[4604, 102, 622, 13, 252, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

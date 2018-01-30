@@ -1,0 +1,119 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3074,         79]*)
+(*NotebookOutlinePosition[      3754,        104]*)
+(*  CellTagsIndexPosition[      3710,        100]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 8.2  .3\ 
+        \((Fast, \ 61 - bit\ random\ generator)\) . \t\t\t\n\ Support\ code\ 
+        for\n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\ \n\t10\ Dec\ 2000\ AH\ 
+        \((Formating)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n\ *) \n
+    \n (*\ This\ algorithm\ provides\ seeding\ and\ random\ functions\ for\ \n
+          generator\ m = 2^\((61)\) - 1. \ *) \n\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n\n
+    \(random[seed_] := \n\t
+      Module[{xp}, \[IndentingNewLine]\t\t
+        xp = IntegerPart[seed/2^31] + \n\t\t\t
+            BitAnd[Mod[seed\ 2^30, 2^61], 2^61 - 1] - \n\t\t\t
+            IntegerPart[seed/42] - \n\t\t\t
+            BitAnd[Mod[seed\ 2^19, 2^61], 2^61 - 1]; \[IndentingNewLine]\t\t
+        If[\ xp < 0, \ \ xp = xp + 2^61 - 1]; \[IndentingNewLine]\t\txp
+        \[IndentingNewLine]\t]; \)\)\)], "Input"],
+
+Cell[BoxData[
+    \(\(\[IndentingNewLine] (*\ EXAMPLE\ *) \n
+    \[IndentingNewLine]newseed = Random[Integer, 2^61]; \n\n
+    Do[\[IndentingNewLine]\t\(Print[newseed = random[newseed]]; 
+      \)\[IndentingNewLine]\t, {20}\[IndentingNewLine]]; 
+    \[IndentingNewLine]\)\)], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{685, 551},
+WindowMargins->{{134, Automatic}, {Automatic, 16}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 608, 10, 229, "Input"],
+Cell[2320, 61, 464, 9, 159, "Input"],
+Cell[2787, 72, 283, 5, 142, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

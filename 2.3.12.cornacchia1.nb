@@ -1,0 +1,227 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      4854,        187]*)
+(*NotebookOutlinePosition[      5542,        212]*)
+(*  CellTagsIndexPosition[      5498,        208]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell["\<\
+(*
+Algorithm 2.3.12 (Represent p as x^2 + d y^2 (Cornacchia algorithm).
+Support code for
+R. Crandall and C. Pomerance,
+\"Prime Numbers: a Computational Perspective,\"
+Springer-Verlag 2001.
+c. 2000 Perfectly Scientific, Inc.
+ All Rights Reserved.
+ \t
+ \t1  Dec 2000 AH (Formatting)
+ \t14 Sep 2000 RT (Creation)
+*)
+
+(* Given an odd prime p and a positive integer d \[NotEqual] 0 (mod p), this 
+algorithm either reports that no solution exists, or returns a 
+solution (x,y) to
+\t\t\t\tp = x^2 + d y^2. 
+*)
+\t\t\t\t\
+\>", "Input",
+  PageWidth->Infinity],
+
+Cell["\<\
+(* CODE *)
+
+(* First, we include a few subroutines. *)
+
+(* Below, we include algorithm 2.3.8, for square roots mod p. *)
+
+sqrtmod[b_,p_]:= 
+\tModule[{a,x,c,d,cd,m,t,tst},
+   \t\ta = Mod[b,p];
+   \t\tIf[p == 2, Return[a]];
+    \tIf[MemberQ[{3,7},Mod[p,8]],
+      \t\tReturn[PowerMod[a,(p+1)/4,p]]
+      \t];
+    \tIf[Mod[p,8] == 5,
+      \t\tx = PowerMod[a,(p+3)/8,p];
+      \t\tc = Mod[x^2,p];
+      \t\tIf[Not[c == a],
+        \t\tReturn[Mod[x PowerMod[2,(p-1)/4,p], p]]
+        \t];
+      \t];
+    \t
+    \t(* Here, p = 1 (mod 8). *)
+      \ttst = 1;
+      \tWhile[Not[tst == -1],
+        \td = Random[Integer,{1,p}];
+        \ttst = JacobiSymbol[d,p]
+        ];
+      \tt = (p-1)/2; s = 1;
+      \tWhile[EvenQ[t], t = t/2; ++s];
+      \tca = PowerMod[a,t,p];
+      \tcd = PowerMod[d,t,p];
+      \tm = 0;
+      \tDo[
+      \t   If[PowerMod[Mod[ca PowerMod[cd, m, p],p], 2^(s-1-i), p]
+      \t   \t\t== p-1, m += 2^i]
+      \t   ,{i,0,s-1}
+      \t];      \t    
+      \tReturn[Mod[PowerMod[a, (t+1)/2,p] PowerMod[cd, m/2,p],p]]; 
+\t];
+    \t
+
+(* A function that returns the number of bits in the binary 
+representation of n. *)
+
+bits[n_]:=If[n==0,1,Length[IntegerDigits[n,2]]]
+
+(* Below, algorithm 9.2.11, returning the integer part of a 
+square root. *)
+
+intsqrt[n_]:= 
+\tModule[{x,y},
+\t    If[n <= 0, Return[0]];  (* Convention. *)
+\t\tx = 2^Ceiling[bits[n]/2];
+\t\ty = Floor[(x+Floor[n/x])/2];
+\t\tWhile[x > y,
+\t\t\tx = y;
+\t\t\ty = Floor[(x + Floor[n/x])/2];
+\t\t];
+\t\tx
+\t]
+
+(* Now, the main routine. *)
+cornacchia[d_,p_]:=
+\tModule[{xo,a,b,c,t},
+\t\tIf[JacobiSymbol[-d,p]==-1,
+\t\t\tReturn[{}]
+\t\t\t,
+\t\t\txo = sqrtmod[-d,p];
+\t\t\tIf[(2 xo < p),
+\t\t\t\txo=p-xo;
+\t\t\t];
+\t\t\t{a, b} = {p,xo};
+\t\t\tc = intsqrt[p];
+\t\t\tWhile[(b > c),
+\t\t\t\t{a,b} = {b,Mod[a,b]}
+\t\t\t];
+\t\t\tt = p-b^2;
+\t\t\tIf[Not[Mod[t,d] == 0],
+\t\t\t\tReturn[{}]
+\t\t\t\t,
+\t\t\t\tIf[Not[t/d == (intsqrt[t/d])^2],
+\t\t\t\t\tReturn[{}]
+\t\t\t\t\t,
+\t\t\t\t\tReturn[{b,Sqrt[t/d]}];
+\t\t\t\t]
+\t\t\t]
+\t\t]
+\t]\
+\>", "Input",
+  PageWidth->Infinity],
+
+Cell["\<\
+(* EXAMPLE *)
+
+(* First, find a random prime. *)
+Print[\"p = \",p = Prime[Random[Integer,{2,20000}]]];
+
+(* Now, pick a random d. *)
+d = Random[Integer,{1,10}];
+While[Mod[d,p]==0,d = Random[Integer,{1,10}]]
+Print[\"d = \",d];
+
+(* Now solve p = x^2 + d y^2 if possible. *)
+result = cornacchia[d,p]
+
+(* Next, verify the result. *)
+If[
+  Length[result]==2,
+  Print[p,\" = \",result[[1]],\"^2 + \",Abs[d],\"*\",result[[2]],\"^2\"];
+  Print[p == result[[1]]^2 + Abs[d] result[[2]]^2];
+];\
+\>", "Input",
+  PageWidth->Infinity]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{600, 753},
+WindowMargins->{{Automatic, 109}, {Automatic, -1}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 559, 21, 240, "Input"],
+Cell[2271, 72, 2047, 90, 1068, "Input"],
+Cell[4321, 164, 529, 21, 240, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

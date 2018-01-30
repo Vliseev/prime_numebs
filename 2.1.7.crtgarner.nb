@@ -1,0 +1,166 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3764,        126]*)
+(*NotebookOutlinePosition[      4452,        151]*)
+(*  CellTagsIndexPosition[      4408,        147]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell["\<\
+(*
+ Algorithm 2.1.7 (CRT reconstruction with preconditioning (Garner)).
+Support code for
+R. Crandall and C. Pomerance,
+\"Prime Numbers: a Computational Perspective,\"
+Springer-Verlag 2001. 
+c. 2000 Perfectly Scientific, Inc.
+All Rights Reserved.
+      
+ \t30 Nov 2000 AH (slight changes)
+    14 Sep 2000 RT (Creation)
+*)
+
+(* Given fixed, pairwise coprime moduli (stored in list ml) 
+whose product is cm, this algorithm returns the unique integer 
+in [0,cm-1] with the given residues stored in the list n.  
+It is separated into precompuation and result step: one may 
+enter a new list n of residues for the same moduli without 
+having to re-run the precomputation.*)
+   \
+\>", "Input",
+  PageWidth->Infinity,
+  TabSpacings->4,
+  LineBreakWithin->False],
+
+Cell["\<\
+(*CODE*)
+
+(*First,the precomputation step.*)
+
+precomp[ml_]:=
+\tModule[{r}, (*m,mu,c,cm are global- used in crtresult[] below*)
+\t\t{m,r} = {ml,Length[ml]};
+   \t\tmu = Table[Product[m[[j+1]],{j,0,i-1}],{i,1,r-1}];
+    \tc = Table[ExtendedGCD[mu[[i]],m[[i+1]]][[2,1]],{i,1,r-1}];
+    \tcm = mu[[r-1]] m[[r]]
+\t]
+
+(*Next,the re-entry point for given input residue list {n_list}.*)
+crtresult[n_]:=
+\tModule[{i,u, nn},
+\t\tu = nn = n[[1]];
+\t\tFor[i = 1, i < Length[n], i++,
+      \tu = Mod[(n[[i+1]]-nn)c[[i]], m[[i+1]]];
+      \tnn = nn+u mu[[i]]
+   \t];
+\t\tMod[nn,cm]
+\t]
+\t\
+\>", "Input",
+  PageWidth->Infinity,
+  TabSpacings->4,
+  LineBreakWithin->False],
+
+Cell["\<\
+(* EXAMPLE *)
+
+(* We construct, for convenience, a list of distinct prime moduli
+and a random list of residues, both of length r, then compute n 
+  and verify that it is the solution to the system. *)
+  
+k = 2;
+r = 2^k;
+index = Random[Integer,{1,100}];
+Print[\"Primes = \", mlist = Table[Prime[i],{i,index,index+r-1}] ]
+Print[\"Residues = \",nlist = Random[Integer,#-1]&/@mlist]
+precomp[mlist]
+Print[ \"Solution = \", n = crtresult[nlist]]
+
+(* Now, verify the result. *)
+Print[\"Verify mods of solution \", Mod[n,#]&/@mlist ]\
+\>", "Input",
+  PageWidth->Infinity,
+  TabSpacings->4,
+  LineBreakWithin->False]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{616, 691},
+WindowMargins->{{Automatic, 122}, {17, Automatic}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 762, 24, 252, "Input"],
+Cell[2474, 75, 666, 27, 288, "Input"],
+Cell[3143, 104, 617, 20, 204, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

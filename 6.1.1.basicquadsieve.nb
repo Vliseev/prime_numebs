@@ -1,0 +1,216 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      8353,        174]*)
+(*NotebookOutlinePosition[      8989,        197]*)
+(*  CellTagsIndexPosition[      8945,        193]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 6.1  .1\ \((Basic\ quadratic\ sieve)\) . \t\t\t\n\ Support\ 
+        code\ for\n\ \(R . \ Crandall\ and\ C . \ Pomerance\), \n\ 
+      \(\*"\""Prime\ Numbers : \ a\ Computational\ Perspective\), 
+      \*"\"\<\n Springer-Verlag 2001.\n c. 2000 Perfectly Scientific, Inc.\n \
+All Rights Reserved.\n\t\n\t4 Dec 2000 AH (Added description)\n\t1 Sep 2000 \
+RC (Creation)\>\n"*) \n
+    \n (*\ We\ are\ given\ an\ odd\ composite\ number\ n\ that\ is\ not\ \na\ 
+        power . \ This\ algorithm\ attempts\ to\ give\ a\ nontrivial\ \n
+        factorization\ of\ \(n . \)\ *) \n\)\)], "Input"],
+
+Cell[BoxData[
+    \(\(\n\n (*\ \(CODE\ &\)\ EXAMPLE\ *) \n
+    \n (*\ First, \ a\ square - rooting\ \(routine . \)\ *) \n\n
+    sqrtmod[b_, p_] := \ \n\t
+      Module[{a, x, c, d, cd, m, t, tst}, \n\ \ \ \t\ta\  = \ Mod[b, p]; \n
+        \ \ \ \t\tIf[p\  == \ 2, \ Return[a]]; \n\ \ \ \ \t
+        If[MemberQ[{3, 7}, Mod[p, 8]], \n\ \ \ \ \ \ \t\t
+          Return[PowerMod[a, \((p + 1)\)/4, p]]\n\ \ \ \ \ \ \t]; \n\ \ \ \ \t
+        If[Mod[p, 8]\  == \ 5, \n\ \ \ \ \ \ \t\t
+          x\  = \ PowerMod[a, \((p + 3)\)/8, p]; \n\ \ \ \ \ \ \t\t
+          c\  = \ Mod[x^2, p]; \n\ \ \ \ \ \ \t\t
+          If[Not[c\  == \ a], \n\ \ \ \ \ \ \ \ \t\t
+            Return[Mod[x\ PowerMod[2, \((p - 1)\)/4, p], \ p]]\n
+            \ \ \ \ \ \ \ \ \t]; \n\ \ \ \ \ \ \t]; \n\ \ \ \ \t\n
+        \ \ \ \ \t (*\ Here, \ p\  = \ 1\ \(\((mod\ 8)\) . \)\ *) \n
+        \ \ \ \ \ \ \ttst\  = \ 1; \n\ \ \ \ \ \ \t
+        While[Not[tst\  == \ \(-1\)], \n\ \ \ \ \ \ \ \ \t
+          d\  = \ Random[Integer, {1, p}]; \n\ \ \ \ \ \ \ \ \t
+          tst\  = \ JacobiSymbol[d, p]\n\ \ \ \ \ \ \ \ ]; \n\ \ \ \ \ \ \t
+        t\  = \ \((p - 1)\)/2; \ s\  = \ 1; \n\ \ \ \ \ \ \t
+        While[EvenQ[t], \ t\  = \ t/2; \ \(++s\)]; \n\ \ \ \ \ \ \t
+        ca\  = \ PowerMod[a, t, p]; \n\ \ \ \ \ \ \t
+        cd\  = \ PowerMod[d, t, p]; \n\ \ \ \ \ \ \tm\  = \ 0; \n
+        \ \ \ \ \ \ \t
+        Do[\n\ \ \ \ \ \ \t\ \ \ 
+          If[PowerMod[Mod[ca\ PowerMod[cd, \ m, \ p], p], \ 
+                2^\((s - 1 - i)\), \ p]\n\ \ \ \ \ \ \t\ \ \ \t\t == \ p - 1, 
+            \ m\  += \ 2^i]\n\ \ \ \ \ \ \t\ \ \ , {i, 0, s - 1}\n
+          \ \ \ \ \ \ \t]; \ \ \ \ \ \ \t\ \ \ \ \n\ \ \ \ \ \ \t
+        Return[Mod[PowerMod[a, \ \((t + 1)\)/2, p]\ PowerMod[cd, \ m/2, p], 
+            p]]; \ \n\t]; \n\nn\  = 70001*700001; \nln\  = \ N[Log[n]]; \n
+    B\  = \ Floor[Exp[Sqrt[Log[n]\ Log[Log[n]]]]]; 
+    \n (*\ Or, \ choose\ B\ to\ \(taste . \)\ *) \n\nPrint["\<B = \>", B]; \n
+    pr\  = \ {2}; 
+    \ \  (*\ Primes\ \(list . \)\ *) \n (*\ Next, \ 
+      initialize\ a\ table\ of\ roots\ of\ x^2\  = \ 
+        n\ \(\((mod\ p)\) . \)\ *) \nroots\  = \ {{1, 1, \ N[Log[2]]}}; 
+    \ \  (*\ The\ trivial\ roots\ for\ p\  = \ 2. \ *) \n
+    Do[\n\t\ \ \ p\  = \ Prime[q]; \n\t
+      If[JacobiSymbol[n, \ p]\  == \ 1, \ \n\t\t\ \ \ \ \ \ \ 
+        pr\  = \ Append[pr, \ p]; \n\t\t\ \ \ \ \ \ \ 
+        a\  = \ sqrtmod[Mod[n, p], \ p]; \n\t\t\ \ \ \ \ \ \ 
+        roots\  = \ Append[roots, \ {a, \ p - a, \ N[Log[p]]}]; \n\t\t], \n
+      \t{q, 2, PrimePi[B]}\n]; \nk\  = \ Length[pr]; \n
+    Print["\<k = \>", \ k]; \n\n\)\)], "Input"],
+
+Cell[BoxData[{
+    \(\(xtab\  = \ {}; 
+    \)\  (*\ A\ table\ of\ pairs\ 
+        \(\((x, \ factorization\ of\ x^2 - n)\) . \)\ *) \n\), 
+    \(b\  = \ 10000; \nx0\  = \ Ceiling[Sqrt[n]]; \n
+    Timing[\ \  (*\ Let\ us\ time\ the\ \(sieve . \)\ *) \n\t
+      Do[\n\t\n\t\ \ \ \ slots\  = \ Table[0, \ {b}]; \n\t\n\t\ \ \ \ 
+        Do[\n\t\ \ \ \ \ \ \ \ p\  = \ pr[\([j]\)]; \n\t\t\ \ \ \ \ \ 
+          in\  = \ Mod[x0 + m\ *\ b, \ p]; \n\t\t\ \ \ \ \ \ 
+          off\  = \ \ Mod[\(roots[\([j]\)]\)[\([1]\)]\  - \ in, \ p]; \n
+          \t\t\ \ \ \ \ \ 
+          For[w\  = \ off, \ w\  < \ b\ , \ w\  += \ p, \n\t\t\t\t\t\t
+            \(slots[\([w + 1]\)]\  += \ \(roots[\([j]\)]\)[\([3]\)]; 
+            \)\ \  (*\ Add\ \(logarithm . \)\ *) \n\t\t\t\ \ \ \ ]; \n
+          \t\t\ \ \ \ \ \ 
+          off\  = \ \ Mod[\(roots[\([j]\)]\)[\([2]\)]\  - \ in, \ p]; \n
+          \t\t\ \ \ \ \ \ 
+          For[w\  = \ off, \ w\  < \ b\ , \ w\  += \ p, \n\t\t\t\t\t\t
+            \(slots\ [\([w + 1]\)] += \ \(roots[\([j]\)]\)[\([3]\)]; 
+            \)\ \  (*\ Add\ \(logarithm . \)\ *) \n\t\t\t\ \ \ \ ]\t\n
+          \t\t\t\ \ \ \ , {j, 1, k}\n\ \ \ \ \ \ ]; \n\t\n\n
+        \ \ \ \ \ \  (*\ Next, \ 
+          assess\ the\ sieved\ array\ by\ factoring\ promising\ 
+            \(candidates . \)\ *) \n\t\n\t\n\t\t\ \ \ \ \ 
+        Do[\n\t\t\n\t\t\t\ \ \ \ \ 
+          If[slots[\([j]\)]\  < \ 0.6\ *\ ln, \ Continue[]]; \ \n
+          \t\t\t\t\t\ \ x\  = \ x0\  + \ m*b\  + \ j - 1; \n\t\t\t\n\t\t\t\n
+          \t\t\t\ \ \ fa1\  = \ FactorInteger[x^2 - n]; \n\t\t\t\n
+          \t\t\ \ \ \ \ \ \ 
+          If[\(fa1[\([Length[fa1]]\)]\)[\([1]\)]\  <= \ B, \ 
+            xtab\  = \ Append[xtab, \ {x, \ fa1}]]\t\t\t\t\t\t\t\ \ \ \ \n
+          \t\t\t\ \ \ \ , {j, 1, b}\n\t\t\t\ \ ]; \n\t\t\ \ 
+        len\  = \ Length[xtab]; \n\t\t\ \ Print[m, "\< \>", \ len]; \n\t\t\t
+        If[len\  > \ k, \ Break[]]\ , \n\n{m, 1, \ 10000}\n]; \n\t]\)}], 
+  "Input"],
+
+Cell[BoxData[
+    \(\(\ mat\  = \ Table[0, \ {i, 1, k + 1}, \ {j, 1, k}]; \n\n\t\n\n
+    Do[\n\t\ flis\  = \ \(xtab[\([row]\)]\)[\([2]\)]; 
+      \ \  (*\ List\ of\ prime\ factors/powers\ of\ x^2\  - \ \(n . \)\ *) \n
+      \t\ Do[\n\ \ \ \ \ \ \ \ \ p\  = \ \(flis[\([j]\)]\)[\([1]\)]; 
+        \ \  (*\ A\ prime\ from\ the\ \(factorization . \)\ *) \n\t\t\ \ \ \ 
+        pos\  = \ \(\(Position[pr, \ p]\)[\([1]\)]\)[\([1]\)]; \n\t\t\ \ \ \ 
+        e\  = \ If[EvenQ[\(flis[\([j]\)]\)[\([2]\)]], 0, 1]; \n\t\t\ \ \ \ 
+        mat[\([row, \ pos]\)]\  = \ e, \n
+        \t\ \ \ \ \ \ {j, 1, \ Length[flis]}\n\t\t\t], \n
+      \ \ \ {row, 1, k + 1}\n]; \n\t\t\n\ \ \ \ \n\t\)\)], "Input"],
+
+Cell[BoxData[
+    \(\(sol\  = \ NullSpace[Transpose[mat], \ Modulus -> 2]; \)\)], "Input"],
+
+Cell[BoxData[
+    \(sol[\([1]\)]\)], "Input"],
+
+Cell[BoxData[{
+    \(prodl\  = \ \(prodr\  = \ 1\); \nsolind\  = \ 1; 
+    \ \  (*\ Try\ various\ values\ 1, 2, 3, 
+      \( ... \ of\ this\ index\ to\ get\n\t\t\ta\ nontrivial\ 
+        \(factor . \)\)\ *) \n
+    Do[\n\t\n\t\ \ \ \ 
+      If[\(sol[\([solind]\)]\)[\([w]\)]\  == \ 1, \ \n\t\ \ \ \ 
+        x\  = \ \(xtab[\([w]\)]\)[\([1]\)]; \n\t\t\ \ prodl\ \  *= x; \n
+        \t\t\ \ prodr\  *= \ \((x^2\  - \ n)\); \n\t\n\t], \n
+      \t{w, 1, Length[sol[\([solind]\)]]}\n]; \n\nFactorInteger[prodr]\), 
+    \(prodr\  = \ Sqrt[prodr]\), 
+    \(GCD[prodl\  - \ prodr, \ n]\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowSize->{645, 673},
+WindowMargins->{{Automatic, 80}, {9, Automatic}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 633, 10, 242, "Input"],
+Cell[2345, 61, 2616, 44, 848, "Input"],
+Cell[4964, 107, 1961, 34, 615, "Input"],
+Cell[6928, 143, 687, 10, 252, "Input"],
+Cell[7618, 155, 90, 1, 25, "Input"],
+Cell[7711, 158, 45, 1, 24, "Input"],
+Cell[7759, 161, 590, 11, 240, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

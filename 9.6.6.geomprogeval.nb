@@ -1,0 +1,151 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      4595,        110]*)
+(*NotebookOutlinePosition[      5276,        135]*)
+(*  CellTagsIndexPosition[      5232,        131]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 
+        9.6  .6 . \ \ 
+          \((Evaluation\ of\ polynomial\ on\ geometric\ progression)\) . \n\ 
+          Support\ code\ for\n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\ \n\t11\ Dec\ 2000\ AH\ 
+        \((Formatting)\)\n*) \n
+    \n (*\ Given\ polynomial\ x \((t)\)\ of\ degree\ d, \ and\ parameter\ T, 
+      \nthis\ routines\ gives\ x \((T^a)\), \ for\ a\  = \ 0,  .. , 
+      d\ \(inclusive . \)\ *) \n\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n
+    \n (*\ First, \ a\ quick\ triangle\ number\ \(function . \)\ *) \n
+    tri[j_] := \ j \((j + 1)\)/2; \n
+    \n (*\ Next, \ the\ main\ \(routine . \)\ *) \n\n
+    geomprogeval[x_, T_] := \n\t
+      Module[{xcofs, \ xlen, \ len, \ y, \ z}, \n\t\t
+        xcofs = CoefficientList[x, t]; \n\t\txlen = \ Length[xcofs]; 
+        \ \  (*\ One\ has\ deg \((x)\)\  = \ xlen - 1. \ *) \t\t\n\t\t
+        xcofs\  *= \ \ Table[T^\((tri[j])\), \ {j, 0, \ xlen - 1}]; \t\n\t\t
+        len = N[2^Ceiling[Log[2, 2\ xlen]]]; \t\n\t\t
+        xcofs\  = \ Join[xcofs, \ Table[0, \ {j, 1, len - xlen}]]; 
+        \ \  (*\ Zero - \(pad . \)\ *) \n\t\t
+        y = Table[T^\((\(-tri[len/2 - j - 1]\))\), {j, 0, \ \ len - 1}]; \n
+        \t\tz = Fourier[InverseFourier[xcofs] InverseFourier[y]] Sqrt[len]; \n
+        \t\tTable[T^tri[j - 1]\ z[[len/2 + j]], \ {j, 0, xlen - 1}]\ \ \n
+        \t\t (*\ Return\ real\ part\ instead\ if\ data\ be\ pure - 
+            \(real . \)\ *) \n\t]; \n\t\t\t\t\)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE1\ *) \n\nf\  = \ \ t^23 - 2  t^3 + 8\ t^2\  - \ 6\ t - 1; 
+    \nT\  = \(-1.01\); 
+    \ \  (*\ Note, \ 
+      with\ float - 
+        FFTs\ one\ can\ easily\ lose\ precision\ \n\t\t\tfor\ T\ too\ large; 
+      \ the\ method\ is\ normally\ used\ for\ complex, \n\t\t\t
+      unit - modulus\ T, \ or\ in\ pure - integer\ rings, \ 
+      such\ that\ \n\t\t\tprecision\ be\ \(maintained . \)\ *) \n\n
+    Print["\<T = \>", T]; 
+    \n (*\ Next, \ 
+      calculate\ f\ at\ T^a\ for\ 0\  <= a\  <= \ deg \(\((f)\) . \)\ *) \n\n
+    geomprogeval[f, T]\n
+    \n (*\ Next, \ check\ our\ answer\ via\ explicit\ \(evaluation . \)\ *) 
+      \), 
+    \(Table[f\  /. \ t -> T^a, \ {a, 0, \ Exponent[f, t]}]\)}], "Input"],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ 2. \ *) \n
+    \n (*\ We\ perform\ an\ arbitrary - 
+        length\ FFT\ as\ such\ an\ evaluation\n
+          \(\((the\ internal\ FFTs\ being\ power - of - 2\ length)\) . \)\ *) 
+      \n\nn\  = \ 17; \ng\  = \ E^\((2.0\ Pi\ I/n)\); \n
+    x\  = \ Table[Random[Real, {0, 1}], \ {n}]; \n\n
+    N[Sqrt[n]\ InverseFourier[x]]\n\), 
+    \(N[geomprogeval[Sum[x[[j + 1]]\ t^j, \ {j, 0, n - 1}], \ 1/g]]\)}], 
+  "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{776, 518},
+WindowMargins->{{Automatic, 61}, {-108, Automatic}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 653, 12, 215, "Input"],
+Cell[2365, 63, 1031, 17, 283, "Input"],
+Cell[3399, 82, 741, 15, 214, "Input"],
+Cell[4143, 99, 448, 9, 172, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

@@ -1,0 +1,412 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[     20430,        374]*)
+(*NotebookOutlinePosition[     21067,        397]*)
+(*  CellTagsIndexPosition[     21023,        393]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\t
+      Algorithm\ 4.4  .4\ 
+        \((Gauss\ sums\ primality\ test)\) . \n\t\t\t\n\tSupport\ code\ for\n
+        \tR . \ Crandall\ and\ C . \ Pomerance, \n\t
+      "\<Prime Numbers: a Computational Perspective,\>"\n\tSpringer - 
+        Verlag\ 2001. \n\t\t\n\tc . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\tAll\ Rights\ Reserved . \n\t\n\t\t2\ Nov\ 2001\ RC\ 
+        \((Fixed\ squarefree\ aspect\ in\ I, \ F\ loop, \ 
+          a\ change\ also\n\t\t\t\t\t\tslated\ for\ 2  nd\ printing\ of\ 
+            \(textbook . \))\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n\ *) \n
+    \n (*\ The\ implementation\ below\ is\ not\ the\ most\ efficient; \ 
+      however, \ as\ explained\n\t\ \ in\ the\ book, \ 
+      there\ are\ superseding\ variants\ of\ the\ Gauss - 
+        sums\ test . \n\t\ \ Below, \ 
+      there\ are\ some\ intricate\ machinations\ involving\n\t\ \ ring\ 
+          algebra\ in\ what\ is\ defined\ as\ 
+          \((here\ zp\  = \ Exp[2\ Pi\ I/p], \ \(etc . \))\)\n\t\n
+          \t\t\ \ \ \ \ Z[zp, \ zq]\  = \ 
+        Sum[a[j, k]\ zp^j\ zq^k, \ {j, 0, p - 2}, \ {k, 0, q - 2}]; \n\t\n
+      \t\ \ and\ also\ involving\ the\ ring\ further\ defined\ by\ taking\ 
+        everything\ \((mod\ n)\) . \t\n\t\ \ Care\ must\ be\ taken\ that\ a\ 
+        pure\ character\ \((simply\ a\ monomial\ in\ zp)\)\n\t\ \ has\ some\ 
+        strange\ representations . \ \ For\ example, \ 
+      with\ p\  = \ 
+        \(3\ and\ n\  = \ 
+          \(7001\n\t\ \ one\ can\ get\ a\ result\n\t\n\t\ \ \ \ \ \ 7000\  + 
+              \ 7000\ zp\n\t\n\t\ \ but\ this\ is\ truly\ a\ monomial\ 
+                \((a\ pure\ character)\)\ \((mod\ n0)\)\ because\ for\ p\  = 
+            \ 3\)\), \n\t\ \ 1\  + \ zp\  = \ \(-zp^2. \)\n\t*) \n\)\)], 
+  "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n
+    \n (*\ First, \ we\ start\ with\ some\ preliminary\ \(functions . \)\ *) 
+      \n\nprimroot[p_]\  := 
+      \  (*\ Return\ the\ least\ positive\ primitive\ root\ 
+          \(\((mod\ p)\) . \)\ *) \n\t\ \ \ \ 
+      Module[{fa, \ q, \ k, \ v, \ r, \ rt}, \n\t\t\ \ \ \ \ \ \ \ 
+        If[p == 2, \ Return[1]]; \n\t\t\t\t\ \ \ 
+        fa\  = \ FactorInteger[p - 1]; \n\t\t\t\t\ \ \ \ 
+        Do[\n\t\t\t\ \ \ \ \ \ \ \ \ \ \ 
+          Do[\n\t\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
+            q\  = \ \(fa[\([k]\)]\)[\([1]\)]; \n
+            \t\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
+            v\  = \ PowerMod[r, \ \((p - 1)\)/q, \ p]; \n
+            \t\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(If[v == 1, \ Break[]]; 
+            \)\n\t\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ , {k, 1, Length[fa]}\n
+            \t\t\t\t\ \ \ \ \ \ \ \ \ ]; \n\t\t\t\ \ \ \ \ \ \ \ \ \ \ 
+          If[v == 1, \ Continue[]]; \n\t\t\t\ \ \ \ \ \ \ \ \ \ \ rt\  = \ r; 
+          \ \(Break[]; \)\n\t\t\t\ \ \ \ \ \ \ \ \ \ \ , {r, 2, p - 1}\n
+          \t\t\t\ \ \ \ \ \ \ ]; \t\n\t\t\t\ \ \ \ \ \ \ rt\t\t\t\n\t\t\t\t]; 
+    \n\t\t\t\t\n
+    \n (*\ Next, \ a\ function\ that\ returns\ G \((p, q)\), \ \ \ \n\t\ \ 
+      the\ Gauss\ sum\ for\ p, 
+      q\ with\ the\ same\ restrictions\ as\ for\ chi\ \(\((above)\) . \)\ *) 
+      \n\nClear[zp, \ zq]; 
+    \ \  (*\ zx\ is\ a\ global\ primitive\ \((but\ symbolic)\)\ x - 
+        th\ root\ of\ 1. \ *) \n\n
+    G[p_, q_, \ gq_] := 
+      Module[{su, ex, m}, \n\t\t\ \ \ \ \ \ su\  = \ \ 0; \ ex\  = \ gq; \n
+        \t\t\ \ \ \ \ \ \ 
+        Do[\n\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ su\  += \ zp^m\ \ zq\ ^ex; \n
+          \t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ ex\  = \ Mod[gq*ex, \ q], \n
+          \t\t\t\ \ \ \ \ \ \ \ \ \ \ \ {m, 1, q - 1}\n\t\t\t\ \ \ \ \ ]; \n
+        \t\t\ \ \ \ \ \ \ 
+        Expand[\(su\  /. \ redrule[p, q]\)\  /. \ redrule2[p, q]]\t\t\n\t\t]; 
+    \n\n\n (*\ Next, \ 
+      rules\ for\ reduction\ of\ powers\ of\ complex\ \(roots . \)\ *) \n\n
+    redrule[p_, \ q_]\  := 
+      \ {zp^\((e_\ )\) -> \ zp^Mod[e, p], \ zq^e_\  -> \ zq^\((Mod[e, q])\)}; 
+    \n\nredrule2[p_, \ q_]\  := 
+      \ {zp^\((p - 1)\)\  -> \ \(-1\)\  - \ Sum[zp^k, \ {k, 1, p - 2}], \n\t
+        zq^\((q - 1)\)\  -> \ \(-1\)\  - Sum[zq^k, \ {k, 1, q - 2}]}; \n\n
+    reduce[Gsum_, \ p_, \ q_, \ n_]\  := \ 
+      Module[{}, 
+        \  (*\ Reduce\ a\ Gauss\ sum\ using\ properties\n\t\t\t\t\t\t\t\ \ of
+            \ the\ complex\ roots, \ all\ modulo\ \(n . \)\ *) \n
+        \t\t\ \ \ \ \ \ \ 
+        PolynomialMod[
+          \((Expand[Gsum]\  /. \ redrule[p, q])\) /. \ redrule2[p, q], \ n]\n
+        \t\t\t\t]; \n\t\t\n
+    powerModG[Gsum_, \ pow_, \ p_, \ q_, \ n_]\  := 
+      \ \  (*\ This\ function\ returns\ a\ symbolic\ polynomial\n\t\t\t\tin\ 
+          Z[zp, \ zq], \ 
+        \(which\ for\ certain\ powers\ ' pow'\ \ \n\t\t\t\ can\ be\ expected\ 
+              to\ be\ a\ monomial\ of\ zp\ alone . \ \n\t\ \ \ The\ reduction
+              \ is\ *not*\ complete ... \) a\ later\ function\ isCharacter[]\n
+          \t\ \ \ looks\ for\ extant\ \(representations . \)\ *) \n\t
+      Module[{bit}, \n\t\tbit\  = \ IntegerDigits[pow, \ 2]; \ \ 
+        If[bit[\([1]\)]\  == \ 0, \ bit\  = \ Take[bit, {2, Length[bit]}]]; \n
+        \t\tacc\  = reduce[Gsum, p, \ q, \ n]; \n\t\t
+        Do[\n\t\t\tacc\  = \ \ reduce[acc*acc, p, \ q, \ n]; \n\t\t\t
+          If[bit[\([qq]\)]\  == \ 1, \n\t\t\t\t
+            acc\  = \ reduce[acc\ *\ Gsum, p, \ q, \ \ n]\n\t\t\t], \n
+          \t\t\t{qq, 2, Length[bit]}\n\t\t]; \n\t\tacc\n\t]; \t\n\n
+    isCharacter[Gsum_, \ p_, \ q_, \ n_]\  := 
+      \  (*\ Determine\ whether\ a\ ring\ element\ is\n\t\t\t\t\ \ a\ pure\ 
+          character\ 
+          \((i . e . \ a\ monomial\ zp^j\ \(\((mod\ n)\) . \)\ \)*) \n\t\ \ \ 
+      Module[{}, \n\t\t\ \ \ \ \ 
+        If[Exponent[Gsum, \ zq]\  > \ 0, \ Return[False]]; \n
+        \ \ \ \ \ \ \ \ \ \ ex\  = \ Exponent[Gsum, \ zp]; \n\t\t\ \ \ \ \ 
+        If[\((p == 2)\)\  && \ \((ex == 0)\)\  && \ 
+            \((Mod[Gsum^2, n] == 1)\), \ Return[True]]; \n\t\t\t\ \ \ 
+        If[Gsum\  - zp^ex\  == \ 0, \ Return[True]]; \n\t\t\ \ \ \ \ \ 
+        If[ex\  == \ p - 2, \ \n\t\t\t\t\t\t\t
+          si\  = \ \(-Simplify[Gsum/Sum[zp^k, \ {k, 0, p - 2}]]\); \n
+          \t\t\t\t\t\t\ \ \ If[Mod[si, \ n]\  == \ 1, \ Return[True]]\n
+          \t\t\t\t\t]; \n\t\t\t\ \ \ \ Return[False]; \n\t\t\t]; \ \n\n
+    squarefree[n_]\  := \ 
+      Module[{fa\  = \ FactorInteger[n], \ sf = \ TRUE}, \n\t\t
+        Do[\n\t\t\t
+          If[EvenQ[\(fa[\([q]\)]\)[\([2]\)]], \ sf\  = \ FALSE; \ Break[]], \n
+          \t\t\t{q, 1, Length[fa]}\n\t\t\t]; \n\t\tReturn[sf]\n\t\t]; \n
+    \t\t\ \ \n\n (*\ Next, \ 
+      the\ main\ body\ of\ Algorithm\ 4.4 \( .4 . \)\ *) \n\n
+    gausstest[n_] := \ 
+      Module[{II, F, Ilist, Flist, tofactor, ex, \ Gsum, \ Gsumj, \ success, 
+          \ maxw, \ w, \n\t\tq, \ done, \ composite, \ coe, \n\t\tslist, \ 
+          ulist, root, \ pqlist, \ wlist, \ q0list, \ llist, \ plist, \ 
+          qlist, \ prlist, \ invlist, \ \ tlist}, \n\t\t
+        slist = \ 
+          \(ulist = 
+            \(root\  = \ 
+              \(pqlist\  = \ 
+                \(wlist\  = \ 
+                  \(q0list\  = \ 
+                    \(llist\  = \ 
+                      \(plist\  = \ 
+                        \(qlist\  = \ 
+                          \(prlist\  = \ 
+                            \(tlist\  = \ {}\)\)\)\)\)\)\)\)\)\); \ \n\n
+        \t (*\ First, \ the\ [Preparation]\ \(step . \)\ *) \n\t\t
+        Print["\<Commence [Preparation]...\>"]; \n\t\tII = \(-2\); \n\t\t
+        F = 1; \n\t\t
+        While[F^2 <= n, \n\t\t\tII\ \  += \ 4; \ 
+          If[\(! squarefree[II]\), \ Continue[]]; \n\t\t\ \ \ 
+          Ilist\  = \ \ FactorInteger[II]; \n\t\t\t\ 
+          Ilist\  = \ 
+            Table[\(Ilist[\([k]\)]\)[\([1]\)], \ {k, 1, Length[Ilist]}]; 
+          \ \  (*\ Primes\ in\ \(II . \)\ *) \n\t\t\t\ F\  = \ 1; \n\t\t\t
+          Flist\  = \ {}; \n\t\t\t\ k\  = \ 0; \t\t\t\n\t\t\t\ 
+          While[True, \ \(k++\); \n\t\t\t\t\ \ q\  = \ Prime[k]; \ 
+            If[q\  > \ II + 1, \ Break[]]; \n\t\t\t\t\ \ 
+            If[Mod[II, \ q - 1]\  == \ 0, \ F *= \ q; \ 
+              Flist\  = \ Append[Flist, \ q]]; \t\t\t\n\t\t\ \ \ ]; \n
+          \t\ \ \ ]; \ \  (*\ Now\ F\  > \ \(Sqrt[n] . \)\ *) \n\t\t\n\t\t
+        Print["\<I, F, Ilist, Flist: \>", \ II, "\< \>", F, \ "\<\>", \ 
+          Ilist, \ "\< \>", \ Flist]; \n\t\t\n\t\t\n\t\t\ 
+        If[MemberQ[Union[Ilist, \ Flist], \ n], \ Return["\<n is prime\>"]]; 
+        \n\t\t\ IF\  = \ Apply[Times, \ Ilist]\ *\ F; \t\t\ \n\t\t\ 
+        If[GCD[IF, \ n]\  > \ 1, \ Return["\<n is composite\>"]]; \n\t\n\t\t\ 
+        Do[\n\t\t\t\ \ \ \ \ \ 
+          root\  = \ Append[root, primroot[Flist[\([k]\)]]], \t\t\t\n
+          \t\t\t\ \ \ \ \ {k, 1, Length[Flist]}\n\t\t\t]; 
+        \  (*\ Now\ the\ array\ ' root'\ has\ the\ respective\ primitive\ 
+            roots\ g_q\ \(\((mod\ q)\) . \)\ *) \n\t\n\t\t\n
+        \t\t (*\ Next, \ the\ probable - prime\ \(computation . \)\ *) \n\t\t
+        Print["\<Commence [Probable-prime computation]...\>"]; \t\t\n\t\t\ \ 
+        Do[\n\t\t\t\tp\  = \ Ilist[\([k]\)]; \n\t\t\t\t
+          tofactor = n^\((p - 1)\) - 1; \n\t\t\t\tpow\  = \ 0; \n\t\t\t\t
+          While[Mod[tofactor, \ p]\  == \ 0, \ tofactor\  /= \ p; \ \ 
+            \(pow++\)]; \n\t\t\t\tslist = Append[slist, pow]; \n\t\t\t\t
+          ulist = Append[ulist, tofactor], \n\t\t\t\t{k, 1, Length[Ilist]}\n
+          \t\t\t]; \n\t\t
+        Print["\<slist, ulist:\>", \ slist, "\< \>", \ ulist]; \n
+        \ \ \ \ \ \ \ \  (*\ Next, \ 
+          create\ a\ list\ of\ 
+            \(tuples : \n
+              \t\t\t\ \ \ \ \ \ \ \ \ {p, \ q, \ i_p, \ i_q, \ w \((p, q)\), 
+                    \ l \((p, q)\)}\n\t\t\t\ \ \ \ \ where\ p | II\), \ 
+          q | F, \ p | q - 1, \ and\ the\ i_p, \ 
+          i_q\ are\ respective\n\t\t\t\ \ \ \ \ \ list\ indices\ from\ lists\ 
+            II, \ F\ \(resp . \)\ *) \n\t\t\ \ \ \ 
+        Do[\n\t\t\t\ \ \ \ \ \ \ \ \ p\  = \ Ilist[\([ip]\)]; \ 
+          q\  = \ Flist[\([iq]\)]; \n\t\t\t\t\t\ \ \ \ 
+          If[Mod[q - 1, p]\  == \ 0, \ 
+            pqlist\  = \ Append[pqlist, \ {p, q, ip, iq, \ 0, \ 0}]]\t\t\n
+          \t\t\t\ \ \ \ \ , {ip, \ 1, Length[Ilist]}, 
+          \ {iq, 1, Length[Flist]}\n\t\t\t\ ]; \n\t\t\t
+        Print["\<pqlist: \>", \ pqlist]; \n\t\n
+        \t (*\ Next, \ loop\ to\ find\ the\ w \((p, q)\), \ *) \n\t\t\t\n
+        \t\t\tDo[\n
+          \t\t\t\t\ \ {p, q, ip, iq}\  = \ Take[pqlist[\([ct]\)], \ {1, 4}]; 
+          \ \ Print[{p, q, ip, iq}]; \n\t\t\t\t\ \ 
+          Gsum\  = \ G[p, q, root[\([iq]\)]]; \ Print["\<Gsum: \>", \ Gsum]; 
+          \n\t\t\t\t\ \ 
+          Gsum\  = \ powerModG[Gsum, \ ulist[\([ip]\)], \ p, \ q, \ n]; \n
+          \t\t\t\t\ \ success\  = \ False; \n\t\t\t\ \ \ \ 
+          Print["\<ulist[[ip]], slist[[ip]]: \>", \ ulist[\([ip]\)], "\< \>", 
+            slist[\([ip]\)]]; \n\t\t\t\t\ \ 
+          Do[\n\t\t\t\t\t\ \ Gsum\  = \ powerModG[Gsum, \ p, p, \ q, \ \ n]; 
+            \n\t\t\t\t\ \ \ \ 
+            Print["\<Gsum, p, q, pass: \>", \ Gsum, "\< \>", p, "\< \>", q, 
+              "\< \>", \ w]; \n\t\t\t\t\t\ \ 
+            If[isCharacter[Gsum, \ p, \ q, \ n], \ \n\t\t\t\t\t\t\t\t\t
+              success\  = \ True; \ \tPrint["\<Character!\>"]; \n
+              \t\t\t\t\t\t\t\t\tPrint["\<w: \>", w, "\< \>", ct]; \n
+              \t\t\t\t\t\t\t\t\tpqlist[\([ct, 5]\)]\  = \ w; \n
+              \t\t\t\t\t\t\t\t\tPrint[pqlist[\([ct]\)]]; \n\t\t\t\t\t\t\t\t\t
+              Break[]\n\t\t\t\t\t\t], \n\t\t\t\t\t{w, 1, slist[\([ip]\)]}\n
+            \t\t\t\t\t]; \n\t\t\t\t\ \ If[Not[success], \ Break[]]\t\t\n
+          \t\t\t\t\ \ \ , {ct, 1, Length[pqlist]}\n\t\t]; \t\t\n
+        Print[success]; \t\t\t\n
+        If[Not[success], \ Return["\<n is composite\>"]]; \n\t\t\n
+        \t\t (*\ Next, \ maximal\ order\ \(search . \)\ *) \n\t\t
+        Print["\<Commence [Maximal-order search]...\>"]; \t\t\n\t\t\t\n\t\t\t
+        Do[\n\t\t\t\t\ \ \ \ p\  = \ Ilist[\([ip]\)]; \n\t\t\t\t\ \ \ \ 
+          maxw\  = \ 0; \n\t\t\t\t\ \ \ \ 
+          Do[\n\t\t\t\t\t\ \ \ \ \ \ \ \ 
+            q\  = \ \(pqlist[\([ct]\)]\)[\([2]\)]; \n
+            \t\t\t\t\t\ \ \ \ \ \ \ \ 
+            If[Mod[q - 1, \ p]\  != \ 0, \ Continue[]]; \n
+            \t\t\t\t\t\ \ \ \ \ \ \ \ w\  = \ \(pqlist[\([ct]\)]\)[\([4]\)]; 
+            \n\t\t\t\t\t\ \ \ \ \ \ \ \ 
+            If[w\  > \ maxw, \ maxw\  = \ w; \ q0\  = \ q]\t\t\t\t\t\n
+            \t\t\t\t\t\ \ \ \ \ \ \ \ , {ct, 1, Length[pqlist]}\n
+            \t\t\t\t\t\ ]; \n\t\t\t\t\ \ \ \ 
+          wlist\  = \ Append[wlist, \ maxw]; \n\t\t\t\t\ \ \ \ 
+          q0list\  = \ Append[q0list, \ q0]\t\t\t\t\n
+          \t\t\t\t\ \ \ \ \ , {ip, 1, Length[Ilist]}\n\t\t\t]; \n\t\t\t\n
+        \t\t\tDo[\n
+          \t\t\t\t\ \ {p, q, ip, iq}\  = \ Take[pqlist[\([ct]\)], \ {1, 4}]; 
+          \n\t\t\t\t\ \ Gsum\  = \ G[p, q, root[\([iq]\)]]; \n\t\t\t\t\ \ 
+          Gsum\  = \ powerModG[Gsum, \ ulist[\([ip]\)], \ p, \ q, \ n]; \t\t\n
+          \t\t\t\t\ \ 
+          Gsum\  = \ powerModG[Gsum, \ p^wlist[\([ip]\)], \ p, \ q, \ n]; \n
+          \t\t\t\ \ \ \ ex\  = \ Exponent[Gsum, \ zp]; \n\t\t\t\ \ \ \ 
+          If[Gsum\  - zp^ex\  != \ 0, \ ex\  = \ p - 1]; 
+          \ \  (*\ \(Case\ 1\  + \ zp\  + \  ... \)\  + \ z^\((p - 2)\)\  = \ 
+              \(-\(z^\((p - 2)\) . \)\)\ *) \n\t\t\t\ \ \ \ \ 
+          pqlist[\([ct, 6]\)]\  = \ \ ex\  (*\ 
+            Storage\ of\ l \(\((p, q)\) . \)\ *) \n
+          \t\t\t\t\ \ \ , {ct, 1, Length[pqlist]}\n\t\t\ \ \ \ ]; \t\t\n\t\t\t
+        \n\t\t\t (*\ Next, \ \(\([Coprime\ check]\) . \)\ *) \t\n\t\t\t
+        Print["\<Commencing [Coprime check]...\>"]; \n\t\t\t\n\t\t\t
+        Do[\n\t\t\t\t\ \ {p, q, ip, iq, \ w, \ l}\  = \ pqlist[\([ct]\)]; \n
+          \t\t\t\t\ \ 
+          If[\((w\  < \ 2)\)\  || \ \((l\  != \ 0)\), \ Continue[]]; \n
+          \t\t\t\t\t
+          Gsum\  = \ G[p, \ q0list[\([ip]\)], \ primroot[q0list[\([ip]\)]]]; 
+          \n\t\t\t\t\t
+          Gsum\  = \ powerModG[Gsum, \ ulist[\([ip]\)], p, \ q, \ \ n]; \n
+          \t\t\t\t\t
+          Gsum\  = \ powerModG[Gsum, \ p^\((w - 1)\), \ p, \ q, \ n]; \n
+          \t\t\t\ \ \ \  (*\ Next, \ 
+            check\ each\ ring\ coefficient\ for\ \(coprimality . \)\ *) \n
+          \t\t\t\ \ \ \ composite\  = \ False; \n\t\t\t\ \ \ \ 
+          done\  = \ False; \t\t\t\t\ \ \t\t\t\n\t\t\t\ \ \ \ 
+          Do[\ \  (*\ We\ shall\ find\ first\ nonzero\ coefficients, \ 
+              then\ test\ \(GCD . \)\ *) \n\t\t\t\t\ \ \ \ \ \ \ 
+            Gsumj\  = \ \((Gsum\  - \ zp^j)\)\  /. \ redrule2[p, q]; \n
+            \t\t\t\ \ \ \ \ \ \ \ \ \ 
+            Do[\n\t\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
+              If[k == 0, g\  = \ Gsumj\  /. \ zq -> 0, \ 
+                g\  = \ Coefficient[Gsumj, \ zq^k]]; 
+              \t\t\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \n
+              \t\t\t\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
+              If[g == 0, \ Continue[]]; \n
+              \t\t\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ done\  = \ True; \n
+              \t\t\t\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ h\  = \ GCD[g, \ n]; 
+              \n\t\t\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
+              If[\((h\  > \ 1)\)\  && \ \((h < n)\), composite\  = \ True; \ 
+                Break[]], \n
+              \t\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {k, q - 2, 0, 
+                \(-1\)}\n\t\t\t\t\ \ \ \ \ \ \ \ \ ]; \n
+            \t\t\t\t\ \ \ \ \ \ \ \ If[done, \ Break[]], \t\t\t\t\n
+            \t\t\t\t\t\ \ \ {j, 0, p - 1}\n\t\t\t\t\t]; \n\t\t\t\ \ \ \ 
+          If[done, \ Break[]]\n\t\t\t\t\ \ \ , {ct, 1, Length[pqlist]}\n
+          \t\t\ \ \ \ ]; \n\t\t\ \ \ 
+        If[composite, \ Return["\<n is composite\>"]]; \t\n\t\t\n
+        \t (*\ Next, \ \(\([Divisor\ search]\) . \)\ *) \t\n\t\t\t
+        Print["\<Commencing [Divisor search]...\>"]; \n\ \ \ \ \ \ \ 
+        Print[pqlist]; \n\t\t\n\t\t\n\t\t\t\t
+        Do[\n\t\t\t\t\ \ q\  = \ Flist[\([i]\)]; \n\t\t\t\t\ \ 
+          plist\  = \ \(tlist\  = \ {}\); 
+          \ \  (*\ List\ of\ p\ dividing\ q - 1. \ *) \n\ \ \ \ \ \ \ \ \ \ \ 
+          Do[\n\t\t\t\t\t\ 
+            If[\(pqlist[\([ct]\)]\)[\([2]\)]\  != \ q, \ Continue[]]; \n
+            \t\t\t\t\t\ \ p\  = \ \(pqlist[\([ct]\)]\)[\([1]\)]; \n
+            \t\t\t\t\t\ \ plist = \ Append[plist, \ p]; \n\t\t\t\t\t\ \ 
+            tlist\  = \ Append[tlist, \ \(pqlist[\([ct]\)]\)[\([6]\)]]\n
+            \t\t\t\t\t\t\t\t\t\ \ , {ct, 1, Length[pqlist]}\n\t\t\t\t\t]; 
+          \ \  (*\ Now\ plist\ has\ moduli\ p\ and\ tlist\ has\ residues\ 
+              \(\((mod\ p)\) . \)\ *) \n\t\t\t\ \ \ \ \ 
+          If[Length[plist]\  < \ 1, \ Continue[]]; \t\t\t\t\t\ \ \n
+          \t\t\t\t\t (*\ Next, \ perform\ simple\ CRT\ \(calculation . \)\ *) 
+            \n\t\t\t\t\tprod\  = \ Apply[Times, \ plist]; \n\t\t\t\t\ \ 
+          prlist\  = \ prod/plist; \n\t\t\t\t\ \ 
+          invlist\  = \ 
+            Table[PowerMod[prlist[\([ip]\)], \ \(-1\), \ plist[\([ip]\)]], {
+                ip, 1, Length[plist]}]; \n\t\t\t\ \ \ \ 
+          Print["\<pl, tl, prl, invl, lenF: \>", \ plist, \ tlist, \ prlist, 
+            \ invlist, \ Length[Flist]]; \n\t\t\t\t\ \ 
+          el\  = \ Mod[tlist\  . \ \((prlist\ *\ invlist)\), \ prod]; \n
+          \t\t\t\t\ \ llist\  = \ Append[llist, \ el]; 
+          \ \  (*\ Augment\ the\ list\ of\ the\ l \(\((q)\) . \)\ *) \n
+          \t\t\t\ \ \ \ 
+          qlist\  = \ Append[qlist, \ q]\ \  (*\ 
+            List\ of\ those\ q\ having\ a\ p | q - 1. \ *) \n
+          \t\t\t\t\ \ , {i, 1, Length[Flist]}\n\t\t\ \ ]; \n\t\t\t\n\t\t\n
+        \t\t (*\ Next, \ use\ CRT\ to\ construct\ an\ integer\ \(l . \)\ *) \ 
+        \n\t\t\n\t\tplist\  = \ qlist; \n\t\t
+        tlist\  = \ 
+          Table[PowerMod[primroot[qlist[\([iq]\)]], \ llist[\([iq]\)], \ 
+              plist[\([iq]\)]], \ {iq, 1, Length[qlist]}]; \n\t\ \ \ 
+        prod\  = \ Apply[Times, \ plist]; \n\t\ \ \ prlist\  = \ prod/plist; 
+        \n\t\t
+        invlist\  = \ 
+          Table[PowerMod[prlist[\([ip]\)], \ \(-1\), \ plist[\([ip]\)]], {ip, 
+              1, Length[plist]}]; \n\t\t
+        el\  = \ Mod[tlist\  . \ \((prlist\ *\ invlist)\), \ prod]; \ \n\t\t\n
+        \t\ti\  = \ 1; \n\t\tsuccess\  = \ True; \n\t\t
+        Do[\n\t\t\t\ \ i\  *= \ el; \n\t\t\t\ \ g\  = \ GCD[i, n]; \n
+          \t\t\t\ \ 
+          If[\((g > 1)\)\  && \ \((g < n)\), \ success = \ False; \ Break[]], 
+          \n\t\t\t\ \ {ct, 1, II - 1}\n\t\t]; \n\t\t
+        If[\(! success\), \ Return["\<n is composite\>"]]; \n\t\t
+        Return["\<n is prime\>"]; \t\t\n\t]; \t\t\n\t\t\t\t\t\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ EXAMPLE\ *) \n\nn\  = \ 2^31 - 1; \nTiming[\n\tgausstest[n]]\n
+    \)\)], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowSize->{758, 668},
+WindowMargins->{{Automatic, 52}, {Automatic, 30}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 1788, 30, 474, "Input"],
+Cell[3500, 81, 16814, 287, 3916, "Input"],
+Cell[20317, 370, 109, 2, 91, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

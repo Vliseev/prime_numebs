@@ -1,0 +1,145 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3999,        105]*)
+(*NotebookOutlinePosition[      4685,        130]*)
+(*  CellTagsIndexPosition[      4641,        126]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell["\<\
+(*
+Algorithm 3.5.9 (Lucas probable prime test).\t\t\t
+Support code for
+R. Crandall and C. Pomerance,
+\"Prime Numbers: a Computational Perspective,\"
+Springer-Verlag 2001.
+
+c. 2000 Perfectly Scientific, Inc.
+All Rights Reserved.
+\t
+\t1  Dec 2000 AH (small changes)
+\t14 Sep 2000 RT (Creation)
+*)
+
+(* Given integers n,a,b with del = a^2-4b not a square, n>1, and 
+gcd(n,2a b del)=1, this algorithm decides whether COMPOSITE n is 
+a Lucas probable prime with parameters a,b or is composite. *)
+\
+\>", "Input",
+  LineBreakWithin->False],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n
+    \[IndentingNewLine]lucastest[n_, a_, b_] := 
+      \[IndentingNewLine]Module[{A, m, mb, lmb, u, v, j}, 
+        \[IndentingNewLine] (*First, auxiliary\ \(parameters . \)*) 
+          \[IndentingNewLine]A = Mod[a^2\ PowerMod[b, \(-1\), n] - 2, n]; 
+        \[IndentingNewLine]m = \((n - JacobiSymbol[a^2 - 4\ b, n])\)/2; \ 
+        \[IndentingNewLine]Print["\<m = \>", m]; 
+        \[IndentingNewLine] (*Next, the\ binary\ Lucas\ chain, \ 
+          using\ the\ scheme\ of\ Algorithm\ 3.5 \( .7 . \)*) 
+          \[IndentingNewLine]mb = Reverse[IntegerDigits[m, 2]]; 
+        \[IndentingNewLine]lmb = Length[mb]; 
+        \[IndentingNewLine]{u, v} = {2, A}; \[IndentingNewLine]Print[A]; 
+        \[IndentingNewLine]Print[mb]; 
+        \[IndentingNewLine]For[j = lmb - 1, j \[GreaterEqual] 0, \(j--\), 
+          \[IndentingNewLine]Print[{u, v}]; 
+          \[IndentingNewLine]If[mb[[j + 1]] \[Equal] 1, 
+            \[IndentingNewLine]{u, v} = {Mod[u\ v - A, n], Mod[v^2 - 2, n]}, 
+            \[IndentingNewLine]{u, v} = {Mod[u^2 - 2, n], Mod[u\ v - A, n]}
+                \[IndentingNewLine]]\[IndentingNewLine]]; 
+        \[IndentingNewLine] (*Next, the\ \(declaration . \)*) 
+          \[IndentingNewLine]If[Mod[A\ u, n] \[Equal] Mod[2\ v, n], 
+          \[IndentingNewLine]Return[{n, 
+              "\< is a Lucas probable prime with parameters \>", a, b}], 
+          \[IndentingNewLine]Return[{n\ , "\< is composite\>"}]
+            \[IndentingNewLine]]\[IndentingNewLine]]\)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ *) \n\[IndentingNewLine]a = 13; \nb = 6; \n
+    Sqrt[delta = a^2 - 4  b]\), 
+    \(n = 701\), 
+    \(GCD[n, 2\ a\ b\ delta]\), 
+    \(lucastest[n, a, b]\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{782, 656},
+WindowMargins->{{69, Automatic}, {Automatic, 6}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 542, 20, 228, "Input"],
+Cell[2254, 71, 1537, 25, 372, "Input"],
+Cell[3794, 98, 201, 5, 116, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

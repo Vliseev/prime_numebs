@@ -1,0 +1,412 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[     10620,        366]*)
+(*NotebookOutlinePosition[     11510,        397]*)
+(*  CellTagsIndexPosition[     11466,        393]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 7.5  .10\ 
+        \((Explicit\ CM\ curve\ parameters\ for\ class\ numbers\ 1, 2)\) . 
+          \t\t\t\n\nSupport\ code\ for\n\ R . \ Crandall\ and\ 
+        C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\t04\ Dec\ 2000\ AH\ 
+        \((Small\ code\ changes, \ formatting)\)\n\t14\ Sep\ 2000\ RT\ 
+        \((Creation)\)\n*) \n
+    \n (*\ Given\ prime\ p > 
+          3\ this\ algorithm\ reports\ explicit\ CM\ curves\ y^2 = 
+        \(x^3 + ax + 
+            b\ \nover\ F_p\ with\ orders\ as\ specified\ in\ 
+              the\ [Option : orders\ only]\ step\ of\ \nAlgorithm\ 
+              7.5  .9 . \ The\ search\ herein\ is\ exhausitve\ over\ all\ 
+              discriminants\ D\ \nof\ class\ numbers\ h \((D)\) = 1\), 
+      2 : \ the\ algorithm\ reports\ every\ set\ of\ CM\ parameters\ \n
+          \((a, b)\)\ for\ the\ allowed\ class\ \(numbers . \)\ *) \)\)], 
+  "Input"],
+
+Cell["\<\
+(* CODE *)
+
+(* First, perform (a + b w)^n (mod p), where pair = {a,b}, w2 = w^2. *)
+
+pow[{a_,b_}, w2_, n_, p_] := 
+\tBlock[{bitlist, z, zi, mod = (Mod[#,p]&)},
+    \tbitlist = Reverse[IntegerDigits[n,2]];
+    \t{x,y} = {a,b};
+\t\tDo[\t
+\t   \t\tzi = y^2//modp;
+\t   \t\t{x,y} = {ai^2 + w2 zi, 2 x y }//modp;   
+\t   \t\tIf[ bitlist[[q]] == 1,
+\t       \t\tzi = b y//modp;
+\t   \t   \t\t{x,y} = {a x + w2 zi, a y + b xp}//modp\t   \t        
+\t   \t\t],
+\t   \t\t{q, 2,Length[bitlist]}
+    \t];
+    \t{x,y}
+\t]
+
+(* Next, a routine for the integer part of a square root. *)
+bits[n_]:=If[n==0,1,Length[IntegerDigits[n,2]]]
+intsqrt[n_]:= 
+\tModule[{x,y},
+\t\tIf[n<0, Return[0]];  (* Convention. *)
+\t\tx = 2^Ceiling[bits[n]/2];
+\t\ty = Floor[(x+Floor[n/x])/2];
+\t\tWhile[x > y,
+\t\t\tx = y;
+\t\t\ty = Floor[(x + Floor[n/x])/2];
+\t\t];
+\t\tx
+\t];
+
+(* Next, a routine for square roots mod p. *)
+sqrtmod[b_,p_]:= 
+\tModule[{a,x,c,d,cd,m,t,tst},
+   \t\ta = Mod[b,p];
+   \t\tIf[p == 2, Return[a]];
+    \tIf[MemberQ[{3,7},Mod[p,8]],
+      \t\tReturn[PowerMod[a,(p+1)/4,p]]
+      \t];
+    \tIf[Mod[p,8] == 5,
+      \t\tx = PowerMod[a,(p+3)/8,p];
+      \t\tc = Mod[x^2,p];
+      \t\tIf[Not[c == a],
+        \t\tReturn[Mod[x PowerMod[2,(p-1)/4,p], p]]
+        \t];
+      \t];
+    \t
+    \t(* Here, p = 1 (mod 8). *)
+      \ttst = 1;
+      \tWhile[Not[tst == -1],
+        \td = Random[Integer,{1,p}];
+        \ttst = JacobiSymbol[d,p]
+        ];
+      \tt = (p-1)/2; s = 1;
+      \tWhile[EvenQ[t], t = t/2; ++s];
+      \tca = PowerMod[a,t,p];
+      \tcd = PowerMod[d,t,p];
+      \tm = 0;
+      \tDo[
+      \t   If[PowerMod[Mod[ca PowerMod[cd, m, p],p], 2^(s-1-i), p]
+      \t   \t\t== p-1, m += 2^i]
+      \t   ,{i,0,s-1}
+      \t];      \t    
+      \tReturn[Mod[PowerMod[a, (t+1)/2,p] PowerMod[cd, m/2,p],p]]; 
+\t];
+
+(* Next, we include Algorithm 2.3.13. *)
+modifiedcornacchia[d_,p_]:=
+\tModule[{xo, a,b,c,t},
+\t\tIf[p==2,
+\t\t\tIf[(d+8 == (intsqrt[d+8])^2),
+\t\t\t\tReturn[{intsqrt[d+8],1}]
+\t\t\t\t,
+\t\t\t\tReturn[{}]
+\t\t\t];
+\t\t\t,
+\t\t\tIf[JacobiSymbol[d,p] < 1,
+\t\t\t\tReturn[{}]
+\t\t\t\t,
+\t\t\t\txo = sqrtmod[d,p];
+\t\t\t\tIf[Not[Mod[xo^2,2] == Mod[d,2]],
+\t\t\t\t\txo = p-xo;
+\t\t\t\t];
+\t\t\t\ta = 2p;
+\t\t\t\tb = xo;
+\t\t\t\tc = intsqrt[4 p];
+\t\t\t\tWhile[(b > c),
+\t\t\t\t\t{a,b} = {b,Mod[a,b]}
+\t\t\t\t];
+\t\t\t\tt = 4p-b^2;
+\t\t\t\tIf[Not[Mod[t,-d]==0],
+\t\t\t\t\tReturn[{}]
+\t\t\t\t\t,
+\t\t\t\t\tIf[Not[-t/d==(intsqrt[-t/d])^2],
+\t\t\t\t\t\tReturn[{}]
+\t\t\t\t\t\t,
+\t\t\t\t\t\tReturn[{b,Sqrt[-t/d]}]
+\t\t\t\t\t]
+\t\t\t\t]
+\t\t\t]
+\t\t]
+\t]
+
+
+(* Next, we include Algorithm 7.2.7. *)
+ellinv[n_] := PowerMod[n,-1,p];
+ex[pt_] := Mod[pt[[1]] * ellinv[pt[[2]]], p];
+squareQ[x_] := PowerMod[x, (p-1)/2, p] != (p-1);
+pointQ[x_] := squareQ[x^3 + c x^2 + a x + b];
+
+(* Next, binary expansion for very old M'ca versions, otherwise use \
+IntegerDigits[.,2]. *)
+bitList[k_] := 
+\tBlock[{li = {}, j = k},
+\t\tWhile[j > 0,
+\t    \tli = Append[li, Mod[j,2]];
+\t    \tj = Floor[j/2]
+\t\t];
+\t\tReverse[li]
+\t];
+
+elleven[pt_] := 
+\tBlock[{x1 = pt[[1]], z1 = pt[[2]], e, f },
+  \t\te = Mod[(x1^2 - a z1^2)^2 - 4 b (2 x1 + c z1) z1^3, p];
+  \t\tf = Mod[4 z1 (x1^3 + c x1^2 z1 + a x1 z1^2 + b z1^3), p];
+  \t\tReturn[{e,f}]
+\t];
+
+ellodd[pt_, pu_, pv_] := Block[
+\t\t{x1 = pt[[1]], z1 = pt[[2]],
+\t\t x2 = pu[[1]], z2 = pu[[2]],
+\t\t xx = pv[[1]], zz = pv[[2]], i, j},
+  \t     i = Mod[zz ((x1 x2 - a z1 z2)^2 -
+  \t          4 b(x1 z2 + x2 z1 + c z1 z2) z1 z2), p];
+  \t     j = Mod[xx (x1 z2 - x2 z1)^2, p];
+  \t\t Return[{i,j}]
+];
+
+(* Now, the main routine, elliptic multiply [k]pt. *)
+elliptic[pt_, k_] := Block[{porg, ps, pp, q},
+\tIf[k ==1, Return[pt]];
+\tIf[k ==2, Return[elleven[pt]]];
+\tporg = pt;
+\tps = elleven[pt];
+\tpp = pt;
+\tbitlist = Reverse[IntegerDigits[k,2]];
+\tDo[\t   
+\t   If[bitlist[[q]] == 1,
+\t   \t   pp = ellodd[ps, pp, porg];
+\t   \t   ps = elleven[ps],
+\t   \t      ps = ellodd[pp, ps, porg];
+\t\t      pp = elleven[pp]
+\t   ],
+\t   {q,Length[bitlist]-1, 1, -1}
+    ];
+    Return[Mod[pp,p]]
+];
+
+(* Next, a point finding function *)
+findpoint[start_] := Block[{x = start},
+\tWhile[True,
+\t   If[pointQ[x], Break[]];
+\t   ++x;
+\t];
+\tReturn[{x, 1}]
+];
+
+(* Next, the a,b resolvers for discriminants D of class numbers 1,2. For D = \
+-3, -4 we have previously known orders/curves.  For D < -4, the orders are p \
++ 1 +- u, for 4p = u^2 + D v^2, and the explicit curves for the two orders \
+are y^2 = x^3 + (-3 r s^3) g^(2k) x  + (2 r s^5 g^(3k)) where k = 0,1 and the \
+table entries of 'ablist' are {D, r, s}. *) 
+
+paramlist = {{-3, 0 t, 1,1}, 
+{-4, DirectedInfinity[] t, 1,1}, 
+{-7, 125 t, 189,1}, 
+  {-8, 125 t, 98,1}, 
+  {-11, 512 t, 539,1}, 
+  {-19, 512 t, 513,1}, 
+  {-43, 512000 t, 512001,1}, 
+  {-67, 85184000 t, 85184001,1}, 
+  {-163, 151931373056000 t, 151931373056001,1}, 
+  {-15, 1225 - 2080*t, 5929,Sqrt[5]}, 
+  {-20, 108250 + 29835*t, 174724,Sqrt[5]}, 
+  {-24, 1757 - 494*t, 1058,Sqrt[2]}, 
+  {-35, -1126400 - 1589760*t, 2428447,Sqrt[5]}, 
+  {-40, 54175 - 1020 t, 51894,Sqrt[5]}, 
+  {-51, 75520 - 7936 t, 108241,Sqrt[17]}, 
+  {-52, 1778750 + 5125 t, 1797228,Sqrt[13]}, 
+  {-88, 181713125 - 44250 t, 181650546,Sqrt[2]}, 
+  {-91, 74752 - 36352 t, 205821,Sqrt[13]}, 
+  {-115, 269593600 - 89157120 t, 468954981,Sqrt[5]}, 
+  {-123, 1025058304000 - 1248832000 t, 1033054730449,Sqrt[41]}, 
+  {-148, 499833128054750 + 356500625 t, 499835296563372,Sqrt[37]}, 
+  {-187, 91878880000 - 1074017568000 t, 4520166756633,Sqrt[17]}, 
+  {-232, 1728371226151263375 - 11276414500 t, 
+   1728371165425912854,Sqrt[29]}, 
+   {-235, 7574816832000 - 190341944320 t, 8000434358469,Sqrt[5]}, 
+  {-267, 3632253349307716000000 - 12320504793376000 t, 
+   3632369580717474122449,Sqrt[89]}, 
+  {-403, 16416107434811840000 - 4799513373120384000 t, 
+   33720998998872514077,Sqrt[13]}, 
+   {-427, 
+   564510997315289728000 - 5784785611102784000 t, 
+   609691617259594724421,Sqrt[61]}};
+\
+\>", "Input",
+  AutoIndent->False,
+  LineBreakWithin->False,
+  LineIndent->0,
+  AspectRatioFixed->True],
+
+Cell["\<\
+(* EXAMPLE *)
+
+(* First we define p and its quadratic nonresidue. *)
+
+p = (2^31 + 1)/3;
+g = 2;
+While[(JacobiSymbol[g,p] != -1) || 
+        ((Mod[p,3] ==1) && PowerMod[g, (p-1)/3, p] == 1), g++];
+Print[\"g: \", g];
+
+(* Next, loop over the representations. *)
+Do[
+\td = paramlist[[dd]][[1]];
+\tPrint[\"D: \",d];
+\tre = modifiedcornacchia[d,p];
+\tPrint[re];
+\tIf[Length[re] < 2, Continue[]];
+\t{u,v} = re;
+
+(* Next, handle d=-3,-4 as mentioned above. *)
+    If[d == -3,
+    \tord = {p + 1 + (u+3v)/2, p + 1 + (u-3v)/2,
+    \t\t\tp + 1 - (u+3v)/2,
+    \t        p + 1 - (u-3v)/2,
+    \t        p + 1 + u, p + 1 - u};
+    ];
+    If[d == -4,
+    \tord = {p + 1 + 2v, p + 1 - 2v,
+    \t        p + 1 + u, p + 1 - u};
+\t];
+\tIf[d < -4, ord = {p+1+u, p+1-u}];\t
+\tnord = Length[ord];
+\tIf[d < -4,
+    \tr = paramlist[[dd]][[2]];
+    \ts = paramlist[[dd]][[3]];
+    \trad = paramlist[[dd]][[4]];
+    \tr1 = r /. t->0;
+    \tr1 += Coefficient[r, t] * sqrtmod[rad^2,p];
+    \ta0 = Mod[-3 r1 s^3, p];
+    \tb0 = Mod[2 r1 s^5, p];
+    ];
+    
+    Do[
+    \tIf[d == -4,
+    \t    a = Mod[-PowerMod[g, nn,p],p];
+    \t    b = 0
+    \t];
+    \tIf[d == -3,
+    \t    b = Mod[-PowerMod[g, nn,p],p];
+    \t    a = 0
+    \t];    \t
+    \tIf[d < -4, a = Mod[a0 PowerMod[g, 2*nn,p], p];
+    \t   b = Mod[b0 PowerMod[g, 3*nn,p], p];
+    \t   ];
+    \tc = 0;
+    \tPrint[\"y^2 = x^3 + \",a,\"x + \",b];
+    \tpt0 = findpoint[1];
+    \tPrint[\"pt0: \", pt0];
+    \tDo[
+    \t    pt = elliptic[pt0, ord[[w]]];
+    \t    Print[\"--------: ,\", pt];
+    \t    If[pt[[2]] == 0,
+    \t    \tPrint[ord[[w]], \" \",FactorInteger[ord[[w]]]]
+    \t    ],
+    \t    {w,1,nord}
+    \t]
+    \t,{nn,0,nord-1}
+    ]
+   ,
+\t{dd,1, Length[paramlist]}
+];
+\
+\>", "Input",
+  AutoIndent->False,
+  LineBreakWithin->False,
+  LineIndent->0,
+  AspectRatioFixed->True]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{814, 551},
+WindowMargins->{{Automatic, 16}, {Automatic, 64}},
+PrintingCopies->1,
+PrintingPageRange->{1, Automatic},
+PrivateNotebookOptions->{"ColorPalette"->{RGBColor, -1}},
+ShowCellLabel->True,
+ShowCellTags->False,
+RenderingOptions->{"ObjectDithering"->True,
+"RasterDithering"->False}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 1083, 20, 257, "Input"],
+Cell[2795, 71, 5991, 214, 2496, "Input"],
+Cell[8789, 287, 1827, 77, 876, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

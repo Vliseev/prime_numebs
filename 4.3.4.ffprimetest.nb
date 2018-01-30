@@ -1,0 +1,341 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[     16294,        303]*)
+(*NotebookOutlinePosition[     16933,        326]*)
+(*  CellTagsIndexPosition[     16889,        322]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \( (*\n\ 
+      Algorithm\ 4.3  .4\ 
+        \((Finite\ field\ primality\ test)\) . \n\t\t\t\n\ Support\ code\ for
+        \n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\n\t\t\t14\ Sep\ 2000\ RT\ 
+        \((Creation)\)\n\t\t\ 20\ Sep\ 2000\ RT\ 
+        \((Changed\ Euclid\ chain, \ made\ output\ into\ list)
+          \)\[IndentingNewLine]\ 02\ Feb\ 2001\ KS\ 
+        \((Drafted\ a\ new\ version)\)\[IndentingNewLine]\ 24\ Apr\ 2001\ RC\ 
+        \((Improved\ various\ routines)\)\[IndentingNewLine]\ 11\ Nay\ 2001\ 
+        JC\ \((Improved\ further)\)\n\ *) \)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \[IndentingNewLine]\[IndentingNewLine] (*\ 
+      Finite\ Fields\ Primality\ Test\ *) 
+      \[IndentingNewLine]\[IndentingNewLine]FFPrimalityTest[n_Integer, 
+        i_Integer, F_Integer] := 
+      Module[{pass, output, fpoly, gpoly, conjclasses, div}, 
+        \[IndentingNewLine]If[Mod[n^i, F] \[NotEqual] 1, 
+          Return[Print["\<Improper Values for {n,I,F}\>"]]]; 
+        \[IndentingNewLine]If[F^3 < n, 
+          Return[Print["\<Improper Values for {n,I,F}\>"]]]; 
+        \[IndentingNewLine]\[IndentingNewLine]output\  = \ 
+          findIrreducible[n, i]; 
+        \[IndentingNewLine]If[Length[output] \[Equal] 2, 
+          \[IndentingNewLine]Return[Print[n, "\< is composite:\>", output]], 
+          \[IndentingNewLine]\(fpoly = output[\([1]\)]; 
+          \)\[IndentingNewLine]]; 
+        \[IndentingNewLine]\[IndentingNewLine]output = 
+          findPrimitiveElement[n, i, F, \ fpoly]; 
+        \[IndentingNewLine]If[Length[output] \[Equal] 5, 
+          \[IndentingNewLine]Return[
+            Print[n, "\< is composite: (\>", output[\([2]\)], "\<)^(n^\>", i, 
+              "\<-1) mod\>", output[\([4]\)], \ "\<=\>", output[\([5]\)]]], 
+          \[IndentingNewLine]\(If[Length[output] \[Equal] 2, 
+            \[IndentingNewLine]Return[Print[n, "\< is composite:\>", output]]
+              \[IndentingNewLine]]; \)\[IndentingNewLine]]; 
+        \[IndentingNewLine]gpoly = output[\([1]\)]; 
+        \[IndentingNewLine]\[IndentingNewLine]output = 
+          SymmetricExpressionsCh[n, i, fpoly, gpoly]; 
+        \[IndentingNewLine]If[Length[output] > 1, 
+          \[IndentingNewLine]Return[
+            Print[n, "\< is composite by symmetric expressions check, f=\>", 
+              output[\([1]\)], "\<, g=\>", output[\([2]\)], "\<, I=\>", 
+              output[\([3]\)], "\<, j=\>", output[\([4]\)]]]]; 
+        \[IndentingNewLine]\[IndentingNewLine] (*\ Divisor\ Search\ *) 
+          \[IndentingNewLine]conjclasses = 
+          Union[Table[PowerMod[n, j, F], {j, 1, i - 1}]]; 
+        \[IndentingNewLine]For[j = 1, j \[LessEqual] Length[conjclasses], 
+          \(++j\), 
+          \[IndentingNewLine]div = 
+            Complement[resclassdiv[n, conjclasses[\([j]\)], F], {1, n}]; 
+          \[IndentingNewLine]If[div \[NotEqual] {}, 
+            Return[{div[\([1]\)], n/div[\([1]\)]}]]; \[IndentingNewLine]]; 
+        \[IndentingNewLine]Return[Print[n, "\< is prime\>"]]; 
+        \[IndentingNewLine]\[IndentingNewLine]]; 
+    \[IndentingNewLine]\[IndentingNewLine]\[IndentingNewLine]\n (*\ First, \ 
+      a\ routine\ to\ generate\ a\ random\ monic\ poly\ w/\ coefficients\ in\ 
+        \(Z_n[x] . \)\ *) \[IndentingNewLine]\n
+    monicpolyZn[var_, deg_, \ n_] := 
+      Module[{monicpoly, ctr}, 
+        \[IndentingNewLine]monicpoly = 
+          var^deg + 
+            Sum[Random[Integer, \ {0, \ n - 1}]\ *\ var^ctr, {ctr, 0, 
+                deg - 1}]; \[IndentingNewLine]Return[monicpoly]; 
+        \[IndentingNewLine]]; \n
+    \n (*\ Next, \ Algorithm\ 4.3 \( .2 . \)\ *) \n\n
+    principalgenerator[fout_, gout_, n_] := 
+      \  (*\ Returns\ length - 2\ list\ if\ n\ is\ found\ composite, \n
+        \t\t\ \ \ \ \ else\ returns\ {GCD\ polynomial} . \ JC\ *) 
+        \[IndentingNewLine]\t
+      Module[{c, r, gcd, f = fout, g = gout}, \[IndentingNewLine]\t\t
+        Label[ZeroP]; 
+        \[IndentingNewLine]\t\t (*\ Next, \ the\ zero\ polynomial\ check\ *) 
+          \[IndentingNewLine]\t\tIf[Expand[f] === 0, \ \(Return[{g}]; \)]; 
+        \[IndentingNewLine]\[IndentingNewLine]\t\t (*\ Next, \ 
+          the\ Euclid\ \(step . \)\ *) \[IndentingNewLine]\t\t
+        If[Exponent[f, x] == 0, \[IndentingNewLine]\t\t\t
+          c = f\[IndentingNewLine]\t\t\t, \[IndentingNewLine]\t\t\t
+          c = Coefficient[f, x^Exponent[f, x]]\[IndentingNewLine]\t\t]; 
+        \[IndentingNewLine]\t\tgcd\  = \ ExtendedGCD[c, n]; 
+        \[IndentingNewLine]\t\t
+        If[gcd[\([1]\)] != 1, Return[{gcd[\([1]\)], n/gcd[\([1]\)]}]]; 
+        \[IndentingNewLine]\t\tcInv\  = gcd[\([2, 1]\)]; 
+        \[IndentingNewLine]\t\tf\  = \ PolynomialMod[Expand[cInv\ *\ f], n]; 
+        \[IndentingNewLine]\t\t
+        r\  = \ PolynomialMod[PolynomialRemainder[g, f, x], n]; 
+        \[IndentingNewLine]\t\t{f, g} = \ {r, f}; \[IndentingNewLine]\t\t
+        Goto[ZeroP]; \[IndentingNewLine]\t]; 
+    \[IndentingNewLine]\n (*\ Next, \ 
+      a\ modified\ version\ of\ Algorithm\ 2.2  .9 
+        \(\((uses\ Algorithm\ 4.3  .2\ and\ polynomial\ powering)\) . \)\ *) 
+      \n\npolypowermod[base_, \ exp_, \ divpoly_, \ p_]\  (*\ 
+        Computes\ base^exp\ \((mod\ divpoly)\)\ in\ Z_p[x]\ JC\ *)  := \ \n\t
+      Module[{bit\  = \ IntegerDigits[exp, \ 2], \ acc}, \n\t\t
+        acc\  = \ PolynomialMod[base, \ divpoly, \ Modulus -> p]; \n\t\t
+        Do[\n\t\t\t
+          acc\  = \ \ PolynomialMod[acc*acc, divpoly, \ Modulus -> \ p]; \n
+          \t\t\tIf[bit[\([q]\)]\  == \ 1, \n\t\t\t\t
+            acc\  = \ PolynomialMod[acc\ *\ base, \ divpoly, \ Modulus -> p]\n
+            \t\t\t], \n\t\t\t{q, 2, Length[bit]}\n\t\t]; \n\t\tacc\n\t]; 
+    \[IndentingNewLine]\n
+    irreducibilityTest[p_, f_] := 
+      \  (*\ Return\ values\ as\ 
+          \(follows : \n\t\t\t\t\ \ \ \ \ \({0} : \ If\ reducible\)\); \n
+        \t\t\ \ \ \ \ \ \ {1} : \ If\ irreducible; \n
+        \t\t\ \ \ \ \ \ \ {a, b} : \ For\ nontrivial\ factor\ p\  = \ 
+          a\ b\ if\ p\ is\ found\ composite . \n\t\t\t\t\tJC\ *) \n\n\t\t
+      Module[{\ g, k, i, d}, \[IndentingNewLine]Clear[x]; 
+        \[IndentingNewLine]g\  = \ x; \[IndentingNewLine]k = Exponent[f, x]; 
+        \[IndentingNewLine]For[i = 1, i \[LessEqual] Floor[k/2], \(i++\), 
+          \[IndentingNewLine]g\  = \ polypowermod[g, \ p, \ f, \ p]; 
+          \ \  (*\ g\  := \ g^p\ mod\ \(f . \)\ *) \[IndentingNewLine]d\  = \ 
+            principalgenerator[f, g\  - \ x, p]; \n\t\t\t\ \ 
+          If[Length[d]\  == \ 2, \ Return[{0}]]; \n\t\t\t\ \ \ 
+          If[Exponent[d[\([1]\)], \ x]\  > \ 0, \ Return[{0}]]; 
+          \[IndentingNewLine]\ ]; \[IndentingNewLine]\ \ \ Return[{1}]; 
+        \[IndentingNewLine]]; 
+    \[IndentingNewLine]\[IndentingNewLine] (*\ Next, \ 
+      find\ irreducible\ polynomial\ of\ degree\  <= \ \(i . \)\ *) 
+      \[IndentingNewLine] (*\ 
+      This\ module\ loops\ until\ it\ finds\ a\ polynomial\ of\ degree\  <= 
+        \ \ \ \ \ \n\t\ \ \ 
+        i\ in\ Z_n[x]\ that\ is\ irreducible\ if\ n\ is\ \(prime . \)\ *) \n\n
+    findIrreducible[n_, \ i_]\  := \ 
+      Module[{cont, \ retval}, 
+        \[IndentingNewLine]\[IndentingNewLine]\(While[True, 
+          \[IndentingNewLine]testpoly\  = \ monicpolyZn[x, \ i, \ n]; 
+          \[IndentingNewLine]retval\  = \ irreducibilityTest[n, testpoly]; 
+          \[IndentingNewLine]If[Length[retval]\  == \ 2, 
+            \[IndentingNewLine]\(Return[retval]; \)\[IndentingNewLine]]; 
+          \[IndentingNewLine]If[retval[\([1]\)]\  == \ 1, 
+            \[IndentingNewLine]\ \ \(Return[{testpoly}]; 
+            \)\[IndentingNewLine]]; \[IndentingNewLine]]; 
+        \)\[IndentingNewLine]]; \[IndentingNewLine]\n
+    findPrimitiveElement[\ nm_, \ im_, \ Fm_, \ fm_]\  := \ 
+      \[IndentingNewLine] (*\ Returns\ a\ proof, \ {nm, g, im, fm, test}, \ 
+        that\ nm\ is\ composite\ by\ \[IndentingNewLine]g^\((nm^im - 1)\)\ mod
+            \ fm = test, 
+        \[IndentingNewLine]or\ a\ factorization\ {a, b}\ of\ n, \ 
+        \[IndentingNewLine]or\ some\ primitive\ element, \ {g}, \ 
+        of\ Z_nm[x]/fm\ assuming\ n\ is\ \(prime . \)\[IndentingNewLine]*) 
+        \[IndentingNewLine]\[IndentingNewLine]Module[{\ n\  = \ nm, \ 
+          i\  = \ im, F\  = \ Fm, \ f\  = \ fm, \ ctr, \ test}, 
+        \[IndentingNewLine]Label[FPE]; 
+        \[IndentingNewLine]g\  = \ monicpolyZn[x, \((i\  - \ 1)\), \ n]; 
+        \[IndentingNewLine]test\  = \ polypowermod[g, \ n^i - 1, \ f, \ n]; 
+        \ \  (*\ test\  := \ g^\((n^i - 1)\)\ mod\ \(f . \)\ *) 
+          \[IndentingNewLine]\[IndentingNewLine]\[IndentingNewLine]If[
+          test \[NotEqual] 1, 
+          \[IndentingNewLine]\(Return[{n, g, i, f, test}]; 
+          \)\[IndentingNewLine]]; 
+        \[IndentingNewLine]\[IndentingNewLine]qarray\  = \ FactorInteger[F]; 
+        \[IndentingNewLine] (*\ next, \ 
+          get\ just\ the\ list\ of\ prime\ \(factors . \)\ *) 
+          \[IndentingNewLine]qarray = 
+          Table[\(qarray[\([ctr]\)]\)[\([1]\)], {ctr, \ 1, \ 
+              Length[qarray]}]; \t
+        \[IndentingNewLine]\[IndentingNewLine]For[ctr\  = \ 1, \ 
+          ctr\  \[LessEqual] \ Length[qarray], \ \(ctr++\), 
+          \[IndentingNewLine] (*\ 
+            Attempt\ to\ compute\ gcd \(("\<\>")\)\ via\ Algorithm\ 4.3  .2, 
+            \ but\ if\ a\ factorization\ of\ n\ is\ found\ return\ 
+              "\<N is composite\>"\ *) 
+            \[IndentingNewLine]\[IndentingNewLine]test\  = \ 
+            polypowermod[g, \ \((n^i - 1)\)/qarray[\([ctr]\)], \ f, \ n]; 
+          \ \  (*\ test\  := \ g^\((\((n^i - 1)\)/q)\)\ mod\ \(f . \)\ *) 
+            \[IndentingNewLine]\[IndentingNewLine]test\  = \ 
+            principalgenerator[f, test, \ n]; 
+          \[IndentingNewLine]\[IndentingNewLine]If[Length[test]\  == \ 2, 
+            \[IndentingNewLine]\ \(Return[test]; \)\[IndentingNewLine]]; 
+          \[IndentingNewLine]If[test[\([1]\)] \[NotEqual] 1, Goto[FPE]]; 
+          \[IndentingNewLine]]; \[IndentingNewLine]Return[{g}]; 
+        \[IndentingNewLine]]; \[IndentingNewLine]\n
+    SymmetricExpressionsCh[n_, i_, f_, g_] := 
+      Module[{j, k, poly, gpow = g, d}, \[IndentingNewLine]Clear[x, T]; 
+        \[IndentingNewLine]poly = 1; \[IndentingNewLine]d = 0; 
+        \[IndentingNewLine]poly = T - gpow; 
+        \[IndentingNewLine]For[j = 2, j \[LessEqual] i, \(j++\), 
+          \[IndentingNewLine]gpow = polypowermod[gpow, n, \ f, \ n]; 
+          \[IndentingNewLine]poly = 
+            PolynomialMod[poly*\((T - gpow)\), f, Modulus -> n]; 
+          \[IndentingNewLine]]; 
+        \[IndentingNewLine]For[j = 0, j < i, \(++j\), 
+          \[IndentingNewLine]\(If[Exponent[Coefficient[poly, T, 0], x] > 0, 
+            \[IndentingNewLine]\(Return[{f, g, i, j}]; \)]; 
+          \)\[IndentingNewLine]]; \[IndentingNewLine]Return[0]; 
+        \[IndentingNewLine]]; 
+    \[IndentingNewLine]\[IndentingNewLine] (*\ Next, \ 
+      Algorithm\ 4.2  .11\ *) \[IndentingNewLine]\n
+    resclassdiv[n_, r_, s_] := 
+      Module[{residues, rstar, rprime, a, b, c, q, i, t, j, potential, cee, 
+          upperbound, lowerbound, len},  (*First, we\ \(initialize . \)*) 
+          residues = {}; \[IndentingNewLine]rstar = PowerMod[r, \(-1\), s]; 
+        \[IndentingNewLine]rprime = Mod[n\ rstar, s]; 
+        \[IndentingNewLine]{a[0], a[1]} = {s, Mod[rprime\ rstar, s]}; 
+        \[IndentingNewLine]{b[0], b[1]} = {0, 1}; 
+        \[IndentingNewLine]{c[0], c[1]} = {0, 
+            Mod[\((n - r\ rprime)\)/s\ rstar, s]}; 
+        \[IndentingNewLine]{q[0], q[1]} = {0, 0}; 
+        \[IndentingNewLine] (*Next, the\ Euclidean\ \(chains . \)*) For[
+          i = 2, True, \(i++\), q[i] = Quotient[a[i - 2], a[i - 1]]; 
+          \[IndentingNewLine]a[i] = a[i - 2] - q[i]\ a[i - 1]; 
+          \[IndentingNewLine]If[EvenQ[i], If[a[i] \[Equal] 0, \(Break[]; \)], 
+            If[a[i] \[Equal] 0, a[i] += a[i - 1]; 
+              \[IndentingNewLine]\(q[i]--\)]]]; \ t = i; 
+        \[IndentingNewLine] (*t\ used\ in\ next\ two\ For\ lops*) For[j = 2, 
+          j \[LessEqual] t, \(j++\), b[j] = b[j - 2] - q[j]\ b[j - 1]; 
+          \[IndentingNewLine]c[j] = c[j - 2] - q[j]\ c[j - 1]]; 
+        \[IndentingNewLine] (*Next, the\ loop, 
+          in\ which\ we\ find\ our\ \(solutions . \)*) For[i = 0, 
+          i \[LessEqual] t, \(i++\), 
+          If[EvenQ[i], upperbound = s; 
+            \[IndentingNewLine]lowerbound = \(-s\), 
+            upperbound = a[i]\ b[i] + n/s^2; 
+            \[IndentingNewLine]lowerbound = 2\ a[i]\ b[i]]; 
+          \[IndentingNewLine]For[cee = lowerbound + 1, cee < upperbound, 
+            \(cee++\), 
+            If[Mod[cee, s] \[Equal] Mod[c[i], s], 
+              potential = 
+                Solve[{x\ a[i] + y\ b[i] \[Equal] cee, 
+                    \((x\ s + r)\)\ \((y\ s + rprime)\) \[Equal] n}, {x, y}]; 
+              \[IndentingNewLine]len = Length[potential]; 
+              \[IndentingNewLine] (*Next, if\ there\ is\ no\ solution, 
+                move\ \(on . \)*) If[len \[Equal] 0, Break[]]; 
+              \[IndentingNewLine]potential = ReplaceAll[{x, y}, potential]; 
+              \[IndentingNewLine]Do[
+                If[MatchQ[potential[\([k]\)], {_Integer, _Integer}] && 
+                    potential[\([k, 1]\)] \[GreaterEqual] 0 && 
+                    potential[\([k, 2]\)] \[GreaterEqual] 0, 
+                  If[Not[MemberQ[residues, potential[\([k, 1]\)]\ s + r]], 
+                    residues = 
+                      Append[residues, potential[\([k, 1]\)]\ s + r]]], {k, 
+                  1, len}]]]]; \[IndentingNewLine]Sort[residues]]; 
+    \[IndentingNewLine]\)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ *) \n\nFFPrimalityTest[7, 2, 3]\n\), 
+    \(FFPrimalityTest[77, 3, 19]\n\), 
+    \(FFPrimalityTest[9747, 3, 443]\n\), 
+    \(CompoundExpression[\[IndentingNewLine]Label[start]; 
+      \[IndentingNewLine]n = Prime[Random[Integer, {1000, 2000}]]; 
+      \[IndentingNewLine]i = Random[Integer, {2, 11}]; 
+      \[IndentingNewLine]div = 
+        Select[Select[Divisors[n^i - 1], #1 > n^\((1/3)\)&], #1 < n&]; 
+      \[IndentingNewLine]If[Length[div] \[NotEqual] 0, 
+        \[IndentingNewLine]F = div[\([Random[Integer, {1, Length[div]}]]\)], 
+        \[IndentingNewLine]\(Goto[start]; \)\[IndentingNewLine]]; 
+      \[IndentingNewLine]]; \n\[IndentingNewLine]Print[{n, i, F}]; 
+    \[IndentingNewLine]\nFFPrimalityTest[n, i, F]\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowSize->{674, 476},
+WindowMargins->{{Automatic, 121}, {Automatic, 106}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 773, 13, 242, "Input"],
+Cell[2485, 64, 13029, 222, 2923, "Input"],
+Cell[15517, 288, 773, 13, 306, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

@@ -1,0 +1,207 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      7997,        167]*)
+(*NotebookOutlinePosition[      8662,        191]*)
+(*  CellTagsIndexPosition[      8618,        187]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 4.2  .11\ 
+        \((Divisors\ in\ residue\ classes)\) . \t\t\t\n\ Support\ code\ for\n
+        \ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\t\[IndentingNewLine]\t03\ Dec\ 2000
+        \ AH\ \((
+          While\ replaced\ with\ For\ some\ For' s\ replaceced\ 
+            \[IndentingNewLine]\t\t\t\t\tby\ Do' s)\)\[IndentingNewLine]\t20\ 
+        Sep\ 2000\ RT\ 
+        \((Changed\ Euclid\ chain, \ made\ output\ into\ list)
+          \)\[IndentingNewLine]\t14\ Sep\ 2000\ RT\ \((Creation)\)\n\ *) \n
+    \n (*\ We\ are\ given\ positive\ integers\ n, r, 
+      s\ with\ r\  < \ s\  < \ n\ and\ GCD[r, \ s]\  \[Equal] \ 
+        1. \ \ \[IndentingNewLine]This\ algorithm\ creates\ a\ list\ of\ all\ 
+          divisors\ of\ n\ that\ are\ congruent\ \[IndentingNewLine]to\ r\ 
+          \(\((mod\ s)\) . \)\ *) \[IndentingNewLine]\n\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n\n
+    \(resclassdiv[n_, r_, s_] := \n
+      Module[\n\t{residues, rstar, rprime, a, b, c, q, i, t, j, potential, 
+          cee, \n\tupperbound, lowerbound, len}, \[IndentingNewLine]\t\n
+        \t (*\ First, \ we\ \(initialize . \)\ *) \[IndentingNewLine]\t
+        residues = {}; \[IndentingNewLine]\trstar = PowerMod[r, \(-1\), s]; 
+        \[IndentingNewLine]\trprime\  = \ Mod[n\ rstar, s]; 
+        \[IndentingNewLine]\t{a[0], a[1]} = {s, Mod[rprime\ rstar, s]}; 
+        \[IndentingNewLine]\t{b[0], b[1]} = {0, 1}; 
+        \[IndentingNewLine]\t{c[0], c[1]} = {0, 
+            Mod[\((n - r\ rprime)\)/s\ rstar, s]}; 
+        \[IndentingNewLine]\t{q[0], q[1]} = {0, 0}; \n\t\t
+        \[IndentingNewLine]\t (*\ Next, \ the\ Euclidean\ \(chains . \)\ *) 
+          \[IndentingNewLine]\t
+        For[i = 2, True, \(i++\), \[IndentingNewLine]\t\t
+          q[i] = Quotient[a[i - 2], a[i - 1]]; \[IndentingNewLine]\t\t
+          a[i] = a[i - 2] - q[i]\ a[i - 1]; \[IndentingNewLine]\t\t
+          If[EvenQ[i], \[IndentingNewLine]\t\t\t
+            If[a[i] == 0, \[IndentingNewLine]\t\t\t\t\(Break[]; 
+              \)\[IndentingNewLine]\t\t\t]\[IndentingNewLine]\t\t\t, 
+            \[IndentingNewLine]\t\t\t
+            If[a[i] == 0, \[IndentingNewLine]\t\t\t\ta[i] += a[i - 1]; 
+              \[IndentingNewLine]\t\t\t\t\(q[i]--\)\[IndentingNewLine]\t\t\t]
+              \[IndentingNewLine]\t\t]\[IndentingNewLine]\t]; \ \n\tt = i; \n
+        \t (*\ t\ used\ in\ next\ two\ For\ lops\ *) \[IndentingNewLine]\t
+        For[j = 2, j \[LessEqual] t, \(j++\), \[IndentingNewLine]\t\t
+          b[j] = b[j - 2] - q[j]\ b[j - 1]; \[IndentingNewLine]\t\t
+          c[j] = c[j - 2] - q[j]\ c[j - 1]\[IndentingNewLine]\t]; 
+        \[IndentingNewLine]\t
+        \[IndentingNewLine]\t (*\ Next, \ the\ loop, \ 
+          in\ which\ we\ find\ our\ \(solutions . \)\ *) \[IndentingNewLine]\t
+        For[i = 0, i <= t, \(i++\), \[IndentingNewLine]\t\t
+          If[EvenQ[i], \[IndentingNewLine]\t\t\tupperbound = s; 
+            \[IndentingNewLine]\t\t\t
+            lowerbound = \(-s\)\[IndentingNewLine]\t\t\t, 
+            \[IndentingNewLine]\t\t\tupperbound = a[i]\ b[i] + n/s^2; 
+            \[IndentingNewLine]\t\t\t
+            lowerbound = 2\ a[i]\ b[i]\[IndentingNewLine]\t\t]; 
+          \[IndentingNewLine]\t\t
+          For[cee = lowerbound + 1, cee < upperbound, \(cee++\), 
+            \[IndentingNewLine]\t\t\t
+            If[Mod[cee, s] == Mod[c[i], s], \[IndentingNewLine]\t\t\t\t
+              potential = \[IndentingNewLine]\t\t\t\t\t
+                Solve[\n\t\t\t\t\t\t{x\ a[i] + y\ b[i] == cee, 
+                    \((x\ s + r)\)\ \((y\ s + rprime)\) == n}, \n
+                  \t\t\t\t\t\t{x, y}\n\t\t\t\t\t]; \[IndentingNewLine]\t\t\t\t
+              len = Length[potential]; \[IndentingNewLine]\t\t\t\t\n
+              \t\t\t\t (*\ Next, \ if\ there\ is\ no\ solution, \ 
+                move\ \(on . \)\ *) \[IndentingNewLine]\t\t\t\t
+              If[len == 0, \n\t\t\t\t\tBreak[]\[IndentingNewLine]\t\t\t\t]; \n
+              \t\t\t\t\[IndentingNewLine]\t\t\t\t
+              potential = ReplaceAll[{x, y}, potential]; 
+              \[IndentingNewLine]\t\t\t\t
+              Do[\[IndentingNewLine]\t\t\t\t\t
+                If[MatchQ[potential[\([k]\)], {_Integer, _Integer}] && \ 
+                    \[IndentingNewLine]\t\t\t\t\t\t
+                    potential[\([k, 1]\)] >= 0\  && \ 
+                    potential[\([k, 2]\)] >= 0, 
+                  \[IndentingNewLine]\t\t\t\t\t\t
+                  If[Not[MemberQ[residues, potential[\([k, 1]\)]\ s + r]], 
+                    \[IndentingNewLine]\t\t\t\t\t\t\t
+                    residues = 
+                      Append[residues, potential[\([k, 1]\)]\ s + r]
+                        \[IndentingNewLine]\t\t\t\t\t\t]
+                    \[IndentingNewLine]\t\t\t\t\t]
+                  \[IndentingNewLine]\t\t\t\t\t, \n
+                \t\t\t\t\t{k, 1, len}\[IndentingNewLine]\t\t\t\t]
+                \[IndentingNewLine]\t\t\t]\[IndentingNewLine]\t\t]
+            \[IndentingNewLine]\t]; \[IndentingNewLine]\t
+        Sort[residues]\[IndentingNewLine]]; \)\)\)], "Input",
+  PageWidth->Infinity,
+  AutoIndent->True,
+  LineBreakWithin->False,
+  LineIndent->0],
+
+Cell[BoxData[{
+    \(\[IndentingNewLine] (*\ EAMPLE\ *) \ \ \n
+    \[IndentingNewLine] (*\ First, \ 
+      we\ find\ all\ divisors\ of\ 187440\ that\ are\  = \ 
+        1 \((mod\ 7)\) . \ \ \[IndentingNewLine]We\ then\ test\ reasonable\ 
+            random\ r\  < \ s\  < \ n, \ 
+      checking\ the\ answer\ \[IndentingNewLine]by\ creating\ a\ divisor\ list
+        \ then\ reducing\ it\ mod\ \(s . \)\ *) \n
+    \[IndentingNewLine]resclassdiv[187440, 1, 7]\), 
+    \(Divisors[187440]\), 
+    \(Mod[Divisors[187440], 7]\)}], "Input"],
+
+Cell[BoxData[{
+    \(\[IndentingNewLine]n = Random[Integer, {100, 1000}]\), 
+    \(s = Random[Integer, {20, n - 1}]\), 
+    \(r = Random[Integer, {1, 10}]; \[IndentingNewLine]\n
+    While[\ GCD[r, s] != 1, \[IndentingNewLine]\t
+      \(r = Random[Integer, {1, 10}]; \)\[IndentingNewLine]]; \nr\), 
+    \(resclassdiv[n, r, s]\), 
+    \(divn = Divisors[n]\), 
+    \(Mod[divn, s]\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{790, 656},
+WindowMargins->{{Automatic, 36}, {Automatic, 39}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 1072, 18, 283, "Input"],
+Cell[2784, 69, 4279, 74, 1038, "Input"],
+Cell[7066, 145, 534, 10, 143, "Input"],
+Cell[7603, 157, 390, 8, 171, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

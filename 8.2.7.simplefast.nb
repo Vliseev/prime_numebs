@@ -1,0 +1,124 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3460,         85]*)
+(*NotebookOutlinePosition[      4118,        109]*)
+(*  CellTagsIndexPosition[      4074,        105]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 8.2  .7\ 
+        \((Simple\ and\ fast\ random - bit\ generator)\) . \t\t\t\n\ Support\ 
+        code\ for\n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\ \n\t10\ Dec\ 2000\ AH\ 
+        \((Formatting)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n\ *) \n
+    \n (*\ This\ algorithm\ provides\ seeding\ and\ random\ functions\ for\ a
+          \ \nrandom - bit\ generator\ based\ on\ the\ polynomial\ x^18 + 
+        x^5 + x^2 + x + 1\ \nover\ F_  2. \ *) \n\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n\n
+    random[seed_]\  := \ \n\t
+      Module[{h = 2^17, m = 2^0 + 2^1 + 2^4, x = seed}, 
+        \[IndentingNewLine]\t\t
+        If[BitAnd[x, h] != 0, \[IndentingNewLine]\t\t\t
+          x = BitOr[\((Mod[2\ BitXor[x, m], 2^18])\), 1]; 
+          \[IndentingNewLine]\t\t\t (*\ Below, \ 
+            we\ return\ x\ as\ well\ for\ easy\ re - \(seeding . \)\ *) 
+            \[IndentingNewLine]\t\t\tReturn[{1, x}]\[IndentingNewLine]\t\t]; 
+        \[IndentingNewLine]\t\tx = Mod[2\ x, 2^18]; \[IndentingNewLine]\t\t
+        Return[{0, x}]\[IndentingNewLine]\t]\)\)], "Input"],
+
+Cell[BoxData[
+    \(\(\[IndentingNewLine] (*\ EXAMPLE\ *) \n
+    \[IndentingNewLine] (*\ 
+      We\ pick\ a\ random\ seed\ and\ use\ it\ to\ generate\ random\ 0' s\ and
+        \ 1' \(s . \)\ *) \[IndentingNewLine]\n
+    seed = {0, Random[Integer, {1, 2^18}]}; \n\n
+    Do[\[IndentingNewLine]\tseed = random[seed[[2]]]; \[IndentingNewLine]\t
+      \(Print[seed[[1]]]; \)\[IndentingNewLine]\t, {10}\[IndentingNewLine]]; 
+    \)\)], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{707, 461},
+WindowMargins->{{Automatic, 134}, {Automatic, 21}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 691, 11, 242, "Input"],
+Cell[2403, 62, 611, 11, 168, "Input"],
+Cell[3017, 75, 439, 8, 169, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

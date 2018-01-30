@@ -1,0 +1,134 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3992,         96]*)
+(*NotebookOutlinePosition[      4629,        119]*)
+(*  CellTagsIndexPosition[      4585,        115]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 9.2  .14\ 
+        \((Fast\ mod\ operation\ for\ Proth\ moduli)\) . \t\t\n\ Support\ code
+        \ for\n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\t\n\t10\ Dec\ 2000\ AH\ 
+        \((Formatting)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n\ *) \n
+    \n (*\ Assume\ modulus\ n\  = \ 
+        k\ 2^q\  + c\ with\ B[c] < 
+          q\ \((c\ can\ be\ negative)\) . \ \ \nThis\ algorithm, \ given\ k, 
+      q, c\ and\ x\ with\ 0 < x < n^2, \ returns\ x\ mod\ \(n . \)\ *) \n
+    \)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n\n
+    prothmod[x_, k_, q_, c_]\  := \ 
+      Module[{y, t}, 
+        \[IndentingNewLine] (*\ 
+          Multiplications\ by\ 2^q\ should\ be\ done\ with\ a\ bit\ shift\ if
+            \ \(possible . \)\ *) \[IndentingNewLine]y\  = \ 
+          Floor[Floor[x/2^q]/k]; 
+        \[IndentingNewLine]t\  = \ \ 2^q\ *\ \((k\ y)\)\  + \ c\ y; \n\t\t\n
+        \t\tIf[c < 0, \[IndentingNewLine]\(Goto[PolaritySwitch]; 
+          \)\[IndentingNewLine]]; 
+        \[IndentingNewLine]\[IndentingNewLine]While[t > x, 
+          \[IndentingNewLine]t\  = \ \ 2^q\ *\ \((k\ y)\)\  + \ c\ y; 
+          \[IndentingNewLine]\(y--\); \[IndentingNewLine]]; 
+        \[IndentingNewLine]Return[x - t]; 
+        \[IndentingNewLine]Label[PolaritySwitch]; 
+        \[IndentingNewLine]While[t <= x, \[IndentingNewLine]\(y++\); 
+          \[IndentingNewLine]t\  = \ \ 2^q\ *\ \((k\ y)\)\  + \ c\ y; 
+          \[IndentingNewLine]]; \[IndentingNewLine]\(y--\); 
+        \[IndentingNewLine]t\  = \ \ 2^q\ *\ \((k\ y)\)\  + \ c\ y; 
+        \[IndentingNewLine]Return[x - t]; \[IndentingNewLine]]\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ EXAMPLE\ *) \n\n
+    \(Do[\t\n\ \ \ k = Random[Integer, \ {1, 13}]; \n\ \ 
+      q = Random[Integer, \ {13, \ 30}]; \n\ \ \ 
+      c = \ Random[Integer, {\(-10\), 10}]; \n\tn\  = \ k\ 2^q\  + \ c; \n\t
+      x\  = \ Random[Integer, \ {n + 1, \ n^2 - 1}]; \n\ \ 
+      e\  = \ prothmod[x, k, q, c]; \n\ \ f\  = \ Mod[x, n]; \n\t
+      Print[e, "\< \>", f, "\< \>", e - f], \n\t{ct, 1, 10}\n]; \)\)\)], 
+  "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowSize->{776, 518},
+WindowMargins->{{Automatic, 23}, {Automatic, 88}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 715, 13, 229, "Input"],
+Cell[2427, 64, 1119, 20, 348, "Input"],
+Cell[3549, 86, 439, 8, 186, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

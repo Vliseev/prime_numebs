@@ -1,0 +1,132 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3671,         93]*)
+(*NotebookOutlinePosition[      4335,        117]*)
+(*  CellTagsIndexPosition[      4291,        113]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\(\(\n\)\( (*\n\ 
+      Algorithm\ 5.4  .1\ \((Basic\ Pollard\ p - 1\ method)\) . \t\t\t\n\ 
+          Support\ code\ for\n\ 
+        R . \ Crandall\ and\ C . \ 
+          Pomerance, \n\ "\<Prime Numbers: a Computational Perspective,\>"\n\ 
+          Springer - Verlag\ 2001. \n\n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ 
+          All\ Rights\ Reserved . \n\t\ 3\ Dec\ 2000\ AH\ \((small\ changes\ \
+to\ code)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n*) \)\(\n\)\(\n\)\( (*\ 
+      Given\ composite\ odd\ number\ n\ and\ a\ search\ bound\ bc, \ 
+      this\ \nalgorithm\ attempts\ to\ find\ a\ nontrivial\ factor\ of\ \(\(n\
+\)\(.\)\)\ *) \)\(\ \)\)\)], "Input",
+  PageWidth->Infinity,
+  AutoIndent->True,
+  LineBreakWithin->False,
+  LineIndent->0],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n\n
+    PollardPminus1[n_, bc_] := \n\t
+      Module[{i, primes, \ as, c, d, j}, \n\t\ti = 1; \n\t\tprimes\  = \ {}; 
+        \n\t\t\tas\  = \ {}; \t\n\t\t
+        While[Prime[i] <= bc, \ \n\t\t\t
+          primes\  = Append[primes\ , \ Prime[i]]; \n\t\t\t
+          as\  = Append[as, Floor[Log[bc]/Log[Prime[i]]]\ ]; \n\t\t\t\(i++\)\n
+          \t\t]; \n\t\tc = 2; \n\t\td = 1; \n\t\t
+        For[i = 1, i <= Length[primes], \(i++\), \n\t\t\t
+          For[j = 1, j <= as[[i]], \(j++\), \n\t\t\t\t
+            c = Mod[c^primes[[i]], n]\n\t\t\t]; \n\t\t\t
+          d = Mod[d \((c - 1)\), n]\n\t\t]; \n\t\tGCD[d, n]\n\t]\n\)\)], 
+  "Input"],
+
+Cell[BoxData[
+    \(\( (*\ EXAMPLE\ *) \n
+    \n (*\ We\ pick\ a\ random\ composite\ odd\ integer\ n\ and, \ 
+      with\ search\ \nbound\ bc, \ 
+      apply\ the\ Pollard\ p - 1\ \(method . \)\ *) \n\nbc\  = \ 20; \n
+    n\  = \ Random[Integer, {3, 2^13}]; \n
+    While[And[PrimeQ[n], Mod[n, 2] == 1], \n\t
+      n\  = \ Random[Integer, {3, 2^13}]\n]; \nPrint["\<n = \>", n]; \n
+    Print[factor = PollardPminus1[n, bc]]; 
+    \n (*\ Check\ the\ \(answer . \)\ *) \n\nn/factor\)\)], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{751, 696},
+WindowMargins->{{94, Automatic}, {Automatic, 0}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 783, 16, 229, "Input"],
+Cell[2495, 67, 677, 13, 317, "Input"],
+Cell[3175, 82, 492, 9, 210, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

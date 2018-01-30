@@ -1,0 +1,165 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      5690,        125]*)
+(*NotebookOutlinePosition[      6371,        150]*)
+(*  CellTagsIndexPosition[      6327,        146]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\ 
+      Algorithm\ 8.5  .2\ 
+        \((Shor\ quantum\ algorithm\ for\ factoring)\) . \t\n\t\t\t\t\t\t\n
+          Support\ code\ for\nR . \ Crandall\ and\ C . \ Pomerance, \n
+      "\<Prime Numbers: a Computational Perspective,\>"\nSpringer - 
+        Verlag\ 2001. \nc . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \nAll\ Rights\ Reserved . \n\n\t10\ Dec\ 2000\ AH\ 
+        \((Formatting)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n*) \n
+    \[IndentingNewLine] (*\ 
+      This\ algorithm\ takes\ an\ odd\ integer\ n\ that\ is\ neither\ prime\ 
+        nor\ \na\ power\ of\ a\ prime\ and\ attempts\ to\ return\ a\ 
+        nontrivial\ factor\ of\ n\ \nvia\ quantum\ computation . \ As\ the\ 
+        code\ below\ is\ for\ a\ \((classical)\)\ TM, \n
+      all\ we\ do\ is\ model\ the\ spectral\ probability\ aspect . \ More\ 
+        work\ could\ \nbe\ brought\ to\ bear, \ 
+      to\ model\ the\ actual\ quantum\ behavior, \ 
+      but\ such\ \nan\ effort\ to\ be\ valuable\ should\ perhaps\ be\ much\ 
+        more\ general\ than\ \nthis\ specific\ problem\ of\ Shor\ 
+        \(factoring . \)\ *) \n\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ \(CODE\ &\)\ EXAMPLE\ *) \n
+    \n (*\ Next, \ the\ variable\ n\ that\ we\ want\ to\ \(factor . \)\ *) \n
+    \nn\  = \ 221; \n
+    \[IndentingNewLine] (*\ For\ d, 
+      q\ below\ quantum\ registers\ would\ have\ d\ q - \(bits . \)\ *) \n\n
+    d\  = \ Ceiling[2\ Log[2, n]]; \nq\  = \ 2^d; \ \ \n
+    \[IndentingNewLine] (*\ Next, \ a\ typical\ choice\ for\ \(x . \)\ *) \n\n
+    x\  = \ 5; \n
+    \n (*\ Now, \ 
+      we\ omit\ the\ QTM\ steps\ as\ the\ best\ we\ can\ do\ here\ is\ \n
+        perform\ probability\ calculations\ on\ the\ \(states . \)\ *) \n (*\ 
+      Next, \ start\ with\ a\ spectral\ estimator\ that\ models\ QTM\ \n
+        \(probabilities . \)\ *) \n\n\n
+    p[\ k_]\  := \ \n\t
+      Module[{pk, \ s, \ trans}, \n\t\tpk\  = \ PowerMod[x, \ k, \ n]; \n\t\t
+        s\  = \ Table[
+            If[PowerMod[x, \ a, \ n]\  == \ pk, 1.0, 0.0], {a, 0, q - 1}]; \n
+        \t\ttrans\  = \ Fourier[s]; \n\t\tAbs[trans^2]\n\t]; \n
+    \n (*\ Next, \ 
+      make\ a\ plot\ that\ represents\ the\ QTM' s\ physical\ 
+        \(output . \)\ *) \n\nprobs\  = \ p[1]; \nListPlot[probs]; \ \ \n
+    \n (*\ Next, \ 
+      use\ a\ simple\ method\ for\ assessing\ the\ spectrum' s\ \npeak - to - 
+        peak\ \(separation . \)\ *) \n\n
+    jold\  = \ \(diffsum\  = \ \(num\  = \ 0\)\); \n\n
+    Do[\n\t\ \ 
+      If[\ probs[\([j]\)]\  > \ probs[\([j - 1]\)]\  && \n\t\t\t
+          probs[\([j]\)]\  > \ probs[\([j + 1]\)], \n\t\t
+        Print[j, "\< \>", \ j - jold]; \n\t\tdiffsum\  += \ j - jold; \n\t\t
+        \(++num\); \n\t\tjold\  = \ j\n\t\t], \n\t{j, 2, q - 1}\n]; \n\n
+    Print["\<Peak separation: \>", \ sep\  = \ diffsum/num]\n\)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ Next, \ 
+      give\ the\ continued\ fraction\ for\ the\ peak - separation\ estimate, 
+      \ \njust\ to\ model\ the\ classical\ ' wrap - 
+        up'\ stage\ of\ the\ Shor\ \(algorithm . \)\ *) \n
+    scf[x_, \ len_] := \ \n\t
+      Module[{lis, a, q, y}, \n\t\tlis\  = \ {}; \n\t\ \ \ty\  = \ x; \n
+        \t\ \ \tDo[\n\t\ \ \t\ta\  = \ Floor[y]; \n\t\ \ \t\t
+          lis\  = \ Append[lis, a]; \n\t\t\tIf[y == a, \ Break[]]; \n
+          \t\ \ \t\ty\  = \ 1/\((y - a)\)\n\t\ \ \t\t, \n
+          \t\ \ \t\t{q, 1, len}\n\t\ \ \t]; \n\t\tlis\n\t\ \ ]; 
+    \n (*\ Next, \ 
+      give\ fraction\ for\ the\ peak\ separation . \ The\ idea\ is\ to\ 
+        terminate\ \nthe\ fraction\ at\ a\ particularly\ large\ element, \ 
+      and\ adopt\ the\ truncated\ \nprefix\ as\ an\ estimate\ on\ period\ 
+        \(r . \)*) \n\n\nscf[q/sep, 10]\ \n
+    \n (*\ Next, \ 
+      a\ good\ guess\ as\ to\ period\ r\ might\ give\ a\ factor . \ Note\ that
+        \ r\ needs\ to\ be\ \(even . \)\ *) \), 
+    \(r\  = Round[\ q/sep]; \nGCD[PowerMod[x, \ r/2, \ n] + 1, \ n]\), 
+    \(FactorInteger[221]\ \n\t\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{771, 518},
+WindowMargins->{{Automatic, -283}, {Automatic, 76}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 1144, 19, 299, "Input"],
+Cell[2856, 70, 1692, 31, 712, "Input"],
+Cell[4551, 103, 1135, 20, 391, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

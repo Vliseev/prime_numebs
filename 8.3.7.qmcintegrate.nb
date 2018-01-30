@@ -1,0 +1,162 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      5283,        120]*)
+(*NotebookOutlinePosition[      5981,        146]*)
+(*  CellTagsIndexPosition[      5937,        142]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 8.3  .7\ 
+        \((qMC\ multidimensional\ integration)\) . \t\t\n\ Support\ code\ for
+        \n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\t\n\t10\ Dec\ 2000\ AH\ 
+        \((Formatting)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n\ *) \n
+    \[IndentingNewLine] (*\ 
+      This\ code\ starts\ out\ with\ Algorithm\ 8.3 
+        \( .6 : \ Fast\ qMC\ sequence\ \ngeneration\), \ 
+      and\ proceeds\ with\ an\ integration\ \(test . \)\ *) \n\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n
+    \n (*\ First, \ an\ upper\ bound\ on\ the\ number\ of\ \(points . \)\ *) 
+      \[IndentingNewLine]nn\  = \ 10000; \ \ 
+    \[IndentingNewLine]\n (*\ Next, \ 
+      distinguish\ symbolic/numerical\ \(modes . \)\ *) \n\n
+    symbolic\  = \ False; \n
+    \[IndentingNewLine] (*\ Next, \ d, \ the\ \(dimension . \)\ *) \n\n\n
+    d\  = \ 3; 
+    \[IndentingNewLine]\n (*\ Now, \ Algorithm\ 8.3 \( .6 . \)\ *) \  (*
+      i\ kk, \ q, kx\ , j, dig\ *) \n\n
+    seed[n_] := \n\t
+      Module[{i, kx, j}, \n
+        \t\t (*\ Don' t\ localize\ kk, \ q, \ 
+          \(dig--\) - used\ in\ newpoint[]\ below*) \n\t\ \ \ \ \ \ \ \ \ \ 
+        For[i = 1, \ i\  <= \ d, \ \(i++\), \n\t\t\t
+          kk[i]\  = \ Ceiling[N[Log[nn + 1]/Log[Prime[i]]]]; \n\t\t\t
+          q[i, 0]\  = \ If[symbolic, \ \ 1, \ 1.0]; \n\t\t\tk\  = \ n; \n
+          \t\t\tx[i]\  = \ If[symbolic, \ 0, \ 0.0]; \t\t\t\t\t\ \ \ \ \ \ \ 
+          \n\t\t\tFor[j = 1, \ j\  <= \ kk[i], \ \(j++\), \n\t\t\t\t
+            q[i, j]\  = \ q[i, \ j - 1]/Prime[i]; \n\t\t\t\t
+            If[\(! symbolic\), \ q[i, j]\  = \ N[q[i, j]]]; \n\t\t\t\t
+            dig[i, j]\  = \ Mod[k, \ Prime[i]]; \n\t\t\t\t\ 
+            k\  = \ \((k - dig[i, j])\)/Prime[i]; \n\t\t\t\t
+            x[i]\  = \ x[i]\  + \ \ dig[i, j]\ q[i, j]\n\t\t\t]; \n\t\t]; \n
+        \t\tTable[x[i], \ {i, 1, d}]\n\t]; \n\t\t
+    \n (*\ Next, \ define\ the\ newpoint\ \(function . \)\ *) \n\n
+    newpoint\  := \ \n\t
+      Module[{i, j}, \n
+        \t\t (*\ Don' t\ localize\ kk, \ q, \ 
+          dig\  - \ \n\t\t\ \ \ passed\ from\ above\ *) \n\t\t
+        For[i = 1, \ i\  <= \ d, \ \(i++\), \n\t\t\t
+          \(For[j\  = \ 1, \ j\  <= \ kk[i], \ \(j++\), \n\t\t\t\t
+            \(++dig[i, j]\); \n\t\t\t\tx[i]\  += \ q[i, j]; \n\t\t\t\t
+            If[dig[i, j]\  < \ Prime[i], \ Break[]]; \n\t\t\t\t
+            dig[i, j]\  = \ 0; \n\t\t\t\tx[i]\  -= \ q[i, \ j - 1]\n\t\t\t]; 
+          \)\n\t\t]; \n\t\tN[Table[x[i], \ {i, 1, d}]]\n\t]\)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE \((S)\)\ *) \n
+    \n (*\ Next, \ let\ us\ calculate\ Pi, \ 
+      the\ qMC\ way . \ The\ integration\ is\ of\ the\ \ncharacteristic\ 
+        function\ over\ a\ unit\ ball, \ 
+      using\ a\ total\ of\ nn\ \(points . \)\ *) \n\nintegral\  = \ 0; \n\n
+    seed[0]; \n
+    Do[\n\t\ r\  = \ 2*newpoint\  - \ 1; \n\t\ 
+        If[r . r\  > \ 1, \ Continue[]]; \n\t\ \(++integral\)\ \n
+        \t\ \ , {j, 1, nn}\n] // Timing\), 
+    \(Print["\<Pi ~ \>", \ 3.0\ *\ integral/4\ \ *\ 2^3\ /\ nn]\)}], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ Next, \ a\ sample\ scatter\ plot\ of\ a\ qMC\ ' cloud . '\ *) \n
+    d\  = \ 2; \n\nseed[0]; \nlis\  = \ Table[newpoint, \ {30}]; \n\n
+    ListPlot[lis, \ \n\tAspectRatio \[Rule] Automatic, \ 
+      PlotRange \[Rule] All, Frame \[Rule] True, \n\tAxes \[Rule] False\n]; 
+    \)\)], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{633, 552},
+WindowMargins->{{Automatic, 133}, {84, Automatic}},
+ShowCellLabel->False,
+Magnification->1
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 681, 12, 229, "Input"],
+Cell[2393, 63, 2026, 36, 713, "Input"],
+Cell[4422, 101, 538, 10, 214, "Input"],
+Cell[4963, 113, 316, 5, 144, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

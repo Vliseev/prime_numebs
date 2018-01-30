@@ -1,0 +1,221 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      8931,        182]*)
+(*NotebookOutlinePosition[      9589,        206]*)
+(*  CellTagsIndexPosition[      9545,        202]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 8.1  .7\ 
+        \((Find\ a\ point\ of\ prime\ order)\) . \t\t\t\n\ Support\ code\ for
+        \n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\ \n\t09\ Dec\ 2000\ AH\ 
+        \((Formatting)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n\ *) \n
+    \n (*\ Given\ an\ elliptic\ curve\ E_ \((a, b)\) \((F_p)\)\ of\ order\ f*
+        r, \ where\ r\ is\ \nprime, \ 
+      this\ algorithm\ endeavors\ to\ find\ a\ point\ P\ in\ E\ of\ order\ 
+        \(r . \)\ *) \n\)\)], "Input"],
+
+Cell[BoxData[{
+    RowBox[{\( (*\ CODE\ *) \), "\n", "\t\t", "\n", 
+      \( (*\ We\ include\ algorithm\ 7.2  .2\ for\ performing\ elliptic\ 
+          arithmetic\ \nand\ algorithm\ 7.2  .1\ for\ finding\ random\ points
+          \ on\ a\ given\ elliptic\ \(curve . \)\ *) \), "\n", "\n", 
+      \( (*\ First, \ 
+        a\ function\ that\ negates\ a\ point\ pt\ on\ an\ elliptic\ 
+          \(curve . \)\ *) \), "\n", "\n", 
+      \(ellneg[pt_]\  := \ Mod[pt\ *\ {1, \(-1\), \ 1}, \ p]; \n
+      \n (*\ Next, \ elliptic\ subtraction\ pt1 - \(pt2 . \)\ *) \n\n
+      ellsub[pt1_, \ pt2_]\  := \ elladd[pt1, \ ellneg[pt2]]; \n
+      \n (*\ Next, \ the\ double\ of\ a\ \(point . \)\ *) \n\n
+      elldouble[pt_]\  := \ elladd[pt, pt]; \n
+      \n (*\ Next, \ elliptic\ addition\ pt1 + \(pt2 . \)\ *) \n\n
+      elladd[pt1_, \ pt2_]\  := \ \n\t
+        Block[{x1, y1, x2, y2, x3, y3, m}, \n\t\t
+          If[pt1[\([3]\)]\  == \ 0, \ Return[pt2]]; \n\t\t
+          If[pt2[\([3]\)]\  == \ 0, \ Return[pt1]]; \n\t\t
+          x1\  = \ pt1[\([1]\)]; \ y1\  = \ pt1[\([2]\)]; \n\t\t
+          x2\  = \ pt2[\([1]\)]; \ y2\  = \ pt2[\([2]\)]; \n\t\t
+          If[x1\  == \ x2, \ \n\t\t\t
+            If[Mod[y1 + y2, p] == 0, \ Return[{1, 1, 0}]]; \n\t\t\t
+            m\  = \ Mod[\((3\ x1^2\  + \ a)\)\ *\ PowerMod[2  y1, \(-1\), p], 
+                \ p]\n\t\t\t, \n\t\t\t
+            m\  = \ Mod[\((y2 - y1)\)\ PowerMod[x2 - x1, \(-1\), p], p]\n
+            \t\t]; \n\t\tx3\  = \ Mod[m^2\  - \ x1\  - \ x2, p]; \n\t\t
+          y3\  = \ Mod[m \((x1 - x3)\)\  - \ y1, \ p]; \n\t\t
+          Return[{x3, y3, 1}]\n\t]; \n\ \ 
+      \n (*\ Next, \ elliptic - multiply\ a\ point\ pt\ by\ \(k . \)\ *) \n\n
+      \nelliptic[pt_, \ k_]\  := \ \n\t
+        Block[{pt2, \ hh, \ kk, \ hb, \ kb, \ lenh, \ lenk}, \n\t\t
+          If[k == 0, \ Return[{1, 1, 0}]]; \n\t\t
+          hh\  = \ Reverse[IntegerDigits[3  k, 2]]; \n\t\t
+          kk\  = \ Reverse[IntegerDigits[k, 2]]; \n\t\tpt2\  = \ pt; \n\t\t
+          lenh\  = \ Length[hh]; \n\t\tlenk\  = \ Length[kk]; \n\t\t
+          Do[\n\t\t\tpt2\  = \ elldouble[pt2]; \n\t\t\thb\  = \ hh[\([b]\)]; 
+            \n\t\t\tIf[b\  <= \ lenk, \ kb\  = \ kk[\([b]\)], \ kb\  = \ 0]; 
+            \n\t\t\t
+            If[{hb, kb}\  == \ {1, 0}, \n\t\t\t\tpt2\  = \ elladd[pt2, \ pt], 
+              \n\t\t\t\t
+              If[{hb, \ kb}\  == \ {0, 1}, \n\t\t\t\t\t
+                pt2\  = \ ellsub[pt2, \ pt]\n\t\t\t\t]\n\t\t]\n\t\t, \n
+            \t\t{b, \ lenh - 1, \ 2, \(-1\)}\n\t\ ]; \n\tReturn[pt2]\n]\), 
+      "\n", "\n", 
+      \( (*\ Next, \ we\ include\ a\ variant\ of\ Algorithm\ 2.3  .8, \ 
+        for\ finding\ square\ \nroots\ modulo\ a\ \(prime . \)\ *) \), 
+      "\n"}], 
+    RowBox[{
+      RowBox[{
+        StyleBox[
+          \(sqrtmod[b_, p_] := \ \n\t
+            Module[{a, x, c, d, cd, m, t, tst}, \n\ \ \ \t\t
+              a\  = \ Mod[b, p]; \n\ \ \ \t\tIf[p\  == \ 2, \ Return[a]]; \n
+              \ \ \ \ \t
+              If[MemberQ[{3, 7}, Mod[p, 8]], \n\ \ \ \ \ \ \t\t
+                Return[PowerMod[a, \((p + 1)\)/4, p]]\n\ \ \ \ \ \ \t]; \n
+              \ \ \ \ \t
+              If[Mod[p, 8]\  == \ 5, \n\ \ \ \ \ \ \t\t
+                x\  = \ PowerMod[a, \((p + 3)\)/8, p]; \n\ \ \ \ \ \ \t\t
+                c\  = \ Mod[x^2, p]; \n\ \ \ \ \ \ \t\t
+                If[Not[c\  == \ a], \n\ \ \ \ \ \ \ \ \t\t
+                  Return[Mod[x\ PowerMod[2, \((p - 1)\)/4, p], \ p]]\n
+                  \ \ \ \ \ \ \ \ \t]; \n\ \ \ \ \ \ \t]; \n\ \ \ \ \t\n
+              \ \ \ \ \t (*\ Here, \ p\  = \ 1\ \(\((mod\ 8)\) . \)\ *) \n
+              \ \ \ \ \ \ \ttst\  = \ 1; \n\ \ \ \ \ \ \t
+              While[Not[tst\  == \ \(-1\)], \n\ \ \ \ \ \ \ \ \t
+                d\  = \ Random[Integer, {1, p}]; \n\ \ \ \ \ \ \ \ \t
+                tst\  = \ JacobiSymbol[d, p]\n\ \ \ \ \ \ \ \ ]; \n
+              \ \ \ \ \ \ \tt\  = \ \((p - 1)\)/2; \ s\  = \ 1; \n
+              \ \ \ \ \ \ \tWhile[EvenQ[t], \ t\  = \ t/2; \ \(++s\)]; \n
+              \ \ \ \ \ \ \tca\  = \ PowerMod[a, t, p]; \n\ \ \ \ \ \ \t
+              cd\  = \ PowerMod[d, t, p]; \n\ \ \ \ \ \ \tm\  = \ 0; \n
+              \ \ \ \ \ \ \t
+              Do[\n\ \ \ \ \ \ \t\ \ \ 
+                If[PowerMod[Mod[ca\ PowerMod[cd, \ m, \ p], p], \ 
+                      2^\((s - 1 - i)\), \ p]\n\ \ \ \ \ \ \t\ \ \ \t\t == \ 
+                    p - 1, \ m\  += \ 2^i]\n
+                \ \ \ \ \ \ \t\ \ \ , {i, 0, s - 1}\n\ \ \ \ \ \ \t]; 
+              \ \ \ \ \ \ \t\ \ \ \ \n\ \ \ \ \ \ \t
+              Return[Mod[
+                  PowerMod[a, \ \((t + 1)\)/2, p]\ PowerMod[cd, \ m/2, p], 
+                  p]]; \ \n\t]\),
+          AspectRatioFixed->True], 
+        StyleBox[";",
+          AspectRatioFixed->True], "\n", "\n", 
+        \( (*\ Next, \ the\ point\ finder\ \(algorithm . \)\ *) \), "\n", 
+        "\n", \(pointFinder[a_, b_, p_] := \n\t
+          Module[{t, x}, \n\t\tLabel[loop]; \n\t\tx = Random[Integer, p - 1]; 
+            \n\t\tt = Mod[\((x \((x^2 + a)\) + b)\), p]; \n\t\t
+            If[JacobiSymbol[t, p] == \(-1\), \ Goto[loop]]; \n
+            \t\t{x\ , sqrtmod[t, p]}\n\t]\)}], "\n", "\n", 
+      \( (*\ Now, \ the\ main\ \(routine . \)\ *) \)}], 
+    RowBox[{
+      \(primeordpnt[f_] := \n\t
+        Block[{P, Q}, \n\t\tLabel[Start]; \n\t\t
+          P = Append[pointFinder[a, b, p], 1]; \n\t\tQ = elliptic[P, f]; \n
+          \t\tIf[Q[\([3]\)] == 0, \ Goto[Start]]; \n\t\tQ\n\t]\), "\n"}]}], 
+  "Input"],
+
+Cell[BoxData[
+    \(\( (*\ EXAMPLE\ *) \n
+    \n (*\ We\ find\ a\ point\ on\ a\ random\ curve\ 
+        \((with\ p <= 
+            229\ in\ order\ to\ effect\ \na\ quick\ curve\ order\ assessment)
+          \)\ and\ determine\ a\ point\ of\ exact\ order\ r\ \n
+        \(\((with\ nomenclature\ identical\ to\ that\ of\ the\ above\ 
+              descriptions)\) . \)\ *) \n\n
+    While[True, \n\tp = Prime[Random[Integer, {1, 50}]]; \n\t
+      For[a = 0; \(b = 0; \), Mod[4\ a^3 + 27\ b^2, p] == 0, \n\t\t
+        a = Random[Integer, {0, p - 1}]; \n\t\t
+        b = Random[Integer, {0, p - 1}]\n\t]; \n\t
+      order = p + 1 + Sum[JacobiSymbol[x^3 + a\ x + b, p], {x, 0, p - 1}]; \n
+      \tr = \(Last[FactorInteger[order]]\)[\([1]\)]; \n\tIf[r > 7, Break[]]; 
+      \n]; \n\nPrint["\<r = \>", \ r]; \n\n
+    Print["\<The point is \>", pnt = primeordpnt[order/r]]; \n\n
+    Print["\<Now, the order verification: \>"]; \n\n
+    For[k = 1, k <= r, \(k++\), \n\t\(Print[k, "\<:\>", elliptic[pnt, k]]; 
+      \)\n]; \n\[IndentingNewLine]\)\)], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{881, 669},
+WindowMargins->{{Automatic, -56}, {Automatic, 18}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 695, 12, 229, "Input"],
+Cell[2407, 63, 5469, 97, 1647, "Input"],
+Cell[7879, 162, 1048, 18, 386, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

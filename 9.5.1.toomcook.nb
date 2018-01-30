@@ -1,0 +1,157 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      5034,        117]*)
+(*NotebookOutlinePosition[      5715,        142]*)
+(*  CellTagsIndexPosition[      5671,        138]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 9.5  .1\ 
+        \((Symbolic\ Toom - Cook\ multiplication)\) . \t\t\t\n\ Support\ code
+        \ for\n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\ \n\t10\ Dec\ 2000\ AH\ 
+        \((Simplified, \ speeded\ up, \ formated)\)\n\t14\ Sep\ 2000\ RT\ 
+        \((Creation)\)\n\ *) \n
+    \n (*\ Given\ cd, \ 
+      this\ algorithm\ generates\ the\ \((symbolic)\)\ Toom - 
+        Cook\ \nscheme\ for\ multiplication\ of\ \((cd - digit)\) - by - 
+        \((cd - digit)\)\ integers . \ \ \nWe\ present\ two\ versions\ of\ 
+          this\ algorithm . \ \ The\ first\ is\ slower, \ \n
+      but\ not\ Mathematica\ specific; \ 
+      it\ is\ based\ on\ the\ method\ of\ solving\ \na\ Vandermonde\ system\ 
+        \(\((see\ Golub\ and\ VanLoan, \ "\<Matrix Computations\>", \ \n
+            pp . \ 178 - 180)\) . \)\ *) \n\)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ CODE\ *) \n\n (*\ Below, \ the\ first\ version\ *) \n\n
+    toomcook[cd_] := \n\t
+      Module[{i, t, k, z, xpoly, ypoly}, \n\t\tn = 2\ cd - 2; \n\t\t
+        Clear[zlist]; \n\t\tArray[x, cd, 0]; \n\t\tArray[y, cd, 0]; \n\t\t
+        zlist = Array[z, 2\ cd - 1, 0]; \n\t\t
+        xpoly = Sum[\ x[i]\ t^i, {i, 0, cd - 1}]; \n\t\t
+        ypoly = Sum[\ y[i]\ t^i, {i, 0, cd - 1}]; \n\t\t
+        For[j = 0, j <= \ n, \(j++\), \n\t\t\t
+          \(z[j] = 
+            Expand[\((\((xpoly*\ ypoly)\) /. t -> \((j + 1 - cd)\))\)]; \)\n
+          \t\t]; \n\t\t
+        For[k = 0, k <= n - 1, \(k++\), \n\t\t\t
+          \(For[i = n, i >= k + 1, \(i--\), \n\t\t\t\t
+            \(z[i] = \((z[i] - z[\((i - 1)\)])\)/\((1 + k)\); \)\n\t\t\t]; 
+          \)\n\t\t]; \n\t\t
+        For[k = n - 1, k >= 0, \(k--\), \n\t\t\t
+          \(For[i = k, i <= n - 1, \(i++\), \n\t\t\t\t
+            \(z[i] = z[i] - z[\((i + 1)\)] \((k - \((cd - 1)\))\); \)\n
+            \t\t\t]; \)\n\t\t]; \n\t\t\tSimplify[zlist]\n\t\t]; \n\t\t
+    \n (*\ Next\ a\ second\ \(version . \)\ *) \n\n
+    toomcook1[n_] := \[IndentingNewLine]\t
+      Table[Sum[x[i]\ y[p - i], {i, \ Max[0, p - n + 1], Min[n - 1, p]}], \n
+        \t\t{p, 0, 2 \((n - 1)\)}\n\t]\n
+    \n (*\ Next, \ a\ third\ version, \ Mathematica - \(specific . \)\ *) \n
+    \), 
+    \(toomcook2[cd_] := \n\t
+      Module[{t}, \n\t\t
+        CoefficientList[\n\t\t\t
+          Sum[\ x[k]\ t^k, {k, 0, cd - 1}]*\n\t\t\t
+            Sum[\ y[i]\ t^i, {i, 0, cd - 1}]\n\t\t\t, t\n\t\t]\n\t]; \n
+    \n (*\ Next, \ fourth\ version, \ Mathematica - \(specific . \)\ *) \n\n\n
+    toomcook3[n_] := \[IndentingNewLine]\t
+      ListConvolve[Table[x[i], {i, 0, n - 1}], \ Table[y[i], {i, 0, n - 1}], 
+        \n\t\t{\(-n\), n}, 0]\ \n\n\t\)}], "Input"],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ *) \n
+    \n (*\ We\ generate\ and\ time\ the\ Toom - 
+        Cook\ scheme\ for\ a\ given\ \(dc . \)\ *) \n\nClear[x, y]; \n
+    dc = \ 5; \n\nTiming[r = toomcook[dc]]\n\), 
+    \(Timing[r1 = toomcook1[dc]; ]\n\), 
+    \(Timing[r2 = toomcook2[dc]; ]\n\), 
+    \(Timing[r3 = toomcook3[dc]; ]\n
+    \n (*\ Next, \ check\ that\ the\ results\ are\ the\ \(same . \)\ *) \n
+    \), 
+    \(r === r1\  === \ r2\  === \ r3\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{847, 697},
+WindowMargins->{{Automatic, 50}, {-116, Automatic}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 1055, 18, 285, "Input"],
+Cell[2767, 69, 1797, 34, 741, "Input"],
+Cell[4567, 105, 463, 10, 251, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

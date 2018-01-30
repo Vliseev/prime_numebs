@@ -1,0 +1,155 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 4.0,
+MathReader 4.0, or any compatible application. The data for the notebook 
+starts with the line containing stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      4613,        113]*)
+(*NotebookOutlinePosition[      5350,        140]*)
+(*  CellTagsIndexPosition[      5306,        136]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\(\( (*\n
+      Algorithm\ 8.1  .11\ \((Coin - flip\ protocol)\) . \n
+          Support\ code\ for\n
+        R . \ Crandall\ and\ C . \ 
+          Pomerance, \n"\<Prime Numbers: a Computational Perspective,\>"\n
+          Springer - 
+        Verlag\ 2001. \t\t\t\t\nc . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \nAll\ Rights\ Reserved . \n\t\n\t
+          10\ Dec\ 2000\ AH\ \((Formatting)\)\n\t
+        12\ Sep\ 2000\ RT\ \((Creation)\)\n\ *) \)\(\[IndentingNewLine]\)\(\
+\[IndentingNewLine]\)\( (*\ 
+      Alice\ and\ Bob\ wish\ to\ "\<flip a fair coin,\>"\ using\ only\ a\ \n
+        communication\ channel . \ \ They\ have\ agreed\ that\ if\ Bob\ \
+guesses\ \ncorrectly, \ then\ Bob\ wins, \ 
+      otherwise\ Alice\ \(\(wins\)\(.\)\)\ *) \)\(\n\)\)\)], "Input",
+  AutoIndent->True],
+
+Cell[BoxData[{
+    \( (*\ CODE\ *) \n (*\ First, \ 
+      Alice\ selects\ the\ \(\(primes\)\(.\)\)\ *) \[IndentingNewLine]\(p = 
+        Prime[Random[Integer, {2^20, 2^25}]];\)\), "\[IndentingNewLine]", 
+    \(\(q = 
+        Prime[Random[Integer, {2^20, 2^25}]];\)\), "\[IndentingNewLine]", 
+    \(\(If[q < p, {p, q} = {q, p}];\)\), "\[IndentingNewLine]", 
+    \(\(n = p\ q;\)\), "\[IndentingNewLine]", 
+    \(\(r = 
+        Prime[Random[Integer, {2^20, 2^25}]];\)\), "\[IndentingNewLine]", 
+    \(\(While[JacobiSymbol[n, r] != \(-1\), \[IndentingNewLine]\t
+        r = Prime[
+            Random[Integer, {2^20, 
+                2^25}]]\[IndentingNewLine]];\)\), "\[IndentingNewLine]", 
+    \(\(answer = {JacobiSymbol[p, r], 
+          JacobiSymbol[q, r]};\)\[IndentingNewLine] (*\ Next, \ 
+      Alice\ sends\ the\ info\ to\ \(\(Bob\)\(.\)\)\ *) \), "\
+\[IndentingNewLine]", 
+    \(\(Print["\<{n,r} = \>", {n, 
+          r}];\)\[IndentingNewLine]\[IndentingNewLine] (*\ Next, \ 
+      the\ function\ that\ accepts\ Bob' s\ choice\ and\ determines\ \n
+        its\ character . \ \ The\ argument\ should\ be\ either\ p\ or\ q\ in\ \
+keeping\ \n
+        with\ the\ above\ \(\(nomenclature\)\(.\)\)\ *) \), "\
+\[IndentingNewLine]", 
+    \(\(BobChooses[guess_] := \n\t
+        If[JacobiSymbol[guess, 
+              r] == \(-1\), \[IndentingNewLine]\t\t\(Print["\<Correct! \>", "\
+\<{p,q} = \>", {p, 
+                q}];\)\[IndentingNewLine]\t\t, \[IndentingNewLine]\t\t\
+\(Print["\<Incorrect! \>", "\<{p,q} = \>", {p, 
+                q}];\)\[IndentingNewLine]\t];\)\)}], "Input",
+  AutoIndent->True],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ *) \n (*\ 
+      Click\ on\ the\ cell\ above\ to\ refresh\ the\ values\ of\ p, q, n, 
+      r . \ \ \n
+          Alice\ will\ then\ print\ the\ values\ of\ n\ and\ r . \ \ You\ may\
+\ then\ proceed\ \nwith\ a\ guess\ and\ verify\ it, \ 
+      as\ is\ done\ \(\(below\)\(.\)\)\ *) \[IndentingNewLine]BobChooses[
+      p]\), "\[IndentingNewLine]", 
+    \(p\ q\), "\[IndentingNewLine]", 
+    \(JacobiSymbol[p, r]\)}], "Input",
+  AutoIndent->True]
+},
+FrontEndVersion->"4.0 for Microsoft Windows",
+ScreenRectangle->{{0, 1024}, {0, 723}},
+WindowToolbars->{},
+WindowSize->{698, 608},
+WindowMargins->{{130, Automatic}, {Automatic, 20}},
+ShowCellLabel->False,
+LineBreakWithin->False,
+LineIndent->0
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1717, 49, 811, 16, 350, "Input"],
+Cell[2531, 67, 1597, 32, 470, "Input"],
+Cell[4131, 101, 478, 10, 150, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

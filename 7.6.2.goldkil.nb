@@ -1,0 +1,178 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      6215,        139]*)
+(*NotebookOutlinePosition[      6880,        163]*)
+(*  CellTagsIndexPosition[      6836,        159]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n
+      Algorithm\ 7.6  .2\ 
+        \((Goldwasser - Kilian\ primality\ test)\) . \t\t\t\nSupport\ code\ 
+        for\nR . \ Crandall\ and\ C . \ Pomerance, \n
+      "\<Prime Numbers: a Computational Perspective,\>"\nSpringer - 
+        Verlag\ 2001. \t\t\t\t\nc . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \nAll\ Rights\ Reserved . \n\t\[IndentingNewLine]\t15\ Dec\ 2000\ 
+        AH\ \((Formatting)\)\t\[IndentingNewLine]\t14\ Sep\ 2000\ RT\ 
+        \((Creation)\)\[IndentingNewLine]*) \n\)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ CODE\ *) \n
+    \n (*\ We\ insert\ elliptic\ operations, \ from\ Algorithm\ 7.2  .7, \ *) 
+      \n (*\ First, \ 
+      the\ doubleh \(()\)\ function\ for\ doubling\ a\ \(point . \)\ *) \n
+    elleven[pt_]\  := \ \n\t
+      Block[{x1\  = \ pt[\([1]\)], \ z1\  = \ pt[\([2]\)], \ e, \ f\ }, \n
+        \ \ \t\te\  = \ 
+          Mod[\((x1^2\  - \ a\ z1^2)\)^2\  - \ 
+              4\ b\ \((2\ x1\  + \ c\ z1)\)\ z1^3, \ p]; \n\ \ \t\t
+        f\  = \ Mod[
+            4\ z1\ \((x1^3\  + \ c\ x1^2\ z1\  + \ a\ x1\ z1^2\  + \ b\ z1^3)
+                \), \ p]; \n\ \ \t\t{e, f}\n\t]\n
+    \n (*\ Next, \ 
+      the\ addh \(()\)\ function\ for\ adding\ pt\ and\ pu\ with\ pv = 
+        pt - pu\ \nknown\ 
+            \(\((x\ and\ z\ coordinates\ only\ of\ course)\) . \)\ *) \), 
+    \(\n\nellodd[pt_, \ pu_, \ pv_]\  := \ \n\t
+      Block[\n\t\t{x1\  = \ pt[\([1]\)], \ z1\  = \ pt[\([2]\)], \n\t\t\ 
+          x2\  = \ pu[\([1]\)], \ z2\  = \ pu[\([2]\)], \n\t\t\ 
+          xx\  = \ pv[\([1]\)], \ zz\  = \ pv[\([2]\)]\n\t\t}, \n
+        \ \ \t\ \ \ \ \ {
+          Mod[zz\ \((
+                \((x1\ x2\  - \ a\ z1\ z2)\)^2\  - \n\t\t\t
+                  4\ b \((x1\ z2\  + \ x2\ z1\  + \ c\ z1\ z2)\)\ z1\ z2)\), 
+            \ p], \n\t\tMod[xx\ \((x1\ z2\  - \ x2\ z1)\)^2, \ p]\n
+          \t\ \ \ \ \ \ \ }\ \ \t\t\n\t]\n
+    \n (*\ Now, \ the\ main\ routine, \ elliptic\ multiply\ [k] \(pt . \)\ *) 
+      \), 
+    \(\n\nelliptic[pt_, \ k_]\  := \ \n\t
+      Block[{porg, \ ps, \ pp, \ q}, \n\t\tIf[k\  == 1, \ Return[pt]]; \n\t\t
+        If[k\  == 2, \ Return[elleven[pt]]]; \n\t\tporg\  = \ pt; \n\t\t
+        ps\  = \ elleven[pt]; \n\t\tpp\  = \ pt; \n\t\t
+        bitlist\  = \ Reverse[IntegerDigits[k, 2]]; \n\t\t
+        Do[\t\ \ \ \n\t\t\t
+          If[bitlist[\([q]\)]\  == \ 1, \n\t\t\t\t
+            pp\  = \ ellodd[ps, \ pp, \ porg]; \n\t\t\t\t
+            ps\  = \ elleven[ps]\n\t\t\t\t, \n\t\t\t\t
+            ps\  = \ ellodd[pp, \ ps, \ porg]; \n\t\t\t\t
+            pp\  = \ elleven[pp]\n\t\t\t], \n
+          \t\t\t{q, Length[bitlist] - 1, \ 1, \ \(-1\)}\n\t\t]; \n\t\t
+        Return[Mod[pp, p]]\n\t]; \n
+    \n (*\ Next, \ a\ simple\ point - counting\ function, \ 
+      for\ deomonstrative\ \n\t\t\ purpose\ 
+        \(\((not\ for\ efficiency)\) . \)\n\t*) \n\n
+    order[a_, \ b_, \ n_]\  := \ 
+      n\  + \ 1\  + \ 
+        Sum[JacobiSymbol[x^3\  + \ a\ x\  + \ b, \ n], \ {x, 0, n - 1}]; \n
+    \)}], "Input"],
+
+Cell[BoxData[{
+    \(\n (*\ EXAMPLE\ *) \n\t
+    \n (*\ We\ shall\ use, \ next, \ a\ simple\ point - counting\ function, \ 
+      to\n\t\t\texemplify\ the\ Goldwasser - 
+        Kilian\ procedure . \ \ In\ practice, \ one\ would\ want\ to\ use, \n
+      \t\ \ say, \ a\ Schoof\ method\ when\ p\ is\ \(large . \)\ *) \n\n
+    n\  = \ 70001; \ \ \  (*\ Probable\ \(prime . \)\ *) \n
+    Label[pseudocurve]; \n\ \ \ \ \ 
+    While[GCD[n, \ 
+          4 \((a\  = \ Random[Integer, {0, n - 1}])\)^3\  + \ 
+            27 \((b\  = \ Random[Integer, {0, n - 1}])\)^2]\  != \ 1]; \n
+    m\  = \ order[a, b, n]\), 
+    \(\ fa\  = \ FactorInteger[m]; \n
+    q\  = \ \(fa[\([Length[fa]]\)]\)[\([1]\)]; 
+    \ \  (*\ Largest\ prime\ \(factor . \)\ *) \n
+    If[\((q\  < \ N[\((n^\((1/4)\)\  + \ 1)\)^2])\)\  || \ \((q\  == \ m)\), 
+      \ Goto[pseudocurve]]; \t\t
+    \n (*\ Next, \ get\ a\ valid\ x - \(coordinate . \)\ \ *) \nLabel[point]; 
+    \n\t\tWhile[True, \ x\  = \ Random[Integer, {0, n - 1}]; \ 
+      If[JacobiSymbol[x^3\  + \ a\ x\  + \ b, \ n]\  > \ \(-1\), \n
+        \t\t\t\t\ \ \ \ Break[]]]; \nc\  = \ 0; \np\  = \ n; 
+    \  (*\ Parameters\ a, b, c, 
+      p\ now\ intact\ for\ elliptic\ \(arithmetic . \)\ *) \n
+    u\  = \ elliptic[{x, 1}, \ m/q]; \n
+    If[u[\([2]\)]\  == \ 0, \ Goto[point]]; \nv\  = \ elliptic[u, \ q]; \n
+    If[v[\([2]\)]\  != \ 0, \ Print[n, "\< is composite\>"], \ 
+      Print["\<If \>", q, "\< is prime, then \>", n, "\< is prime.\>"]]; \n\n
+    \)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{805, 613},
+WindowMargins->{{Automatic, 49}, {31, Automatic}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 536, 9, 188, "Input"],
+Cell[2248, 60, 2464, 48, 785, "Input"],
+Cell[4715, 110, 1496, 27, 366, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

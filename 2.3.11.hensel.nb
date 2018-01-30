@@ -1,0 +1,151 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3446,        110]*)
+(*NotebookOutlinePosition[      4148,        136]*)
+(*  CellTagsIndexPosition[      4104,        132]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell["\<\
+(*
+Algorithm 2.3.11 (Hensel lifting).
+Support code for
+R. Crandall and C. Pomerance,
+\"Prime Numbers: a Computational Perspective,\"
+Springer-Verlag 2001.
+c. 2000 Perfectly Scientific, Inc.
+All Rights Reserved.
+\t
+\t30 Nov 2000 AH(slight program changes)
+\t14 Sep 2000 RT (Creation)
+*)
+
+(* Given a polynomial f, a prime p and an integer r such that 
+f(r) = 0(mod p^2^i) the algorithm returns a new r such that 
+f(r) = 0 (mod p^2^(i+1)) and (new r) = (old r) (mod p^2^i). *)      
+\
+\>", "Input",
+  PageWidth->Infinity],
+
+Cell[TextData[
+"(*CODE*)\n\n(* Below we include algorithm 2.1.4, the extended gcd. *)\n\n\
+extendedgcd[x_,y_] := \n\tModule[{a,b,g,u,v,w},\n  \t\t\
+{a,b,g,u,v,w}={1,0,x,0,1,y};\n    \tWhile[w>0,\n      \tq = Floor[g/w];\n     \
+ \t{a,b,g,u,v,w}={u,v,w,a-q u,b-q v,g-q w}\n      ];\n    \t{a,b,g} \n   ]\n  \
+\n(* Now, the main routine. *)  \n \nhensellifting[f_,p_,r_,i_]:=\n \t\
+Module[{z,x1,df,y,rp1},\n    \tx1 = (f/.x->r)p^(-2^i);\n    \tdf = D[f,x]/.x\
+\[Rule]r;\n    \tz = extendedgcd[df,p^(2^i)][[1]];\n    \ty = Mod[-x1 \
+z,p^(2^i)];\n    \trp1 = r+y p^(2^i);\n\t\trp1\n\t]"], "Input",
+  PageWidth->Infinity],
+
+Cell["\<\
+
+(* EXAMPLE *) 
+
+(* picking our arguments correctly, we may lift solutions 
+interminably. *)
+
+Clear[x,f];
+f[x_] = x^6+x^5+x+4;
+p = 17;
+i = 0;
+r = 2;
+(* r = 2 is a solution for i = 0, 
+which we could have found via algorithm 2.3.10. *)
+
+(* Now we find solutions for i=1,2,3,4,5,6, 
+knowing only the solution for i = 0. *)
+
+While[i < 6,
+\tPrint[\"For i = \",i+1,\": \"];
+\tPrint[\"r = \", r = hensellifting[f[x],p,r,i]];
+  \t
+  \t(* Now, check the solution. *)  \t
+  \tPrint[\"f(r) = \", Mod[f[r],p^2^(i+1)], \" (mod p^2^i)\"];
+  \ti++
+]\
+\>", "Input",
+  PageWidth->Infinity]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{720, 668},
+WindowMargins->{{21, Automatic}, {11, Automatic}},
+ShowCellLabel->False,
+LineIndent->4
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 528, 19, 216, "Input"],
+Cell[2240, 70, 616, 9, 312, "Input"],
+Cell[2859, 81, 583, 27, 312, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

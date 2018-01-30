@@ -1,0 +1,151 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      4874,        112]*)
+(*NotebookOutlinePosition[      5533,        136]*)
+(*  CellTagsIndexPosition[      5489,        132]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 9.3  .1\ 
+        \((Binary\ ladder\ exponentiation\ \((left - right\ form)\))\) . 
+          \t\t\t\n\ Support\ code\ for\n\ R . \ Crandall\ and\ 
+        C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\t\n\t14\ Sep\ 2000\ RT\ 
+        \((Creation)\)\n*) \n
+    \n (*\ Two\ individuals, \ Alice\ and\ Bob, 
+      agree\ on\ a\ prime\ p\ and\ a\ \ngenerator\ g\ in\ F_p . \ This\ 
+        algorithm\ allows\ Alice\ and\ Bob\ to\ \nestablish\ a\ mutual\ key\ 
+        \((mod\ p)\), \ 
+      with\ neither\ able \((under\ DL\ \ndifficulty)\)\ to\ infer\ the\ 
+        other' s\ secret\ \(key . \)\ *) \n\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n\n
+    primroot[p_]\  := 
+      \  (*\ Return\ the\ least\ positive\ primitive\ root\ 
+          \(\((mod\ p)\) . \)\ *) \n\t\ \ \ \ 
+      Module[{fa, \ q, \ k, \ v, \ r, \ rt}, \n\t\t\ \ \ \ \ \ \ \ 
+        If[p == 2, \ Return[1]]; \n\t\t\t\t\ \ \ 
+        fa\  = \ FactorInteger[p - 1]; \n\t\t\t\t\ \ \ \ 
+        Do[\n\t\t\t\ \ \ \ \ \ \ \ \ \ \ 
+          Do[\n\t\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
+            q\  = \ \(fa[\([k]\)]\)[\([1]\)]; \n
+            \t\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
+            v\  = \ PowerMod[r, \ \((p - 1)\)/q, \ p]; \n
+            \t\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(If[v == 1, \ Break[]]; 
+            \)\n\t\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ , {k, 1, Length[fa]}\n
+            \t\t\t\t\ \ \ \ \ \ \ \ \ ]; \n\t\t\t\ \ \ \ \ \ \ \ \ \ \ 
+          If[v == 1, \ Continue[]]; \n\t\t\t\ \ \ \ \ \ \ \ \ \ \ rt\  = \ r; 
+          \ \(Break[]; \)\n\t\t\t\ \ \ \ \ \ \ \ \ \ \ , {r, 2, p - 1}\n
+          \t\t\t\ \ \ \ \ \ \ ]; \t\n\t\t\t\ \ \ \ \ \ \ rt\t\t\t\n\t\t\t\t]; 
+    \n\t\t\t\t\n (*\ 
+      The\ following\ routines\ each\ return\ a\ 2 - 
+        tuple\ being\ the\ private\ and\ public\ keys, \ 
+      \(respectively . \)\ *) \n\n
+    AliceGeneratesKeys[g_, p_] := \n\t
+      Module[{x, a}, \n\t\ta = Random[Integer, {2, p - 2}]; \n\t\t
+        x = PowerMod[g, a, p]; \n\t\t{a, x}\n\t]; \n\n
+    BobGeneratesKeys[g_, p_] := \n\t
+      Module[{x, b}, \n\t\tb = Random[Integer, {2, p - 2}]; \n\t\t
+        x = PowerMod[g, b, p]; \n\t\t{b, x}\n\t]; \n\n
+    GenerateMutualKey[publickey_, privatekey_, p_] := \ \n\t
+      PowerMod[publickey, privatekey, p]; \)\)], "Input"],
+
+Cell[BoxData[{
+    \(\n (*\ EXAMPLE\ *) \n
+    \n (*\ We\ generate\ keys\ for\ each\ individual, \ 
+      then\ verify\ the\ mutual\ \(key . \)\ *) \n
+    p\  = \ Prime[Random[Integer, {100, 500}]]; \n\ng\  = \ primroot[p]; \n\n
+    Print["\<Alice's  {private key, public key}: \>"]; \n\n
+    alicekeys = AliceGeneratesKeys[g, p]\n\), 
+    \(Print["\<Bob's  {private key, public key}:\>"]; \n\n
+    bobkeys = BobGeneratesKeys[g, p]\n\), 
+    \(Print["\<Bob's mutual key: \>"]; \n\n
+    GenerateMutualKey[alicekeys[\([2]\)], bobkeys[\([1]\)], p]\n\), 
+    \(Print["\<Alice's mutual key: \>"]; \n\n
+    GenerateMutualKey[bobkeys[\([2]\)], alicekeys[\([1]\)], p]\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{666, 696},
+WindowMargins->{{Automatic, 129}, {-12, Automatic}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 815, 15, 243, "Input"],
+Cell[2527, 66, 1667, 30, 536, "Input"],
+Cell[4197, 98, 673, 12, 321, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

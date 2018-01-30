@@ -1,0 +1,161 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      5092,        121]*)
+(*NotebookOutlinePosition[      5771,        146]*)
+(*  CellTagsIndexPosition[      5727,        142]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 9.4  .6 . \ \ \((Recursive\ gcd)\) . \n\ Support\ code\ for\n
+        \ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2000. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\ \n\t10\ Dec\ 2000\ AH\ 
+        \((Set\ default\ value\ for\ gmat; \(formatting . \))\)\ \n\ *) \n
+    \n (*\ For\ integers\ a, 
+      b\  > 0\ this\ algorithm\ returns\ the\ GCD\ of\ a, b; \n\t
+      actually\ the\ function\ rgcd[]\ does\ this . \ \n\tIn\ practice, \ 
+      the\ recursive\ gcd\ begins\ to\ outperform\ other\ \n\ schemes\ in\ and
+        \ above\ the\ region\ x, y\ approx . \ 2^\((2^13)\) . \n*) \n\)\)], 
+  "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n
+    \n (*\ This\ implementation\ is\ based\ on\ various\ ideas\ of\ 
+        J . \ P . \ Buhler . \ *) \n\nlim = 128; \nprecbits = 32; \n\n
+    gmat\  = \ {{1, 0}, {0, 1}}; \t\n\n
+    shgcd[x_, y_] := \[IndentingNewLine]\t
+      Module[{u\  = \ x, v\  = \ y, a1, a2, a3, a4, q}, \n
+        \t\t{a1, a2, a3, a4} = {1, 0, 0, 1}; \n\t\t
+        While[\((v^2\  > \ x)\), \n\t\t\tq = Floor[\((u/v)\)]; \n
+          \t\t\t{u, v} = {v, Mod[u, v]}; \n\t\t\t{a1, a3} = {a3, a1 - q\ a3}; 
+          \n\t\t\t{a2, a4} = {a4, a2 - q\ a4}\n\t\t]; \n
+        \t\t{{a1, a2}, {a3, a4}}\n\t]; \n\n
+    hgcd[bits_, x_, y_] := \n\t
+      Module[{u\ , v, m, cmat, q}, \n\t\tIf[y == 0, Return[Null]]; \n\t\t
+        u = Floor[x/2^bits]; \n\t\tv = Floor[y/2^bits]; \n\t\t
+        m = Length[IntegerDigits[u, 2]]; \n\t\t
+        If[m < precbits, \n\t\t\tgmat = shgcd[u, \ v]; \n\t\t\tReturn[Null]\n
+          \t\t]; \n\t\tm = Floor[m/2]; \n\t\thgcd[m, u, \ v]; \n
+        \t\t{u, \ v} = gmat . {u, \ v}; \n\t\t
+        If[u < 0, \ u\  = \ \(-u\); gmat[[1]] = \(-gmat[[1]]\)]; \n\t\t
+        If[v < 0, \ v\  = \ \(-v\); gmat[[2]] = \(-gmat[[2]]\)]; \n\t\t
+        If[u\  < \ v, \n\t\t\t{u, v} = {v, u}; gmat = {gmat[[2]], gmat[[1]]}\n
+          \t\t]; \n\t\t
+        If[Not[v == 0], \n\t\t\t{u, v} = {v, u}; \n\t\t\tq = Floor[v/u]; \n
+          \t\t\tgmat = {{0, 1}, {1, \(-q\)}} . gmat; \n\t\t\tv = v - q\ u; \n
+          \t\t\tm = Floor[m/2]; \n\t\t\tcmat = gmat; \n\t\t\t
+          gmat = IdentityMatrix[2]; \ \n\t\t\thgcd[m, u, \ v]; \n\t\t\t
+          gmat = gmat . cmat; \ \n\t\t]\n\t]; \n\n
+    rgcd[x_, y_] := \n\t
+      Module[{u = \ x, \ v = y}, \n\t\t
+        While[True, \n\t\t\t{u, v} = Abs[{u, v}]; \n\t\t\t
+          If[u < v, \n\t\t\t\t{u, v} = {v, u}\n\t\t\t]; \n\t\t\t
+          If[v < lim, \n\t\t\t\tBreak[]\n\t\t\t]; \n\t\t\t
+          gmat = IdentityMatrix[2]; \n\t\t\thgcd[0, u, \ v]; \ \ \n
+          \t\t\t{u, \ v} = Abs[gmat\  . \ {u, \ v}]; \n\t\t\t
+          If[u\  < \ v, \n\t\t\t\t{u, \ v} = {v, \ u}\n\t\t\t]; \n\t\t\t
+          If[v < lim, \n\t\t\t\tBreak[]\n\t\t\t]; \n
+          \t\t\t{u, \ v} = {v, \ Mod[u, v]}\ \n\t\t]; \n\t\tGCD[u, v]\n\t]; \n
+    \t\t\n\t\t\t\)\)], "Input"],
+
+Cell["\<\
+(* EXAMPLE. *)
+
+SeedRandom[0]
+Do[
+   a = Random[Integer,10^60000] * 3 * 5^2 * 13 ;
+   b = Random[Integer,10^60000] * 3 * 5^2 * 7 * 13;
+   Print[Timing[g1 = rgcd[a, b]]];
+   Print[Timing[g2 = GCD[a, b]]];
+   If[g1 != g2, Print[TILT!]; Break[]],
+   {ct,1,2}]\
+\>", "Input",
+  AutoIndent->True,
+  LineBreakWithin->False,
+  LineIndent->0,
+  AspectRatioFixed->True]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{627, 650},
+WindowMargins->{{Automatic, 99}, {Automatic, 13}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 777, 13, 256, "Input"],
+Cell[2489, 64, 2226, 38, 1044, "Input"],
+Cell[4718, 104, 370, 15, 132, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

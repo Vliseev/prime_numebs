@@ -1,0 +1,149 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3965,        105]*)
+(*NotebookOutlinePosition[      4793,        134]*)
+(*  CellTagsIndexPosition[      4749,        130]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell["\<\
+
+(*
+ Algorithm 8.2.5 (Long-period random generator).
+ Support code for
+ R. Crandall and C. Pomerance,
+ \"Prime Numbers: a Computational Perspective,\"
+ Springer-Verlag 2001.
+ c. 2000 Perfectly Scientific, Inc.
+ All Rights Reserved.
+ 
+ \t10 Dec 2000 AH (Formatting, cleared the running carry bit)
+ \t14 Sep 2000 RT (Creation)
+*)
+
+(* This algorithm assumes input integers b>=2 and r>s>0 and produces 
+an iterative sequence of pseudo-random integers, each calculated from 
+r previous values and a running carry bit c.  
+We start with a vector seed/carry entity v with its first r components 
+assumed in [0,b-1], and last component c=0 or 1. *)
+\
+\>", "Input",
+  AutoIndent->True,
+  LineBreakWithin->False,
+  LineIndent->0,
+  AspectRatioFixed->True],
+
+Cell[BoxData[{
+    \( (*\ CODE\ *) \n\nClear[c]\ \  (*\ the\ running\ carry\ bit\ *) \n\), 
+    \(\(marsaglia[b_, r_, s_, vin_] := \n\t
+      Module[{x, v = vin}, \[IndentingNewLine]\t\tx = v[[s]] - v[[r]] - c; 
+        \[IndentingNewLine]\t\t
+        If[x < 0, \[IndentingNewLine]\t\t\tx = x + b; 
+          \[IndentingNewLine]\t\t\tv[[r + 1]] = 1\n\t\t\t, 
+          \[IndentingNewLine]\t\t\tv[[r + 1]] = 0\[IndentingNewLine]\t\t]; 
+        \[IndentingNewLine]\t\t
+        For[i = r, i > 1, \(i--\), \[IndentingNewLine]\t\t\t
+          v[[i]] = v[[i - 1]]\[IndentingNewLine]\t\t]; \[IndentingNewLine]\t\t
+        v[[1]] = x; \[IndentingNewLine]\t\tv[[r + 1]] = c; 
+        \[IndentingNewLine]\t\t (*\ 
+          We\ return\ the\ whole\ vector\ for\ the\ purposes\ \n\t\tof\ re - 
+            \(seeding . \)\ *) \[IndentingNewLine]\t\tv
+        \[IndentingNewLine]\t]; \)\n\t\)}], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ EXAMPLE\ *) \[IndentingNewLine]\n (*\ 
+      We\ run\ the\ Marsaglia\ generator\ for\ b = 2^64, \ r = 30, \ s = 6, \ 
+      values\ \nknown\ to\ yield\ a\ period\ of\ approx\ 10^578. \ *) 
+      \[IndentingNewLine]\nb = 2^64; \nr = 30; \ns = 6; \n
+    \[IndentingNewLine]v = 
+      Append[\n\t\tTable[Random[Integer, {0, b - 1}], {i, 1, r}], \n\t\t
+        Random[Integer]\n\t]; \n
+    \[IndentingNewLine]Do[\[IndentingNewLine]\tPrint[v[[1]]]; 
+      \[IndentingNewLine]\t\(v = marsaglia[b, r, s, v]; 
+      \)\[IndentingNewLine]\t, {30}\[IndentingNewLine]]; \)\)], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{754, 539},
+WindowMargins->{{93, Automatic}, {Automatic, 75}},
+PrivateNotebookOptions->{"ColorPalette"->{RGBColor, -1}},
+ShowCellLabel->True,
+ShowCellTags->False,
+RenderingOptions->{"ObjectDithering"->True,
+"RasterDithering"->False}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 755, 25, 252, "Input"],
+Cell[2467, 76, 890, 15, 314, "Input"],
+Cell[3360, 93, 601, 10, 264, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

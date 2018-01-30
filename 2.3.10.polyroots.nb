@@ -1,0 +1,234 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      5612,        193]*)
+(*NotebookOutlinePosition[      6314,        219]*)
+(*  CellTagsIndexPosition[      6270,        215]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell["\<\
+(*
+Algorithm 2.3.10 (Roots of a polynomial over F_p).\t\t\t
+Support code for
+R. Crandall and C. Pomerance,
+\"Prime Numbers: a Computational Perspective,\"
+Springer-Verlag 2001.
+c. 2000 Perfectly Scientific, Inc.
+All Rights Reserved.
+      
+\t30 Nov 2000 AH (removed copy of code for Algorithm 2.2.9, it is 
+\tnot used; use of PolynomialDivision avoided; prepended Clear[x] 
+\tto example)
+\t14 Sep 2000 RT (Creation)
+*)
+
+(* 
+Given polynomial g in F_p[x] with p odd prime this algorithm 
+returns a list of roots in F_p of g.
+The indeterminate in the given polynomial must be the global 'x'; 
+  clear any existing values of x with Clear[x]. 
+*)
+\
+\>", "Input",
+  PageWidth->Infinity],
+
+Cell["\<\
+(*CODE*)
+
+(* First, we include Algorithm 2.3.8, for finding 
+square roots mod p. *)
+
+sqrtmod[b_,p_]:= 
+\tModule[{a,x,c,d,cd,m,t,tst},
+   \t\ta = Mod[b,p];
+   \t\tIf[p == 2, Return[a]];
+    \tIf[MemberQ[{3,7},Mod[p,8]],
+      \t\tReturn[PowerMod[a,(p+1)/4,p]]
+      \t];
+    \tIf[Mod[p,8] == 5,
+      \t\tx = PowerMod[a,(p+3)/8,p];
+      \t\tc = Mod[x^2,p];
+      \t\tIf[Not[c == a],
+        \t\tReturn[Mod[x PowerMod[2,(p-1)/4,p], p]]
+        \t];
+      \t];
+    \t
+    \t(* Here, p = 1 (mod 8). *)
+      \ttst = 1;
+      \tWhile[Not[tst == -1],
+        \td = Random[Integer,{1,p}];
+        \ttst = JacobiSymbol[d,p]
+        ];
+      \tt = (p-1)/2; s = 1;
+      \tWhile[EvenQ[t], t = t/2; ++s];
+      \tca = PowerMod[a,t,p];
+      \tcd = PowerMod[d,t,p];
+      \tm = 0;
+      \tDo[
+      \t   If[PowerMod[Mod[ca PowerMod[cd, m, p],p], 2^(s-1-i), p]
+      \t   \t\t== p-1, m += 2^i]
+      \t   ,{i,0,s-1}
+      \t];      \t    
+      \tReturn[Mod[PowerMod[a, (t+1)/2,p] PowerMod[cd, m/2,p],p]]; 
+\t];
+\t
+
+polypowermod[base_, exp_, divpoly_, p_] := 
+\tModule[{bit = IntegerDigits[exp, 2], acc},
+\t\tacc = PolynomialMod[base, divpoly, Modulus->p];
+\t\tDo[
+\t\t\tacc =  PolynomialMod[acc*acc,divpoly, Modulus-> p];
+\t\t\tIf[bit[[q]] == 1,
+\t\t\t\tacc = PolynomialMod[acc * base, divpoly, Modulus->p]
+\t\t\t],
+\t\t\t{q,2,Length[bit]}
+\t\t];
+\t\tacc
+\t];\t
+\t\t\t\t\t\t   \t\t
+
+(* Now, the main routine. It is divided into three subsections: 
+quadraticroots for finding quadratic roots, rootspoly, the recursive 
+function, and getroots, the skeleton that makes the initial 
+adjustments and calls rootspoly. *)
+
+quadraticroots[f_,p_]:=  (* Polynomial assumed monic, x^2 + b x + c. *)
+  \tModule[{b,c,d},
+    \t{b,c} = Coefficient[f,x,{1,0}];
+    \td = b^2 - 4c;
+    \tIf[JacobiSymbol[d,p] == -1, Return[{}]];
+    \tc = sqrtmod[d,p];
+    \td = (p+1)/2;
+    \tReturn[Mod[{d*(-b + c), d*(-b-c)},p]];
+\t];
+
+rootspoly[f_,p_]:=
+ \tModule[{g,h,a,deg}, 
+      (* Global r and global x. *)
+    \tg = PolynomialMod[f,p];
+        If[Exponent[g,x] == 0, Return[r]];
+        If[Exponent[g,x] == 1, Return[r = Union[r,{-Coefficient[g,x,0]}]]];
+        If[Exponent[g,x] ==\t2, Return[r\t= Union[r, quadraticroots[g,p]]]];
+        deg = Exponent[g,x];
+        While[True,
+        \ta = Random[Integer,{0,p-1}];
+            h = polypowermod[x+a, (p-1)/2, g, p];
+\t\t\th = PolynomialGCD[h-1, g, Modulus -> p];
+\t\t\tIf[(Exponent[h,x] > 0) && (Exponent[h,x] < deg), Break[]];
+\t\t];
+        Return[r = Union[r, rootspoly[h,p], rootspoly[g/h,p]]];
+ \t];
+
+getroots[f_,p_]:=
+  \tModule[{g}, 
+  \t\t(* Do not localize the global set r. *)
+    \tr = {}; 
+    \tg = PolynomialGCD[f, x^p-x, Modulus -> p];
+    \tIf[(g/.x->0) == 0,
+      \tr = Union[r,{0}];
+        g = Expand[g/x]
+      ];
+    \tr = Mod[Union[r, rootspoly[g, p]], p]
+    ];
+\t\t\
+\>", "Input",
+  PageWidth->Infinity],
+
+Cell["\<\
+(* EXAMPLE *)
+
+(* We pick reasonable random values for p, f, find the roots of f 
+over F_p and then factor f over F_p to check the answer. *)
+
+Clear[x];
+p = Prime[Random[Integer,{2,2^9}]]
+f = Sum[Random[Integer,{0,p-1}]*x^i, {i,0,Random[Integer,{2,50}]}]
+
+
+getroots[f, p]
+Factor[f, Modulus -> p]\
+\>", "Input",
+  PageWidth->Infinity]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{643, 688},
+WindowMargins->{{Automatic, 128}, {7, Automatic}},
+ShowCellLabel->False,
+LineIndent->4
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 690, 24, 276, "Input"],
+Cell[2402, 75, 2860, 100, 1188, "Input"],
+Cell[5265, 177, 343, 14, 156, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

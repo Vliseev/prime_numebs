@@ -1,0 +1,137 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      4010,         97]*)
+(*NotebookOutlinePosition[      4690,        122]*)
+(*  CellTagsIndexPosition[      4646,        118]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 9.6  .1\ 
+        \((Fast\ polynomial\ multiplication\ via\ binary\ \n\ segmentation)
+            \) . \t\t\n\ Support\ code\ for\n\ R . \ Crandall\ and\ 
+        C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\t\ \n\t11\ Dec\ 2000\ AH\ 
+        \((Formatting)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n*) \n
+    \n (*\ Given\ two\ polynomials\ x \((t)\), 
+      y \((t)\)\ with\ all\ coefficients\ non - negative, \ \n
+      this\ algorithm\ returns\ of\ coefficients\ of\ their\ 
+        \(product . \)\ *) \n\)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ CODE\ *) \n\n
+    binarysegmul[xin_, yin_] := \n\t
+      Module[{x, y\ , dc, ec, b, xc, yc, u, z, j}, \n
+        \t\t{x, y} = CoefficientList[{xin, yin}, t]; \n
+        \t\t{dc, ec} = {Length[x], Length[y]}; \n\t\t
+        b = Ceiling[Log[2, Max[dc, ec] Max[x] Max[y]]]; \n\t\t
+        While[\ \ 2^b <= Max[dc, ec] Max[x] Max[y], \ \(b++\)]; \n\t\t
+        xc = Sum[x[[j + 1]]\ 2^\((j\ b)\), {j, 0, dc - 1}]; \n\t\t
+        yc = Sum[y[[j + 1]]\ 2^\((j\ b)\), {j, 0, ec - 1}]; \n\t\tu = xc\ yc; 
+        \n\t\tTable[\ Mod[\ Floor[u/2^\((j\ b)\)], 2^b], {j, 0, dc + ec - 2}]
+          \n\t]\n\t\n
+    \t (*\ Below, the\ second, \ Mathematica - specific\ version, \ 
+      which\ \n\tis\ \(faster . \)\ \ *) \n\), 
+    \(\(convolvemul[x_, y_] := \n\t\t
+      Module[{cx, \ cy, \ n}, \n
+        \t\t\t{cx, \ cy}\  = 
+          \ {CoefficientList[x, t], \ CoefficientList[y, t]}; \n\t\t\t
+        n\  = \ Length[cx]; \n\t\t\tListConvolve[cx, cy, {\(-n\), n}, 0]\n
+        \t\t]; \)\n\t\t\)}], "Input"],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ *) \n
+    \n (*\ We\ create\ two\ polynomials\ of\ random\ degree\ deg\ with\ \n
+          random\ non - negative\ coefficients, \ 
+      apply\ binarysegmul\ and\ compare\ \nwith\ convolvevmul\ and\ explicit\ 
+        \(multiply . \)\ *) \n\ndeg\  = \ Random[Integer, {2, 5}]\n\), 
+    \(x = Sum[Random[Integer, 50]*t^i, {i, 0, deg}]; \n\n
+    y\  = \ Sum[Random[Integer, 50]*t^i, {i, 0, deg}]; \n\n
+    binarysegmul[x, y]\), 
+    \(\n\nconvolvemul[x, y]\n\), 
+    \(r3 = CoefficientList[x\ y, t]\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{748, 753},
+WindowMargins->{{Automatic, 59}, {Automatic, 196}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 723, 13, 243, "Input"],
+Cell[2435, 64, 1022, 19, 339, "Input"],
+Cell[3460, 85, 546, 10, 254, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

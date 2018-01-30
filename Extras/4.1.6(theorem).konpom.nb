@@ -1,0 +1,241 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      8543,        190]*)
+(*NotebookOutlinePosition[      9180,        213]*)
+(*  CellTagsIndexPosition[      9136,        209]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\ \n\ 
+      Algorithm\ 
+        4.1  .6 . \ \ \((The\ Konyagin - Pomerance\ test)\) . \n\ Support\ 
+        code\ for\n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2000. \n\n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ \(Reserved . \)\n\ *) \n\t\n\)\)], "Input"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+    \(\(Needs["\<NumberTheory`FactorIntegerECM`\>"]; \ \n\n
+    Unfactor[n_]\  := \ Times\ @@\ Apply[Power, \ Round[n], \ {1}]; \n\n
+    PartialFactor::ecm\  = \ "\<Trying ECM method.\>"; \n\n
+    Options[PartialFactor]\  = \ {TimeLimit\  -> \ 10}; \ \n\n
+    PartialFactor[n_Integer, \ u_, \ opts___]\  := \ \n\ \ 
+      Module[{U, \ F, \ tm, \ ansnew, \ ans, \ z, \ p}, \ \n
+        \ \ \ {tm}\  = \ 
+          \({TimeLimit}\  /. \ {opts}\)\  /. \ Options[PartialFactor]; \ \n
+        \ \ \ \ ans\  = \ 
+          Drop[FactorInteger[n, \ FactorComplete\  -> \ False], \ \n
+            \ \ \ \ \ \ \(-1\)]; \n\ \ \ F\  = \ Unfactor[ans]; \ \n\ \ \ 
+        U\  = \ n/F; \ \n\ \ \ If[F\  > \ n^u, \ Return[ans]]; \ \n\ \ \ 
+        While[F\  < \ n^u, \ \n\ \ \ \ \ 
+          ansnew\  = \ TimeConstrained[FactorInteger[U], \ tm]; \ \n
+          \ \ \ \ \ \ 
+          If[ListQ[ansnew], \ \n\ \ \ \ \ \ \ \ 
+            ans\  = \ Join[ans, \ ansnew]; \ F\  = \ Unfactor[ans], \ \ \n
+            \ \ \ \ Message[PartialFactor::ecm]; \ \n\ \ \ \ 
+            p\  = \ FactorIntegerECM[U]; \ p\  = \ Min[p, \ U/p]; \ \n\ \ \ \ 
+            ansnew\  = \ 
+              If[PrimeQ[p], \ {{p, \ IntegerExponent[U, \ p]}}, \ \n
+                \ \ \ \ \ \ \ \ \ \ PartialFactor[p, \ Log[n^u/F]/Log[p]]]; \ 
+            \n\ \ \ \ ans\  = \ Join[ans, \ ansnew]; \n\ \ \ \ 
+            F\  *= \ Unfactor[ansnew]; \ \n\ \ \ \ 
+            U\  /= \ Unfactor[ansnew]]]; \ ans]; \n\n
+    Options[KPCertify]\  = 
+      \ {TimeLimit\  -> \ 20, \ Factorization\  -> \ {}}; \ \n\n
+    KPCertify[n_, \ opts___]\  := \ n\  /; \ n\  < \ 10^16; \ \n\n
+    KPCertify[n_, \ opts___]\  := \ 
+      Module[\n\ \ {primes, \ a, \ g\  = \ 2, \ i, \ c2, \ \n\ \ \ \ c1, \ 
+          c3, \ c4, \ d, \ tm, \ F, \ factorization}, \ \n
+        \ \ {factorization, \ tm}\  = \ 
+          \({Factorization, \ TimeLimit}\  /. \ \n\ \ \ \ \ \ {opts}\)\  /. \ 
+            Options[KPCertify]; \ \n\ \ s\  = \ Unfactor[factorization]; \ 
+        If[Mod[n\  - \ 1, \ s]\  != \ 0, \ \n\ \ \ \ Return[badoption]]; \n
+        \ \ \ If[s^\((10/3)\)\  < \ n, \ \n\ \ \ \ \ 
+          factorization\  = \ 
+            TimeConstrained[
+              PartialFactor[n\  - \ 1, \ \n\ \ \ \ \ \ \ \ 3/10], \ tm]]; \n
+        \ \ \ If[\(! ListQ[factorization]\), \ \n\ \ \ \ \ Return[$Failed]]; 
+        \n\ \ \ F\  = \ Unfactor[factorization]; \ \n\ \ \ 
+        primes\  = \ First\ /@\ factorization; \ i\  = \ 0; \ \n\ \ \ 
+        While[g\  != \ 1, \ \(i++\); \ 
+          a\  = \ Random[Integer, \ {2, \ n\  - \ 2}]; \ \n\ \ \ \ \ \ 
+          If[PowerMod[a, \ n\  - \ 1, \ n]\  != \ 1, \ Return[$Failed]]; \ \n
+          \ \ \ \ \ \ 
+          g\  = \ GCD[
+              PowerMod[a, \ \((n\  - \ 1)\)/primes[\([i]\)], \ n]\  - \ 1, \ 
+              n]; \ \n\ \ \ \ \ \ If[1\  < \ g\  < \ n, \ Return[$Failed]]]; 
+        \ \n\ \ \ 
+        Print[{n\  - \ 1, \ factorization, \ Unfactor[factorization]}]; \ \n
+        \ \ \ Which[F^2\  >= \ n, \ True, \ F^3\  >= \ n, \ 
+          Print["\<case two\>"]; \ \n
+          \ \ \ \ \ \ {c2, \ c1}\  = \ Drop[IntegerDigits[n, \ F], \ \(-1\)]; 
+          \ \n\ \ \ \ \ \ \ \(! IntegerQ[Sqrt[c1^2\  - \ 4*c2]]\), \ 
+          F^\((10/3)\)\  >= \ n, \ \n\ \ \ \ Print["\<case three\>"]; 
+          \ {c3, \ c2, \ c1}\  = \ \n\ \ \ \ 
+            Drop[IntegerDigits[n, \ F], \ \(-1\)]; \ c4\  = \ c3*F\  + \ c2; 
+          \ \n\ \ \ \ \ 
+          And\ @@\ Table[\ 
+                \(! IntegerQ[
+                    Sqrt[\((c1\  + \ t*F)\)^2\  + \ 4*t\  - \ \n
+                        \ \ \ \ \ \ \ \ \ \ \ \ \ 4*c4]]\), \ {t, \ 0, \ 5}]
+                \  && \ \n\ \ \ \ \ \ \ 
+            \((conv\  = \ 
+                Last[Select[Convergents[c1/F], \ \n\ \ \ \ \ \ \ \ \ \ \ 
+                    Denominator[#1]\  < \ F^2/Sqrt[n]\ &\ ]]; \ \n
+              \ \ \ \ \ \ \ \ {u, \ v}\  = 
+                \ {Numerator[conv], \ Denominator[conv]}; \ \n\ \ \ \ \ \ \ \ 
+              d\  = \ Floor[c4*v/F\  + \ 1/2]; \ 
+              MemberQ[\n\ \ \ \ \ \ \ \ \ 
+                Mod[n, \ 
+                  1\  + \ F*
+                      Cases[x\  /. \ 
+                          Solve[v*x^3\  + \ 
+                                \((u*F\  - \ c1*v)\)*\n
+                                  \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ x^2\  + \ 
+                                \((c4*v\  - \ d*F)\)*x\  - \ d\  == \ 0, \ 
+                            x], \ \n\ \ \ \ \ \ \ \ \ \ \ \ \ 
+                        x_Integer\  /; \ 1\  < \ x\  < \ n]], \ 0])\)]; \ \n
+        \ \ \ \ {factorization, \ N[Log[Unfactor[factorization]]]/Log[n]}]; \n
+    \n (*\ Notes\  : \ \ \n\ \ \ \ 
+        There\ is\ a\ Print\ statement\ in\ the\ middle\ of\ the\ code\ that\ 
+          prints\ out\nthe\ \\\npartial\ factorization, \ \n\ \ 
+      so\ we\ can\ see\ what\ happened . \ Delete\ it\ if\ you\ 
+        want . \ \n\ \ I\ also\ print\ out\ "\<case two\>"\ for\ example\ to\ 
+        show\ which\ case\ we\ are\ in\ as\ \\\ndescribed\ in\ your\ 
+        book . \ This\ too\ could\ be\ deleted\ *) \n\)\)], "Input"],
+
+Cell[BoxData[
+    \(General::"spell1" \( : \ \) 
+      "Possible spelling error: new symbol name \"\!\(factorization\)\" is \
+similar to existing symbol \"\!\(Factorization\)\"."\)], "Message"],
+
+Cell[BoxData[
+    \(FactorIntegerECM::"shdw" \( : \ \) 
+      "Symbol \!\(\"FactorIntegerECM\"\) appears in multiple contexts \
+\!\({\"NumberTheory`FactorIntegerECM`\", \"Global`\"}\); definitions in \
+context \!\(\"NumberTheory`FactorIntegerECM`\"\) may shadow or be shadowed by \
+other definitions."\)], "Message"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+    \(KPCertify[10^30\  + \ 57]\), 
+    \(KPCertify[10^31\  + \ 33]\n\)}], "Input"],
+
+Cell[BoxData[
+    \({1000000000000000000000000000056, {{2, 3}, {3, 1}, {79043, 1}, {
+          3998741, 1}, {290240017, 1}, {454197539, 1}}, 
+      1000000000000000000000000000056}\)], "Print"],
+
+Cell[BoxData[
+    \({{{2, 3}, {3, 1}, {79043, 1}, {3998741, 1}, {290240017, 1}, {454197539, 
+          1}}, 1.`}\)], "Output"],
+
+Cell[BoxData[
+    \({10000000000000000000000000000032, {{2, 5}, {3, 1}, {7, 2}, {569, 1}, {
+          743, 1}, {55807, 1}}, 110983155886176}\)], "Print"],
+
+Cell[BoxData[
+    \("case two"\)], "Print"],
+
+Cell[BoxData[
+    \({{{2, 5}, {3, 1}, {7, 2}, {569, 1}, {743, 1}, {55807, 1}}, 
+      0.453072808713900698`}\)], "Output"]
+}, Open  ]]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowSize->{670, 460},
+WindowMargins->{{Automatic, 37}, {48, Automatic}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 399, 7, 173, "Input"],
+
+Cell[CellGroupData[{
+Cell[2133, 60, 5092, 88, 1025, "Input"],
+Cell[7228, 150, 193, 3, 33, "Message"],
+Cell[7424, 155, 316, 5, 59, "Message"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+Cell[7777, 165, 98, 2, 52, "Input"],
+Cell[7878, 169, 193, 3, 46, "Print"],
+Cell[8074, 174, 126, 2, 24, "Output"],
+Cell[8203, 178, 153, 2, 33, "Print"],
+Cell[8359, 182, 43, 1, 20, "Print"],
+Cell[8405, 185, 122, 2, 24, "Output"]
+}, Open  ]]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

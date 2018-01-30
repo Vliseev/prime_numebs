@@ -1,0 +1,138 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      4361,         98]*)
+(*NotebookOutlinePosition[      5040,        123]*)
+(*  CellTagsIndexPosition[      4996,        119]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\(\n (*\n\ 
+      Algorithm\ 9.4  .3\ 
+        \((Binary\ gcd, \ extended\ for\ inverses)\) . \t\t\n\ Support\ code\ 
+        for\n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\ \n\t10\ Dec\ 2000\ AH\ 
+        \((Formatting)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n\ *) \n
+    \n (*\ For\ positive\ x, 
+      y\ this\ algorithm\ returns\ {a, b, g}\ such\ that\ \n\ \ \ ax + by = 
+        \(g = gcd \((x, y)\)\)\ *) \n\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n
+    \n (*\ The\ following\ function\ computes\ the\ number\ of\ low\ order\ 
+        zeros\ \nin\ the\ binary\ representation\ of\ \(x . \)\ *) \n\n
+    v[x_] := \n\t
+      Module[{xbinary, c}, \n\t\txbinary = Reverse[IntegerDigits[x, 2]]; \n
+        \t\tc = 0; \n\t\tWhile[xbinary[[c + 1]] == 0, \(c++\)]; \n\t\tc\n\t]; 
+    \n\n (*\ Now, \ the\ main\ \(routine . \)\ *) \n\n
+    extendedbinary[x_, y_] := \ \n\t
+      Module[{g, bpower, xprime, yprime, a, b, h, v1, v2, v3, t1, t2, t3}, \n
+        \t\tbpower = Min[v[x], v[y]]; \n\t\txprime = x/2^bpower; \n\t\t
+        yprime = y/2^bpower; \n\t\t{a, b, h} = {1, 0, xprime}; \n
+        \t\t{v1, v2, v3} = {yprime, 1 - xprime, yprime}; \n\t\t
+        If[EvenQ[xprime], \n\t\t\t\({t1, t2, t3} = {1, 0, xprime}; \)\n
+          \t\t\t, \n\t\t\t{t1, t2, t3} = {0, \(-1\), \(-yprime\)}; \n\t\t\t
+          Goto[Check\ Even]\n\t\t]; \n\t\tLabel[Halve\ t3]; \n\t\t
+        If[\((EvenQ[t1] && EvenQ[t2])\), \ \n
+          \t\t\t{t1, t2, t3} = {t1, t2, t3}/2\n\t\t\t, \n
+          \t\t\t{t1, t2, t3} = {t1 + yprime, t2 - xprime, t3}/2\n\t\t]; \n\t\t
+        Label[Check\ Even]; \n\t\t
+        If[EvenQ[t3], \ \n\t\t\t\(Goto[Halve\ t3]; \)\n\t\t]; \n\t\t
+        If[t3 > 0, \n\t\t\t{a, b, h} = {t1, t2, t3}\n\t\t\t, \n
+          \t\t\t{v1, v2, v3} = {yprime - t1, \(-xprime\) - t2, \(-t3\)}\n
+          \t\t]; \n\t\t{t1, t2, t3} = {a, b, h} - {v1, v2, v3}; \n\t\t
+        If[t1 < 0, \n\t\t\t{t1, t2} = {t1 + yprime, t2 - xprime}\n\t\t]; \n
+        \t\tIf[Not[t3 == 0], \n\t\t\tGoto[Halve\ t3]\n\t\t]; \n\t\t
+        Return[{a, b, 2^bpower\ h\ }]\n\t]\)\)], "Input"],
+
+Cell[BoxData[{
+    \(\[IndentingNewLine] (*\ EXAMPLE\ *) \n
+    \[IndentingNewLine] (*\ We\ pick\ random\ integers\ x, y, \ 
+      compute\ the\ extended\ gcd\ and\ \nverify\ \(it . \)\ *) \n
+    \[IndentingNewLine]x = Random[Integer, {1, 2^20}]; \n
+    y = Random[Integer, {1, 2^20}]; \n\nans = extendedbinary[x, y]\n\), 
+    \(ans[[1]]\ x + ans[[2]]\ y\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{748, 530},
+WindowMargins->{{Automatic, 63}, {12, Automatic}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 629, 11, 242, "Input"],
+Cell[2341, 62, 1645, 26, 706, "Input"],
+Cell[3989, 90, 368, 6, 173, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

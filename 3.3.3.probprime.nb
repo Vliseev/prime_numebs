@@ -1,0 +1,129 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3381,         89]*)
+(*NotebookOutlinePosition[      4069,        114]*)
+(*  CellTagsIndexPosition[      4025,        110]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\(\( (*\n
+      Algorithm\ 3.4  .3\ \((Probable\ prime\ test)\) . \t\t\t\n
+          Support\ code\ for\n
+        R . \ Crandall\ and\ C . \ 
+          Pomerance, \n"\<Prime Numbers: a Computational Perspective,\>"\n
+          Springer - Verlag\ 2001. \nc . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \nAll\ Rights\ Reserved . \n\[IndentingNewLine]\t
+          1\ \ Dec\ 2000\ AH\ \((adjusted\ layout)\)\n\t
+        14\ Sep\ 2000\ RT\ \((Creation)\)\n*) \)\(\n\)\(\n\)\( (*\ 
+      We\ are\ given\ an\ integer\ n\  > \ 
+        3\ and\ an\ integer\ a\ with\ 2\  <= \ a\  <= \ 
+        n - 2. \ \ \[IndentingNewLine]This\ algorithm\ decides\ whether\ n\ \
+is\ a\ probable\ prime\ to\ base\ a\ or\ \[IndentingNewLine]n\ is\ \
+\(\(composite\)\(.\)\)\ *) \)\)\)], "Input",
+  PageWidth->Infinity,
+  LineIndent->0],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n\n
+    probprime[n_, a_]\  := \ \[IndentingNewLine]\t
+      Module[{b}, \[IndentingNewLine]\t\tb = \ PowerMod[a, n - 1, n]; 
+        \[IndentingNewLine]\t\t
+        If[b == 1, \[IndentingNewLine]\t\t\ YES, \[IndentingNewLine]\t\t\tNO
+          \[IndentingNewLine]\t\t]\[IndentingNewLine]\t]\n\)\)], "Input",
+  PageWidth->Infinity,
+  LineIndent->0],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE . \ *) \n
+    \n (*\ Let\ us\ check\ the\ Carmichael\ number\ 561, \ 
+      which\ appears\ as\ a\ probable\ prime\nunder\ this\ test, \ 
+      yet\ is\ a\ red\ herring\ \((a\ composite)\); \ 
+      then\ we\ check\ some\ other\n\(numbers . \)\ \ *) \ \n\n
+    probprime[561, 2]\n\), 
+    \(probprime[1111111111111111, 2]\n\), 
+    \(probprime[2^89 - 1, \ 5]\)}], "Input",
+  PageWidth->Infinity,
+  LineIndent->0]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{766, 628},
+WindowMargins->{{115, Automatic}, {Automatic, 32}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 831, 16, 230, "Input"],
+Cell[2543, 67, 385, 8, 155, "Input"],
+Cell[2931, 77, 446, 10, 159, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

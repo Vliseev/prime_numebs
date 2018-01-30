@@ -1,0 +1,136 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      4289,         98]*)
+(*NotebookOutlinePosition[      4927,        121]*)
+(*  CellTagsIndexPosition[      4883,        117]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 9.2  .10\ \((Division - free\ mod)\) . \t\t\t\n\ Support\ 
+        code\ for\n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\ \n\t10\ Dec\ 2000\ AH\ 
+        \((Formatting)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n\ *) \n\n
+    \n (*\ This\ algorithm\ returns\ Mod[x, cn]\ and\ Floor[x/cn], \ 
+      for\ any\ \nnon - 
+          negative\ integer\ x . \ \ The\ only\ precalculation\ is\ to\ have\ 
+            \nestablished\ the\ generalizedreciprocal\ R \((cn)\) = 
+        cr . \ \ To\ do\ this, \ \n
+      one\ may\ use\ algorithm\ 9.2  .8 . \ \ Also, \ 
+      this\ algorithm\ makes\ use\ \nof\ the\ binary\ divide\ 
+        \((algorithm\ 9.1  .3)\), \ which, \ for\ the\ sake\ \nof\ brevity, \ 
+      we\ have\ replaced\ with\ Floor[] . \ \ One\ may\ change\ \nthis\ 
+        preference\ by\ including\ the\ binarydiv\ and\ switching\ the\ \n
+        appropriate\ comments . \ \nFor\ an\ efficient\ implementation, \ 
+      one\ should\ use\ the\ \nbinary\ divide\ \((9.1  .3)\)\ and\ generalized
+          \ reciprocal\ \((9.2  .8)\)\ \nto\ realize\ the\ division - 
+        free\ \(mod . \)\n*) \)\)], "Input"],
+
+Cell[BoxData[
+    \(\(\n (*\ CODE\ *) \n\n\t
+    \(divisionFreeMod[x_, cn_, cr_] := \ 
+      Module[{s, d, xp, b}, \n\t\tb = Length[IntegerDigits[cr, 2]]; \n\t\t
+        If[cr == 0, \(b = 0; \)]; \n\t\ts\  = \ 2 \((b - 1)\); \n\t\t
+        Label[Perform]; \n\t\td\  = \ Floor[x\ cr/2^s]; \n
+        \t\t (*\ We\ may\ substitute\ for\ the\ previous\ \(line : \ d\)\  = 
+            \ binarydiv[x\ cr, 2^s]; \ *) \n\t\txp = x - \ cn\ d; \n\t\t
+        If[xp >= cn, \n\t\t\txp = xp - cn; \n\t\t\t\(d++\); \n\t\t]; \n\t
+        If[xp\  < \ cn, \ Return[{xp, d}]]; \n\t\tGoto[Perform]; \n\t]; 
+    \)\)\)], "Input"],
+
+Cell[BoxData[
+    \(\(\n (*\ EXAMPLE\ *) \n
+    \[IndentingNewLine] (*\ First\ we\ pick\ random\ integers\ x, 
+      \(cn . \)\ *) \n\nx\  = \ Random[Integer, 2^50]; \n
+    cn\  = \ Random[Integer, {2, 2^30}]; \n
+    \n (*\ Now, \ 
+      the\ precalculation\ of\ the\ generalized\ reciprocal\ of\ cn, \ done, 
+      \ for\ brevity, \ 
+      from\ the\ definition\ and\ not\ Algorithm\ 9.2 \( .8 . \)\ *) \n\n
+    cr\  = \ Floor[4^Length[IntegerDigits[cn - 1, 2]]/cn]; \n
+    Print[divisionFreeMod[x, cn, cr]]; \n
+    \n (*\ Now\ we\ check\ the\ \(answer . \)\ *) \n\n
+    Print[{Mod[x, cn], Floor[x/cn]}]; \)\)], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowSize->{743, 551},
+WindowMargins->{{Automatic, 102}, {42, Automatic}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 1339, 21, 367, "Input"],
+Cell[3051, 72, 610, 10, 252, "Input"],
+Cell[3664, 84, 621, 12, 238, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

@@ -1,0 +1,255 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      9838,        215]*)
+(*NotebookOutlinePosition[     10524,        240]*)
+(*  CellTagsIndexPosition[     10480,        236]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell["\<\
+(*
+Algorithm 4.1.7 (The n-1 test).\t\t\t
+Support code for
+R. Crandall and C. Pomerance,
+\"Prime Numbers: a Computational Perspective,\"
+Springer-Verlag 2001.
+c. 2000 Perfectly Scientific, Inc.
+All Rights Reserved.
+\t
+ \t01 Dec 2000 AH (formatting)
+   \t23 Sep 2000 RT (Various cosmetic improvements)\t
+   \t14 Sep 2000 RT (Creation)
+*)
+
+(* Given an integer n \[GreaterEqual] 214 with n-1 = FR, F \[GreaterEqual] \
+n^(3/10), 
+  and the complete prime factorization of F being known,  
+  this probabilistic algorithm decides if n is prime (YES) or composite (NO). \
+*)
+\
+\>", "Input",
+  LineBreakWithin->False],
+
+Cell[BoxData[
+    RowBox[{
+    \( (*\ CODE\ *) \), "\[IndentingNewLine]", "\[IndentingNewLine]", 
+      RowBox[{
+      \(<< NumberTheory`ContinuedFractions`\), ";", "\[IndentingNewLine]", 
+        "\n", 
+        RowBox[{
+        \(nminus1test[n_, F_]\), " ", ":=", " ", "\[IndentingNewLine]", 
+          RowBox[{"Module", "[", 
+            RowBox[{
+            \({a, factoredF, numdivF, q, g, nbaseF, j, t, u, v, d, i, 
+                potfactor}\), ",", "\[IndentingNewLine]", 
+              \( (*\ First, \ the\ Pocklington\ \(test . \)\ *) \), 
+              "\[IndentingNewLine]", 
+              RowBox[{
+              \(Label[Pocklingtontest]\), ";", "\[IndentingNewLine]", 
+                \(a = Random[Integer, {2, n - 2}]\), ";", "\n", "\t\t", 
+                "\[IndentingNewLine]", 
+                \( (*\ Next, \ a\ quick\ Fermat\ \(test . \)\ *) \), "\n", 
+                "\t\t               ", 
+                \(If[PowerMod[a, n - 1, n]\  != \ 1, Return["\<NO1\>"]]\), 
+                ";", "\n", "\t\t", "\[IndentingNewLine]", 
+                RowBox[{"(*", " ", 
+                  RowBox[{
+                  \(The\ known\ prime\ factorization\ of\ F\ makes\ the\ next
+                      \ step\ easy\), ",", " ", "\[IndentingNewLine]", 
+                    \(but\ for\ the\ sake\ of\ brevity\ we\ find\ the\ prime\ 
+                      divisors\), 
+                    StyleBox[",",
+                      FontColor->GrayLevel[1]], 
+                    StyleBox[",",
+                      FontColor->GrayLevel[1]], "\[IndentingNewLine]", 
+                    \(instead\ of\ having\ the\ user\ input\ \(them . \)\)}], 
+                  " ", "*)"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+                \(factoredF = FactorInteger[F]\), ";", "\[IndentingNewLine]", 
+                \(numdivF\  = \ Length[factoredF]\), ";", 
+                "\[IndentingNewLine]", 
+                \(For[q = 1, q <= numdivF, \(q++\), 
+                  \[IndentingNewLine]g = 
+                    GCD[PowerMod[a, \ \((n - 1)\)/factoredF[\([q, 1]\)], \ 
+                          n] - 1, n]; 
+                  \[IndentingNewLine]If[1 < g < n, \ Return["\<NO2\>"]]; 
+                  \[IndentingNewLine]If[g == n, Goto[Pocklingtontest]]
+                    \[IndentingNewLine]]\), ";", "\n", "\t\t", 
+                "\[IndentingNewLine]", 
+                \( (*\ Next, \ the\ first\ magnitude\ \(test . \)\ *) \), 
+                "\[IndentingNewLine]", 
+                \(If[F^2\  >= \ n, 
+                  \[IndentingNewLine]Return["\<YES1\>"]\[IndentingNewLine]]
+                  \), ";", "\n", "\t\t", "\[IndentingNewLine]", 
+                \( (*\ Next, \ the\ second\ magnitude\ \(test . \)\ *) \), 
+                "\[IndentingNewLine]", 
+                \(If[\((n\  <= \ F^3)\)\  && \ \((F^2\  < \ n)\), 
+                  \[IndentingNewLine]nbaseF\  = \ 
+                    Reverse[IntegerDigits[n, F]]; 
+                  \[IndentingNewLine]If[
+                    IntegerQ[Sqrt[nbaseF[\([2]\)]^2 - 4\ nbaseF[\([3]\)]]], 
+                    \[IndentingNewLine]Return["\<NO3\>"]\[IndentingNewLine]]; 
+                  \[IndentingNewLine]Return["\<YES2\>"]\[IndentingNewLine]]
+                  \), ";", "\n", "\t\t", "\[IndentingNewLine]", 
+                \( (*\ Next, \ the\ third\ magnitude\ \(test . \)\ *) \), 
+                "\[IndentingNewLine]", 
+                \(If[\((n^3 <= F^10)\)\  && \ \((F^3\  < \ n)\), 
+                  \[IndentingNewLine] (*\ Next, \ 
+                    Condition\ 1\ of\ Theorem\ 4.1 \( .6 . \)\ *) 
+                    \[IndentingNewLine]nbaseF\  = \ 
+                    Reverse[IntegerDigits[n, F]]; 
+                  \[IndentingNewLine]For[t = 0, t <= 5, \(t++\), 
+                    \[IndentingNewLine]If[
+                      IntegerQ[
+                        Sqrt[\((nbaseF[\([2]\)] + t\ F)\)^2 + 4\ t - 
+                            4\ \((F\ nbaseF[\([4]\)] + nbaseF[\([3]\)])\)]], 
+                      \[IndentingNewLine]Return["\<NO4\>"]\[IndentingNewLine]]
+                      \[IndentingNewLine]]; 
+                  \[IndentingNewLine]\[IndentingNewLine] (*\ Next, \ 
+                    Condition\ 2\ of\ Theorem\ 4.1 \( .6 . \)\ *) 
+                    \[IndentingNewLine]j = 1; 
+                  \[IndentingNewLine]While[
+                    \[IndentingNewLine]\(Denominator[
+                          \[IndentingNewLine]Normal[
+                            ContinuedFraction[nbaseF[\([2]\)]/F, j]]]\)[
+                        \([1]\)] < F^2/Sqrt[n], 
+                    \[IndentingNewLine]\(j++\)\[IndentingNewLine]]; 
+                  \[IndentingNewLine]u\  = \ 
+                    \(Numerator[
+                        Normal[ContinuedFraction[nbaseF[\([2]\)]/F, j - 1]]]
+                        \)[\([1]\)]; 
+                  \[IndentingNewLine]v\  = \ 
+                    \(Denominator[
+                        Normal[ContinuedFraction[nbaseF[\([2]\)]/F, j - 1]]]
+                        \)[\([1]\)]; 
+                  \[IndentingNewLine]d\  = \ 
+                    Floor[\((F\ nbaseF[\([4]\)] + nbaseF[\([3]\)])\)\ v/F\  + 
+                        1/2]; \[IndentingNewLine]For[i = 1, \ i <= 3, 
+                    \(i++\), 
+                    \[IndentingNewLine]If[
+                      \[IndentingNewLine]IntegerQ[
+                        potfactor = \ 
+                          \[IndentingNewLine]Root[
+                            \[IndentingNewLine]v\ x^3 + 
+                              \((u\ F - nbaseF[\([2]\)]\ v)\)\ x^2 + 
+                              \[IndentingNewLine]\((\ 
+                                  \((F\ nbaseF[\([4]\)] + nbaseF[\([3]\)])\)\ 
+                                      v - d\ F + u\ \ )\)\ x - d, 
+                            \[IndentingNewLine]i\[IndentingNewLine]]
+                            \[IndentingNewLine]], 
+                      \[IndentingNewLine]If[IntegerQ[n/potfactor], 
+                        \[IndentingNewLine]\(Return["\<NO5\>"]; 
+                        \)\[IndentingNewLine]]\[IndentingNewLine]]
+                      \[IndentingNewLine]]; 
+                  \[IndentingNewLine]Return["\<YES3\>"]\[IndentingNewLine]]
+                  \), ";"}]}], "\[IndentingNewLine]", "]"}]}]}], "\n", 
+      "\t\t"}]], "Input",
+  PageWidth->Infinity,
+  LineBreakWithin->False,
+  LineIndent->3],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ *) \n
+    \[IndentingNewLine] (*\ We\ pick\ a\ random\ n > 214, \ 
+      find\ a\ convenient\ F\ with\ n - 1\  = \ 
+        FR\ and\ \[IndentingNewLine]F >= n^\((3/10)\), \ 
+      and\ apply\ the\ n - 1\ test\ to\ \(n . \)\ *) \[IndentingNewLine]n = 
+      Random[Integer, {215, 2^30}]; \n\[IndentingNewLine]\n
+    If[EvenQ[n], \(n++\)]; \nnminus1list = FactorInteger[n - 1]; 
+    \[IndentingNewLine]size = Length[nminus1list]; \n
+    rand = Random[Integer, {1, size}]; \nF = nminus1list[\([rand, 1]\)]; \n
+    nminus1list[\([rand, 2]\)] = \ \((nminus1list[\([rand, 2]\)])\) - 1; 
+    \[IndentingNewLine]\n
+    While[F < n^\((3/10)\), 
+      \[IndentingNewLine]rand = Random[Integer, {1, size}]; 
+      \[IndentingNewLine]If[\((nminus1list[\([rand, 2]\)])\)\  != \ 0, \ 
+        \[IndentingNewLine]F = F*nminus1list[\([rand, 1]\)]; 
+        \[IndentingNewLine]nminus1list[\([rand, 2]\)] = 
+          \((nminus1list[\([rand, 2]\)])\) - 1; \[IndentingNewLine]]; 
+      \[IndentingNewLine]]; \n\nFactorInteger[n - 1]\), 
+    \(nminus1list\), 
+    \(n\), 
+    \(F\), 
+    \(nminus1test[n, F]\), 
+    \(PrimeQ[n]\n\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{774, 690},
+WindowMargins->{{Automatic, 54}, {Automatic, 6}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 618, 22, 228, "Input"],
+Cell[2330, 73, 6343, 115, 1041, "Input"],
+Cell[8676, 190, 1158, 23, 396, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

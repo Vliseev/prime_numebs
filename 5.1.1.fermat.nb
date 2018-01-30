@@ -1,0 +1,120 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3184,         80]*)
+(*NotebookOutlinePosition[      3872,        105]*)
+(*  CellTagsIndexPosition[      3828,        101]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 5.1  .1\ \((Fermat\ method)\) . \t\t\t\n\ Support\ code\ for
+        \n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\t\ 3\ Dec\ 2000\ AH\ 
+        \((slight\ changes\ to\ code)\)\n\t14\ Sep\ 2000\ RT\ 
+        \((Creation)\)\[IndentingNewLine]*) \n
+    \n (*\ Given\ an\ odd\ integer\ n > 1, 
+      this\ algorithm\ either\ produces\ a\ \[IndentingNewLine]nontrivial\ 
+        factorization\ of\ n\ or\ proves\ n\ \(prime . \)\ *) 
+      \[IndentingNewLine]\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n
+    \[IndentingNewLine]\(Fermat[n_] := \[IndentingNewLine]\t
+      Module[{a, b}, \n\t\t
+        For[a = Ceiling[Sqrt[n]], a <= \((n + 9)\)/6, \(a++\), \n\t\t\t
+          b = Sqrt[a^2 - n]; \n\t\t\t
+          If[\ IntegerQ[b], \n\t\t\t\tReturn[{a - b, a + b}]\ \n\t\t\t]\n
+          \t\t]; \n\t\t{1, n}\ \n\t]; \)\)\)], "Input"],
+
+Cell[BoxData[
+    \(\(\n (*\ EXAMPLE\ *) \n
+    \n (*\ We\ pick\ a\ random\ integer\ n\ and\ attempt\ to\ factor\ it\ via
+        \ the\ \[IndentingNewLine]Fermat\ method\ and\ with\ Mathematica' s\ 
+        \(FactorInteger . \)\ *) \n\nn\  = \ Random[Integer, {2, 2^13}]; \n
+    If[Mod[n, 2] == 0, \(n++\)]; \nPrint["\<n = \>", \ n]; \n
+    Print[Fermat[n]]; \nPrint[FactorInteger[n]]; \)\)], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{741, 668},
+WindowMargins->{{Automatic, 84}, {-11, Automatic}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 696, 12, 216, "Input"],
+Cell[2408, 63, 367, 7, 170, "Input"],
+Cell[2778, 72, 402, 6, 158, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

@@ -1,0 +1,128 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3703,         88]*)
+(*NotebookOutlinePosition[      4392,        113]*)
+(*  CellTagsIndexPosition[      4348,        109]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 9.2  .5\ \((Montgomery\ product)\) . \t\t\t\n\ Support\ code
+        \ for\n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2000. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\ \n\t10\ Dec\ 2000\ AH\ 
+        \((Formatting)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n\ *) \n
+    \n (*\ This\ algorithm\ returns\ the\ Montgomery\ product\ M \((c, d)\)\ 
+          for\ \nintegers\ 0 <= c, 
+      d < cn\ with\ cn\ odd\ and\ cr = 2^s\  > \(cn . \)\ *) \n\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n\n
+    \(montgomeryproduct[c_, d_, cn_, cr_] := \n\t
+      Module[{x, z}, \n
+        \t\t (*\ Here, \ we\ have\ \((cn\ cnprime\ mod\ cr)\) = \(-1\), \ 
+          as\ in\ Theorem\ 9.2  .1 . \ \ \n\t\tWe\ could\ have\ used\ the\ 
+            extendedgcd[]\ of\ algorithm\ 2.1  .4\ \n\t\tinstead\ of\ 
+            Mathematica' s\ \(ExtendedGCD[] . \)*) \n\t\t
+        cnprime\  = \ \(\(ExtendedGCD[\(-cn\), cr]\)[[2]]\)[[1]]; \n\t\t
+        x = c\ d; \n\t\tz\  = \ \((x + cn\ Mod[x\ cnprime, cr])\)/cr; \n\t\t
+        If[z >= cn, \n\t\t\t\(z = z - cn; \)\n\t\t]; \n\t\tz\n\t]; \)\)\)], 
+  "Input"],
+
+Cell[BoxData[
+    \(\(\n (*\ EXAMPLE\ *) \n
+    \[IndentingNewLine] (*\ We\ pick\ random\ integers\ cn, cr, c, d, \ 
+      find\ the\ Montgomery\ product\ \nM \((c, d)\)\ and\ verify\ the\ 
+        \(result . \)\ *) \n\n
+    \(Do[\n\tcn\  = \ Random[Integer, {3, 2^20 - 1}]; \n\t
+      If[Mod[cn, 2] == 0, cn = cn - 1]; \n\t
+      cr\  = \ 2^Random[Integer, {Log[2, cn] + 1, 40}]; \n\t
+      c\  = \ Random[Integer, cn - 1]; \n\td\  = \ Random[Integer, \ cn - 1]; 
+      \n\tPrint["\<cn = \>", cn, \ "\< and cr = \>", cr, \ "\<:\>"]; \n\t
+      \(Print[montgomeryproduct[c, d, cn, cr], "\< = c*d/cr (mod cn) = \>", \n
+        \t\tMod[c*d*PowerMod[cr, \(-1\), cn], cn]\n\t]; \)\n\t, \n\t{3}\n]; 
+    \)\n\)\)], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{642, 509},
+WindowMargins->{{138, Automatic}, {174, Automatic}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 634, 10, 229, "Input"],
+Cell[2346, 61, 632, 11, 211, "Input"],
+Cell[2981, 74, 718, 12, 278, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

@@ -1,0 +1,149 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      4828,        109]*)
+(*NotebookOutlinePosition[      5508,        134]*)
+(*  CellTagsIndexPosition[      5464,        130]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 9.5  .18\ 
+        \((IBDWT\ multiplication\ modulo\ Mersenne\ numbers)\) . \t\t\t\n\ 
+          Support\ code\ for\n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\ \n\t10\ Dec\ 2000\ AH\ 
+        \((Formatting)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n\ *) \n
+    \n (*\ For\ a\ given\ Mersenne\ number\ p = 
+        2^q - 1\ \((not\ necessarily\ prime)\)\ \nand\ positive\ integers\ x, 
+      y, \ this\ algorithm\ returns \((xy)\)\ mod\ \(p . \)\ *) \n\)\)], 
+  "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n
+    \n (*\ Given\ x, \ q, \ dc, \ the\ following\ function\ finds\ x[[j]], \ 
+      where\ \nx = Sum[x[[j]]\ 2^Ceiling[q\ j/dc], {j, 1, dc - 1}]; \ 
+      this\ is\ the\ variable\ \nbase\ representation\ as\ in\ Theorem\ 9.5 
+        \( .17 . \)\ *) \n\n
+    digits[x_, q_, \ dc_]\  := \n\t
+      Block[{b, t, i, \ k, \ j, \ n = dc}, \n\t\t
+        b = Table[Ceiling[q\ j/n] - Ceiling[q \((j - 1)\)/n], {j, 1, n}]; \n
+        \t\tt\  = \ {}; \n\t\ti\  = \ x; \n\t\tk\  = \ Mod[i, 2^b[[1]]\ ]; \n
+        \t\ti = i - k; \n\t\tt = Append[t, k]; \n\t\t
+        Do[i = i\ 2^\((\(-b[[k]]\))\); \ \n\t\t\t
+          k\  = \ Mod[i, \ 2^b[[k + 1]]]\ ; \n\t\t\tt\  = \ Append[t, \ k]; \n
+          \t\t\ti\  = \ \((i - k)\)\n\t\t\t, \n\t\t\t{k, 1, n - 1}\n\t\t]; \n
+        \t\tReturn[t]; \n\t]; \n\n
+    \n (*\ Next, \ the\ main\ \(routine . \)\ *) \n\n
+    mersennemul[x_List, y_List, q_, dc_] := \n\t
+      Module[{xc, yc, a, d, zc, z, carry, bc, v, p, val, k, r}, \n\t\t
+        a = Table[
+            2^\((Ceiling[q \((j - 1)\)/dc] - q \((j - 1)\)/dc)\), {j, 1, 
+              dc}]; \n\t\t
+        d = Table[
+            Ceiling[q\ j/dc] - Ceiling[q \((\ j - 1)\)/dc], {j, 1, dc}]; \n
+        \t\txc\  = \ Sqrt[dc] InverseFourier[\ a\ x]; \n\t\t
+        yc\  = \ Sqrt[dc]\ InverseFourier[a\ y]; \n\t\tzc = xc\ yc; \n\t\t\ 
+        z = Fourier[zc]/Sqrt[dc]; \n\t\t\ z = Round[z/a]; \n\t\tcarry = 0; \n
+        \t\tFor[k = 1, k <= \ Length[z], \(k++\), \n\t\t\tbc = 2^d[[k]]; \n
+          \t\t\tv = z[[k]] + carry; \n\t\t\tz[[k]] = Mod[v, bc]; \n\t\t\t
+          carry = Floor[v/bc]\n\t\t\ \ \ \ ]; \n\t\t
+        If[carry > 0, z = Join[z, {carry}]]; \n\t\t
+        val = Sum[z[[r + 1]]\ 2^Ceiling[q\ r/dc], {r, 0, dc - 1}]; \n\t\t
+        val\  = \ val\  + \ carry; \n\t\t
+        If[val > \((2^q - 1)\), \n\t\t\tval = val\  - \ \((2^q - 1)\)\n\t\t]; 
+        \ \n\t\tval\n\t]; \n\t\t\)\)], "Input"],
+
+Cell[BoxData[{
+    \(\n (*\ EXAMPLE\ *) \n
+    \n (*\ We\ pick\ two\ random\ integers\ x, 
+      y\ and\ mutiply\ them\ modulo\ 2^521 - 1, \ \n
+      then\ verify\ the\ answer\ with\ an\ explicit\ \(mod . \)\ *) \n\n
+    x\  = \ Random[Integer, {0, 2^521 - 1}]; \n
+    y = \ Random[Integer, {0, 2^521 - 1}]; \n\nxdigs = digits[x, 521, 32]; \n
+    \nydigs\  = digits[y, 521, 32]; \n\nx\ y\n\), 
+    \(mersennemul[xdigs, ydigs, 521, 32]\n\), 
+    \(Mod[x\ y, 2^521 - 1]\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{851, 753},
+WindowMargins->{{Automatic, 21}, {Automatic, 197}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 695, 12, 229, "Input"],
+Cell[2407, 63, 1933, 33, 712, "Input"],
+Cell[4343, 98, 481, 9, 254, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

@@ -1,0 +1,432 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[     21142,        392]*)
+(*NotebookOutlinePosition[     21821,        417]*)
+(*  CellTagsIndexPosition[     21777,        413]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\(\[IndentingNewLine] (*\n\ 
+      Algorithm\ 7.5  .6\ 
+        \((Explicit\ Schoof\ algorithm\ for\ curve\ order)\) . \t\t\t\n\ 
+          Support\ code\ for\n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \ \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\ \n\t08\ Aug\ 2001\ RC\ 
+        \((Fixed\ a\ polynomial\ error - message\ \(problem . \)\ )\)\n\t09\ 
+        Dec\ 2000\ AH\ 
+        \((Modified\ rule, \ removed\ excess\ Expands, \ formatted)\)\n\t14\ 
+        Sep\ 2000\ RT\ \((Creation)\)\n*) \n\ 
+    \n (*\ Let\ p > 
+        3\ be\ a\ prime . \ \ For\ curve\ E_ \((a, b)\) \((F_p)\)\ defined\ by
+          \ global\ \nvariables\ a, b, 
+      p\ this\ algorithm\ returns\ the\ value\ of\ t \((mod\ l)\), \ \n
+      where\ l\ is\ a\ prime\ \((much\ smaller\ than\ p)\)\ and\ the\ curve\ 
+          order\ is\ #  E = 
+        p + 1 - t . \ \ \nExact\ curve\ order\ is\ thus\ obtained\ by\ 
+              effecting\ this\ algorithm\ for\ \nenough\ primes\ l\ such\ that
+              \ the\ product\ of\ all\ such\ l\  > \ 4  Sqrt[p], \ 
+      and\ \nthen\ using\ the\ Chinese\ remainder\ theorem\ to\ recover\ the\ 
+        exact\ value\ of\ t . \ \n\(Note : \ a\), b, 
+      p\ are\ global\ variables; \[IndentingNewLine]\t\ \ x, 
+      y\ are\ the\ indeterminates\ in\ the\ polynomials\ \(used . \)\n*) \n
+    \)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ CODE\ *) \n\n
+    Clear[x, y]\  (*\ Indeterminates\ in\ \(polynomials . \)\ *) \n\), 
+    \(rule\  = \ \n\t
+      poly_ \[RuleDelayed] 
+        \((\ Expand[poly] /. \n
+            \t\t{y^\((n_)\)\  :> \ 
+                y^Mod[n, 2]\ \((x^3\  + \ a\ x\  + \ b)\)^Floor[n/2]})\); \n
+    \n (*\ Next, \ define\ the\ polynomials\ s[i]\ *) \n
+    s[\(-1\)]\  = \ \(-1\); \ns[0]\  = \ 0; \ns[1]\  = \ 1; \n
+    s[2]\  = \ 2  y; \n
+    s[3]\  = \ 3  x^4\  + \ 6  a\ x^2\  + \ 12\ b\ x\  - \ a^2; \n
+    s[4]\  = \ 
+      Expand[4  y 
+          \((x^6\  + \ 5\ a\ x^4\  + \ 20\ b\ x^3\  - \ \n\t\t\t
+              5\ a^2\ x^2\  - \ 4\ a\ b\ x\  - \ 8\ b^2\  - \ a^3)\)\n
+        \t\ \ \ \ \ \ ]; \n
+    s[m_]\  := \ \n\t
+      Module[{res}, \n\t\t
+        res\  = \ \n\t\t
+          Expand[\n\t\t\t
+            If[EvenQ[m], \ \n\t\t\t\t
+                s[m/2]/\((2  y)\)\ *\n\t\t\t\t
+                  \((s[m/2 + 2]\ s[m/2 - 1]^2\  - \ \n\t\t\t\t\ \ 
+                      s[m/2 - 2]\ s[m/2 + 1]^2)\)\n\t\t\t\t, \n\t\t\t\t
+                s[\((m - 1)\)/2\  + \ 2]\ s[\((m - 1)\)/2]^3\  - \n\t\t\t\t\ 
+                  s[\((m - 1)\)/2\  + \ 1]^3\ s[\((m - 1)\)/2\  - 1]\n
+                \t\t\t] /. rule\n\t\t]; \n\t\t
+        If[OddQ[m], \ \n\t\t\tPolynomialMod[res, p], \n\t\t\t
+          Expand[y\ *\ PolynomialMod[res/y, p]]\n\t\t]\n\t]; \n\n
+    fullexp[term_]\  := \ Expand[term\  /. \ rule]; \n\n
+    ellmul[pt_, \ n_, \ p_]\  := \ \n\t
+      Module[{fouri, s2, xcomp, \ sm, \ ycomp}, \n\t\t
+        fouri\  = \ PowerMod[4, \ \(-1\), \ p]; \n\t\t
+        s2\  = \ PolynomialMod[fullexp[s[n]^2], \ p]; \n\t\t
+        xcomp\  = \ 
+          PolynomialMod[fullexp[x\ s2\  - \ s[n - 1]\ s[n + 1]], \ p]/s2; \n
+        \t\tIf[OddQ[n], \n\t\t\t
+          sm\  = \ \n\t\t\t\t
+            \((s[n + 2]\ PolynomialMod[fullexp[s[n - 1]/y]^2, p]\  - \ \n
+                \t\t\t\t\ \ \ 
+                s[n - 2]\ PolynomialMod[fullexp[s[n + 1]/y]^2, p]\n
+              \t\t\t\t\ \ )\); \n\t\t\t\ 
+          sm\  = \ PolynomialMod[fouri\ sm, \ p]; \n\t\t\t
+          ycomp\  = \ y\ sm/PolynomialMod[s[n]\ s2, \ p]\n\t\t\t, \n\t\t\t
+          sm\  = s[n + 2]/y\ \ PolynomialMod[s[n - 1]^2, p]\  - \n
+              \t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \t\ \ \ \ \ \ \ 
+              s[n - 2]/y\ \ PolynomialMod[s[n + 1]^2, p]; \n
+          \t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
+          sm\  = \ PolynomialMod[fouri\ sm, \ p]; \n\t\t\ \ \ \ \ \ \ \ 
+          ycomp\  = \ y\ sm/PolynomialMod[fullexp[y\ s[n]\ s2], \ p]\n\t\t]; 
+        \n\t\t{xcomp, \ ycomp}\  /. \ {x -> pt[\([1]\)], \ y -> pt[\([2]\)]}\n
+        \t]; \n\n\n\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \t\t\t\n
+    fullmod[poly_, \ s_, \ p_]\  := \ \n\t
+      PolynomialMod[
+        PolynomialRemainder[\n\t\t\t\ \ \ \ \ PolynomialMod[poly, p], \ s, \ 
+          x], \ p]; \n\n\t\t\t\ \ \ \ \ \n
+    reduce[pt_, s_, p_]\  := \ \n\t
+      Module[{num, \ nume, den, \ dene}, \n\t\t
+        num\  = \ Numerator[pt[\([2]\)]]\  /. \ rule; \ \n\t\t
+        nume\  = \ Exponent[num, y]; \n\t\t
+        den\  = \ Denominator[pt[\([2]\)]]\  /. \ rule; \ \n\t\t
+        dene\  = \ Exponent[den, \ y]; \n
+        \t\t{\n\t\t\ \ 
+          fullmod[Numerator[pt[\([1]\)]]\  /. \ rule, \ s, \ p]/\n\t\t\ \ 
+            fullmod[Denominator[pt[\([1]\)]] /. \ rule, \ s, \ p]\n\t\t\ \ , 
+          \n\t\t\ \ 
+          If[nume > 0, \ y, \ 1]\ 
+            fullmod[If[nume > 0, \ Expand[num/y], \ num], \ s, \ p]/\n
+              \t\ \ \ \ \ \ \ \ \ 
+              \((If[dene\  > \ 0, \ y, 1]\ 
+                  fullmod[If[dene > 0, \ Expand[den/y], \ den], \ s, \ p])\)\n
+          \t\ \ \ \ \ \ \ \ }\n\t\ \ \ ]\n\t\ \ \ \), 
+    \(bitList[k_]\  := \ IntegerDigits[k, 2]; \n\n
+    polypowerY[start_, \ exp_, \ s_, \ p_]\  := \ \n\t
+      Module[{bit\  = \ bitList[\((exp - 1)\)/2], \ mul, \ acc}, \n\t\t
+        mul\  = \ fullmod[fullexp[start^2], s, p]; \n\t\tacc\  = \ mul; \n\t\t
+        Do[\n\t\t\tacc\  = \ \ fullmod[acc*acc, \ s, \ p]; \n\t\t\t
+          If[bit[\([q]\)]\  == \ 1, \n\t\t\t\t
+            acc\  = \ fullmod[acc\ *\ mul, \ s, \ p]\n\t\t\t], \n
+          \t\t\t{q, 2, Length[bit]}\n\t\t]; \n\t\tExpand[start\ *\ acc]\n\t]; 
+    \t\n\t\t\t\t\t\t\ \ \ \t\t\n
+    polypowerX[start_, \ exp_, \ s_, \ p_]\  := \ \n\t
+      Module[{bit\  = \ bitList[exp], \ acc\  = \ start}, \n\t\t
+        Do[\n\t\t\t\ acc\  = \ \ fullmod[acc*acc, \ s, \ p]; \n\t\t\t
+          If[bit[\([q]\)]\  == \ 1, \n\t\t\t\t
+            acc\  = \ fullmod[acc\ *\ start, \ s, \ p]\n\t\t\t], \n
+          \t\t\t{q, 2, Length[bit]}\n\t\t]; \n\t\tExpand[acc]\n\t]; \n
+    \t\t\t\t\t\t\t\ \ \ \t\t\n
+    polycomp[left_, \ right_, \ s_, \ p_]\  := \ \n\t
+      Module[{t1, t2, t3, t4}, \n\t\tt1\  = \ Numerator[left]\  /. \ rule; \n
+        \t\tt2\  = \ Numerator[right]\  /. \ rule; \n\t\t
+        t3\  = \ Denominator[left]\  /. \ rule; \n\t\t
+        t4\  = \ Denominator[right]\  /. \ rule; \n\t\t
+        t1\  = \ fullmod[t1, \ s, \ p]; \n\t\tt2\  = \ fullmod[t2, \ s, \ p]; 
+        \n\t\tt3\  = \ fullmod[t3, \ s, \ p]; \n\t\t
+        t4\  = \ fullmod[t4, \ s, \ p]; \n\t\t
+        t1\  = \ t1\ t4\  - \ t2\ t3\  /. \ rule; \n\t\t
+        fullmod[t1, \ s, \ p]\n\t]; \n\n
+    polyelladd[p1_, \ p2_, \ s_, \ p_]\  := \ \n\t
+      Module[{x1, x2, y1, y2, n1, n2, d1, d2, m1, m2, c1, c2, \n\t\t\tnuml, \ 
+          denl, \ numx, \ denx, \ numy, \ deny, \ tmp, \ tmp2}, \n\t\t
+        x1\  = \ p1[\([1]\)]; \ y1\  = \ p1[\([2]\)]; \n\t\t
+        x2\  = \ p2[\([1]\)]; \ y2\  = \ p2[\([2]\)]; \n\t\t
+        n1\  = \ Numerator[x1]; \ n2\  = \ Numerator[x2]; \n\t\t
+        m1\  = \ Numerator[y1]; \ m2\  = \ Numerator[y2]; \n\t\t
+        m1\  = \ Expand[m1/y]; \ m2\  = \ Expand[m2/y]; \n\t\t\ 
+        d1\  = \ Denominator[x1]; \ d2\  = \ Denominator[x2]; \n\t\t\ 
+        c1\  = \ Denominator[y1]; \ c2\  = \ Denominator[y2]; \n\t\t
+        tmp\  = \ fullmod[n1\ d2\  - \ n2\ d1, \ s, \ p]; \n\t\t
+        If[Exponent[tmp, x]\  >= \ 0, \n\t\t\t
+          numl\  = \ fullmod[m2\ c1\  - \ m1\ c2, \ s, \ p]; \n\t\t\t
+          denl\  = \ fullmod[n2\ d1\  - \ n1\ d2, \ s, \ p]; \n\t\t\t
+          numl\  = \ fullmod[d1\ numl, \ s, \ p]; \n\t\t\t
+          numl\  = \ fullmod[d2\ numl, \ s, \ p]; \n\t\t\t
+          denl\  = \ fullmod[c1\ denl, \ s, \ p]; \n\t\t\t
+          denl\  = \ fullmod[c2\ denl, \ s, \ p]\n\t\t\t, \n\t\t\t
+          tmp\ \ \  = \ fullmod[d1^2, \ s, \ p]; \n\t\t\t
+          numl\  = \ fullmod[3\ n1^2\  + \ a\ tmp, \ s, \ p]; \n\t\t\t
+          numl\  = \ fullmod[numl\ c1, \ s, \ p]; \n\t\t\t
+          denl\  = \ fullexp[2\ y^2]; \n\t\t\t
+          denl\  = \ fullmod[denl\ m1, \ s, \ p]; \n\t\t\t
+          denl\  = \ fullmod[denl\ tmp, \ s, \ p]; \n\t\t]; \n\t\t
+        numx\  = \ fullmod[numl^2, \ s, \ p]; \n\t\t
+        numx\  = \ fullmod[fullexp[numx\ y^2], \ s, \ p]; \n\t\t
+        numx\  = \ fullmod[numx\ d1, \ s, \ p]; \n\t\t
+        numx\  = \ fullmod[numx\ d2, \ s, \ p]; \n\t\t
+        tmp\ \ \  = \ fullmod[denl\ denl, \ s, \ p]; \n\t\t
+        tmp2\  = \ fullmod[n1\ d2\  + \ n2\ d1, \ s, \ p]; \n\t\t
+        numx\  = \ fullmod[numx\  - \ tmp\ tmp2, \ s, \ p]; \n\t\t
+        denx\  = \ fullmod[tmp\ d2, \ s, \ p]; \n\t\t
+        denx\  = \ fullmod[denx\ d1, \ s, \ p]; 
+        \  (*\ x\  = \ numx/\(denx . \)\ *) \n\t\t
+        numy\  = \ fullmod[n1\ denx\  - \ d1\ numx, \ s, \ p]; \n\t\t
+        numy\  = \ fullmod[numy\ numl, \ s, \ p]; \n\t\t
+        deny\  = \ fullmod[denl\ d1, \ s, \ p]; \n\t\t
+        deny\  = \ fullmod[deny\ denx, \ s, \ p]; \n\t\t
+        numy\  = \ fullmod[c1\ numy\  - \ m1\ deny, \ s, \ p]; \n\t\t
+        deny\  = \ fullmod[c1\ deny, \ s, \ p]; \n
+        \t\t{numx/denx, \ \((numy\ y)\)/deny}\n\ \ \ \ \ \ \ ]; \n\t\t\t\t\t
+    \n (*\ Next, \ a\ Cohen\ variant\ of\ polynomial\ GCD, \ 
+      although\n\t\t\ simpler\ variants\ will\ suffice\ for\ our\ 
+        \(purpose . \)\ *) \n\n
+    polygcd[pa_, \ pb_, \ p_]\  := \ \n\t
+      Module[{pola\  = \ pa, \ polb\  = \ pb, \n\t\t\tca0, \ ca1, \ ca2, \ 
+          ca3, \ cb0, \ cb1, \ cb2, \ cb3, ca, cb, \ d, \ r}, \n\t\t
+        If[Exponent[polb, \ x]\  < \ 0, \ Return[pola]]; \n\t\t
+        If[Exponent[pola, \ x]\  < \ 0, \ Return[polb]]; \n\t\t
+        ca0\  = \ pola\  /. \ x -> 0; \ \n\t\t
+        ca1\  = \ Coefficient[pola, \ x]; \n\t\t
+        ca2\  = \ Coefficient[pola, \ x^2]; \ \n\t\t
+        ca3\  = \ Coefficient[pola, \ x^3]; \n\t\t
+        cb0\  = \ polb\  /. \ x -> 0; \ \n\t\t
+        cb1\  = \ Coefficient[polb, \ x]; \n\t\t
+        cb2\  = \ Coefficient[polb, \ x^2]; \ \n\t\t
+        cb3\  = \ Coefficient[polb, \ x^3]; \n\t\t
+        ca\  = \ GCD[ca0, ca1, ca2, ca3]; \n\t\t
+        cb\  = \ GCD[cb0, cb1, cb2, cb3]; \n\t\t
+        pola\  = \ PolynomialMod[pola/ca, \ p]; \n\t\t
+        polb\  = \ PolynomialMod[polb/cb, \ p]; \n\t\td\  = \ GCD[ca, cb]; \n
+        \t\tWhile[True, \n\t\t\t
+          r\  = \ PolynomialMod[PolynomialRemainder[pola, \ polb, \ x], \ p]; 
+          \n\t\t\tIf[Exponent[r, \ x]\  < \ 0, \ Return[d\ *\ polb]]; \n\t\t\t
+          If[Exponent[r, \ x]\  == \ 0, \ Return[d]]; \n\t\t\t
+          ca\  = \ If[Exponent[r, \ x]\  == \ 0, \ \n\t\t\t\t\t
+              r\  /. \ x -> 0, \ \n\t\t\t\t\t
+              Coefficient[r, \ x^Exponent[r, \ x]]\n\t\t\t\t\ \ \ ]; \n\t\t\t
+          r\  = \ PolynomialMod[\ 
+              Expand[r\ *\ \n\t\t\t\ \ \ \ \ \ \ 
+                  PowerMod[ca\ , 
+                    \(-Exponent[polb, \ x]\)\  + \ Exponent[pola, \ x]\  + \ 
+                      1, p]], \n\t\t\t\ \ \ \ \ \ \ p]; \n\t\t\t
+          pola\  = \ polb; \n\t\t\tcb0\  = \ r\  /. \ x -> 0; \ \n\t\t\t
+          cb1\  = \ Coefficient[r, \ x]; \n\t\t\t
+          cb2\  = \ Coefficient[r, \ x^2]; \ \n\t\t\t
+          cb3\  = \ Coefficient[r, \ x^3]; \n\t\t\t
+          cb\  = \ GCD[cb, \ cb1, \ cb2, \ cb3]; \n\t\t\t
+          polb\  = \ PolynomialMod[r/cb, \ p]\n\t\t]\n\t]; \n\)}], "Input"],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ *) \n\np\  = \ 70001; 
+    \  (*\ We\ shall\ calculate\ the\ curve\ order\ for\ this\ prime\ and\ the
+        \ a, b\ \(next . \)\ *) \na\  = \ 31; \ b\  = \ 667; \n
+    \n (*\ Next, \ find\ the\ number\ of\ Schoof\ primes\ \(required . \)\ *) 
+      \nnumprimes\  = \ 1; \ prod\  = \ 2; \n
+    While[prod^2\  < \ 4  p, \n\t\(++numprimes\); \n\t
+      prod\  *= \ Prime[numprimes]\n]; \nnumprimes
+    \n (*\ We\ try\ numprimes\ primes\ inclusive, \ starting\ with\ 2. \ *) 
+      \), 
+    \(schooflis\  = \ {}; \n
+    Print["\<Disc: \>", \ Mod[4  a^3\  + \ 27  b^2, p]]; \n
+    res\  = \ polypowerX[x, \ p, \ x^3\  + \ a\ x\  + \ b, \ p]\  - \ x; \ \ 
+    \nex\  = \ Exponent[polygcd[res, \ x^3\  + \ a\ x\  + \ b, \ p], \ x]; \n
+    If[ex\  >= \ 1, \ li\  = \ {2, 0}, \ li\  = \ {2, 1}]; \n
+    schooflis\  = \ Append[schooflis, li]; \nPrint[li]; \n
+    Timing[\nDo[\ \n\tL\  = \ Prime[q]; \n\tk\  = \ Mod[p, \ L]; \n\t
+        ss\  = \ Expand[s[L]]; \ \n\t
+        ss\  = \ \[IndentingNewLine]\t
+          PolynomialMod[\n\t\t\t
+            Expand[ss\ *\ \n\t\t\t\t
+                PowerMod[Coefficient[ss, \ x^Exponent[ss, x]], \(-1\), p]\n
+              \t\t\t], \ \n\t\t\tp\n\t\t]; \n\t
+        powx\  = \ polypowerX[x, \ p, \ ss, \ p]; \n\t
+        powy\  = \ polypowerY[y, \ p, \ ss, \ p]; \n\t
+        pt1\  = \ {polypowerX[powx, \ p, \ ss, \ p], \ 
+            polypowerY[powy, \ p, \ ss, \ p]}; \n\t
+        pt2\  = \ ellmul[{x, y}, \ k, p]; \n\tpt1\  = \ reduce[pt1, ss, p]; \n
+        \tpt2\  = \ reduce[pt2, ss, p]; \n\t
+        te\ \ \  = \ \n\t\t
+          fullmod[\n\t\t\t
+            Numerator[pt1[\([1]\)]]\ *\ Denominator[pt2[\([1]\)]]\  - \n\t\t\t
+              Numerator[pt2[\([1]\)]], \ \n\t\t\tss, \ p\n\t\t]; \n
+        \t (*\ Now, \ x1\  == \ x2\ iff\ te\  == \ 0. \ *) \n\t
+        If[Exponent[te, x]\  >= \ 0, \n\t\tx1\  = \ pt1[\([1]\)]; \ 
+          y1\  = \ pt1[\([2]\)]; \n\t\tx2\  = \ pt2[\([1]\)]; \ 
+          y2\  = \ pt2[\([2]\)]; \n\t\tn1\  = \ Numerator[x1]; \ 
+          n2\  = \ Numerator[x2]; \n\t\tm1\  = \ Numerator[y1]; \ 
+          m2\  = \ Numerator[y2]; \n\t\td1\  = \ Denominator[x1]; \ 
+          d2\  = \ Denominator[x2]; \n\t\tc1\  = \ Denominator[y1]; \ 
+          c2\  = \ Denominator[y2]; \n\t\t\ 
+          subtopx12\  = \ fullmod[n2\ d1\  - \ n1\ d2, \ ss, \ p]; \n\t\t
+          topx12\  = \ fullmod[subtopx12^2, \ ss, \ p]; \n\t\t
+          subbotx12\  = \ fullmod[d1\ d2, \ ss, p]; \n\t\t
+          botx12\  = \ fullmod[subbotx12^2, \ ss, \ p]; \n\t\t
+          subtopy12\  = \ fullmod[\((m2\ c1\  - \ m1\ c2)\)/y, \ ss, \ p]; \n
+          \t\ttopy12\  = \ fullmod[subtopy12^2\ y^2 /. \ rule, \ ss, \ p]; \n
+          \t\tsubboty12\  = \ fullmod[c1\ c2\  /. \ rule, \ ss, \ p]; \n\t\t
+          boty12\  = \ fullmod[subboty12^2, \ ss, \ p]\n\t]; \ \ \n\t
+        Do[\n\t\tee\  = \ \(tt\  = \ 0\); \n\t\t
+          If[t\  == \ 0, \n\t\t\t
+            If[Exponent[te, x]\  < \ 0, \ \n\t\t\t\t
+              ee\  = \ Expand[
+                    pt1[\([2]\)]\ *\ Denominator[pt2[\([2]\)]]\  + \ \n
+                      \ \ \ \ \ \ \ \ \t\t\t\t\tNumerator[pt2[\([2]\)]]]\  /. 
+                  \ rule; \n\t\t\t\tee\  = \ fullmod[ee/y, \ ss, \ p], \n
+              \t\t\t\t (*\ Now, \ y1\  == \ \(-y2\)\ iff\ ee\  == \ 0. \ *) \n
+              \t\t\t\ttt\  = \ 1\t\t\n\t\t\t]\n\t\t\t, \ \ \n\t\t\t
+            If[t\  == \ 1, \ \n\t\t\t\tpt0\  = \ {powx, \ powy}; \n\t\t\t\t
+              ptadd\  = \ pt0, \ 
+              pt0\  = \ polyelladd[pt0, \ ptadd, \ ss, \ p]\n\t\t\t]; \n
+            \t\t\t (*\ Next, \ check\ if\ pt1\  + \ pt2\  == \ \(pt0 . \)\ *) 
+              \n\t\t\tIf[\ Exponent[te, x]\  >= \ 0, 
+              \  (*\ p1\  != \ \(p2 . \)\ *) \n\t\t\t\tx0\  = \ pt0[\([1]\)]; 
+              \ y0\  = \ pt0[\([2]\)]; \n\t\t\t\tn0\  = \ Numerator[x0]; \ 
+              d0\  = \ Denominator[x0]; \n\t\t\t\t
+              left\  = \ fullmod[d1\ d2, \ ss, \ p]; \n\t\t\t\t
+              left\  = \ fullmod[left\ n0, \ ss, \ p]; \n\t\t\t\t
+              right\  = \ 
+                fullmod[n1\ d2, \ ss, \ p]\  + \ fullmod[n2\ d1, \ ss, \ p]; 
+              \n\t\t\t\tright\  = \ fullmod[d0\ right, \ ss, \ p]; \n\t\t\t\t
+              left\  = \ fullmod[\((left\  + \ right)\)\ topx12, \ ss, \ p]; 
+              \n\t\t\t\tleft\  = \ fullmod[left\ boty12, \ ss, \ p]; \n
+              \t\t\t\tright\  = \ fullmod[topy12\ botx12, \ ss, \ p]; \n
+              \t\t\t\tright\  = \ fullmod[right\ d0, \ ss, \ p]; \n\t\t\t\t
+              right\  = \ fullmod[right\ d1, \ ss, \ p]; \n\t\t\t\t
+              right\  = \ fullmod[right\ d2, \ ss, \ p]; \n\t\t\t\t
+              tt\  = \ polycomp[left, \ right, \ ss, \ p]; \ \n\t\t\t\t
+              If[Exponent[tt, x]\  < \ 0, 
+                \ \ \ \ \ \ \ \ \ \ \ \ \ \ \t\ \ \ \ \ \ \ \ \n\t\t\t\t\t
+                m0\  = \ Numerator[y0]; \ \ \n\t\t\t\t\t
+                c0\  = \ Denominator[y0]; \n\t\t\t\t\t
+                left\  = \ fullmod[\((m0\ c1\  + \ m1\ c0)\)/y, \ ss, \ p]; \n
+                \t\t\t\t\t
+                left\  = \ 
+                  fullmod[
+                    left\ *\ \n\t\t\t\t\t\t\t\t
+                      fullmod[subtopx12\ *\ subboty12, \ ss, \ p], \n
+                    \t\t\t\t\t\t\tss, p]; \n\t\t\t\t\t
+                left\  = \ 
+                  fullmod[fullmod[d0\ d1, \ ss, \ p]\ *\ left, \ ss, \ p]; \n
+                \t\t\t\t\t
+                right\  = \ fullmod[n1\ d0\  - \ n0\ d1, \ ss, \ p]; \n
+                \t\t\t\t\t
+                right\  = \ 
+                  fullmod[
+                    right\ *\ \n\t\t\t\t\t\t\t\t
+                      fullmod[subtopy12\ *\ subbotx12, \ ss, \ p], \n
+                    \t\t\t\t\t\t\tss, p]; \n\t\t\t\t\t
+                right\  = \ 
+                  fullmod[right\ *\ fullmod[c0\ c1, \ ss, \ p], \ ss, \ p]; \n
+                \t\t\t\t\tee\  = \ polycomp[left, \ right, \ ss, \ p]\n
+                \t\t\t\t]\ \n\t\t\t\t, 
+              \ \ \ \ \ \ \ \ \ \ \ \  (*\ p1\  == \ \(p2 . \)\ *) \n\t\t\t\t
+              left\  = \ Together[x0 + 2  x1]\ *\ 4  y1^2; \n\t\t\t\t
+              right\  = \ Together[3  x1^2\  + \ a]^2; \n\t\t\t\t
+              tt\  = \ polycomp[left, \ right, \ ss, \ p]; \n\t\t\t\t
+              If[Exponent[tt, x]\  < \ 0, \n\t\t\t\t\t\t\t\t
+                Print[AA[y0, \ y1, \ x0, x1]]; \n\t\t\t\t\t
+                left\  = \ Together[y0 + y1]\ *\ 2  y1; \ \n\t\t\t\t\t
+                right\  = \ Together[3  x1^2\  + \ a]\ *\ Together[x1 - x0]; 
+                \n\t\t\t\t\tleft\  = \ Simplify[Expand[left]/y]; \n\t\t\t\t\t
+                right\  = \ Simplify[Expand[right]/y]; \n\t\t\t\t\t
+                ee\  = \ polycomp[left, \ right, \ ss, \ p]; \n\t\t\t\t]\n
+              \t\t\t]\t\n\t\t]; \n\t\t
+          If[Exponent[tt, x]\  < \ 0, \n\t\t\t
+            If[Exponent[ee, x]\  < \ 0, \ \n\t\t\t\tli\  = \ {L, t}, \ 
+              li\  = \ {L, \ Mod[\(-t\), L]}\n\t\t\t]; \n\t\t\t
+            schooflis\  = \ Append[schooflis, \ li]; \n\t\t\tPrint[li]; \n
+            \t\t\tBreak[]\n\t\t]\n\t\t, \n\t\t{t, 0, L - 1}\n\t]\n\t, \n
+        \t{q, \ 2, \ numprimes}\n\t]\n]\), 
+    \(schooflis\n\n\), 
+    \( (*\ Next, \ CRT\ reconstruction\ of\ curve\ \(order . \)\ *) \n\n
+    len\  = \ Length[schooflis]; \n
+    \n{plis, \ tlis}\  = \ Transpose[schooflis]; \nprlis\  = \ prod/plis; \n
+    invlis\  = \ 
+      Table[PowerMod[prlis[\([q]\)], \ \(-1\), \ plis[\([q]\)]], {q, 1, 
+          len}]; \nt\  = \ Mod[tlis\  . \ \((prlis\ *\ invlis)\), \ prod]; \n
+    ord\  = \ p\  + \ 1\  - \ If[t^2\  > \ 4  p, \ t\  - \ prod, \ t]\n (*\ 
+      Next, \ direct\ counting\ function\ with\ which\ to\ compare\ for\n
+        \ \ \ small\ \(p . \)\ *) \), 
+    \(tt\  = \ 
+      \(-Sum[JacobiSymbol[x^3\  + \ a\ x\  + \ b, \ p], \ {x, 0, p - 1}]\); \n
+    order\  = \ p\  + \ 1\  - \ tt\n\), 
+    \( (*\ Next, \ final\ check\ on\ the\ \(moduli . \)\ *) \n
+    Table[{Prime[q], \ Mod[tt, \ Prime[q]]}, \ {q, 2, numprimes}]\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{718, 728},
+WindowMargins->{{Automatic, 75}, {-1, Automatic}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 1485, 25, 353, "Input"],
+Cell[3197, 76, 9926, 177, 2853, "Input"],
+Cell[13126, 255, 8012, 135, 2115, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

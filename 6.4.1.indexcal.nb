@@ -1,0 +1,252 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[     10262,        213]*)
+(*NotebookOutlinePosition[     10926,        237]*)
+(*  CellTagsIndexPosition[     10882,        233]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\(\( (*\n\ 
+      Algorithm\ 6.4  .1\ \((Index\ calculus\ for\ F_p^star)\) . \t\t\t\n\ 
+          Support\ code\ for\n\ \(R . \ Crandall\ and\ C . \ 
+            Pomerance\), \n\ \(\*"\""Prime\ Numbers : \ 
+          a\ Computational\ Perspective\), \*"\"\<\n Springer-Verlag 2001.\n \
+c. 2000 Perfectly Scientific, Inc.\n All Rights Reserved.\n\n\t03 Dec 2000 AH \
+(slight changes; formatting)\n\t14 Sep 2000 RT (Creation)\n\>"*) \)\(\n\)\(\
+\[IndentingNewLine]\)\( (*\ We\ are\ given\ a\ prime\ p, \ 
+      a\ primitive\ root\ g, \ 
+      and\ a\ nonzero\ \n
+        residue\ t\ \((mod\ p)\) . \ \ This\ probabilistic\ algorithm\ \
+attempts\ to\ \nfind\ log_g \(\((t)\)\(.\)\)\ *) \)\(\n\)\)\)], "Input",
+  PageWidth->Infinity,
+  AutoIndent->True,
+  LineBreakWithin->False,
+  LineIndent->0],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n
+    \n (*\ First, \ 
+      we\ import\ Mathematica' s\ number\ theory\ function\ \npackage . \ We\ 
+        will\ use\ the\ functions\ ChineseRemainderTheorem\ \nand\ 
+        \(PrimitiveRoot . \)\ *) \n
+    \n (*\ Next, \ 
+      a\ basic\ smoothness\ 
+        \(test : \ 
+          returns\ "\<True\>"\ if\ d\ is\ b - 
+            smooth\ \n\ \ \ and\ "\<False\>"\ \(otherwise . \)\)\ *) 
+      \[IndentingNewLine]\n
+    smooth[b_, \ d_]\  := \ \n\t
+      Module[{fa\  = \ FactorInteger[d]}, \[IndentingNewLine]\t\t
+        len\  = \ Length[fa]; \[IndentingNewLine]\t\t
+        If[\(fa[\([len]\)]\)[\([1]\)]\  > \ b, \ False, \ True]
+          \[IndentingNewLine]\t]; \[IndentingNewLine]\n
+    primroot[p_]\  := 
+      \  (*\ Return\ the\ least\ positive\ primitive\ root\ 
+          \(\((mod\ p)\) . \)\ *) \n\t\ \ \ \ 
+      Module[{fa, \ q, \ k, \ v, \ r, \ rt}, \n\t\t\ \ \ \ \ \ \ \ 
+        If[p == 2, \ Return[1]]; \n\t\t\t\t\ \ \ 
+        fa\  = \ FactorInteger[p - 1]; \n\t\t\t\t\ \ \ \ 
+        Do[\n\t\t\t\ \ \ \ \ \ \ \ \ \ \ 
+          Do[\n\t\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
+            q\  = \ \(fa[\([k]\)]\)[\([1]\)]; \n
+            \t\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
+            v\  = \ PowerMod[r, \ \((p - 1)\)/q, \ p]; \n
+            \t\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(If[v == 1, \ Break[]]; 
+            \)\n\t\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ , {k, 1, Length[fa]}\n
+            \t\t\t\t\ \ \ \ \ \ \ \ \ ]; \n\t\t\t\ \ \ \ \ \ \ \ \ \ \ 
+          If[v == 1, \ Continue[]]; \n\t\t\t\ \ \ \ \ \ \ \ \ \ \ rt\  = \ r; 
+          \ \(Break[]; \)\n\t\t\t\ \ \ \ \ \ \ \ \ \ \ , {r, 2, p - 1}\n
+          \t\t\t\ \ \ \ \ \ \ ]; \t\n\t\t\t\ \ \ \ \ \ \ rt\t\t\t\n\t\t\t\t]; 
+    \n\t\t\t\t\[IndentingNewLine] (*\ Next, \ 
+      a\ routine\ for\ solving\ the\ matrix\ equation\ \n\ \ \ mat*answer = 
+        vect\ modulo\ \(mod . \)\ *) \n\n
+    specialsolve[mat_, vect_, mod_] := \n\t
+      Module[{modlist, reducedsolutions, preppedsolutions, solutions}, 
+        \[IndentingNewLine]\t\tmodlist = FactorInteger[mod]; 
+        \[IndentingNewLine]\t\t
+        modlist = Table[modlist[\([i, 1]\)], {i, 1, Length[modlist]}]; 
+        \[IndentingNewLine]\t\t
+        reducedsolutions = \n\t\t\t
+          Table[LinearSolve[mat, vect, Modulus -> modlist[\([i]\)]], \n
+            \t\t\t\t{i, 1, Length[modlist]}\n\t\t\t]; \[IndentingNewLine]\t\t
+        preppedsolutions = \n\t\t\t
+          Table[\n\t\t\t\t
+            Table[reducedsolutions[\([i, j]\)], \n
+              \t\t\t\t\t{i, 1, Length[modlist]}\n\t\t\t\t], \n
+            \t\t\t\t{j, 1, Length[reducedsolutions[\([1]\)]]}\n\t\t\t]; \n\t\t
+        Table[\n\t\t\t
+          ChineseRemainderTheorem[\ \ preppedsolutions[\([i]\)], modlist\ ], 
+          \n\t\t\t{i, 1, Length[preppedsolutions]}\n\t\t]
+          \[IndentingNewLine]\t]; 
+    \[IndentingNewLine]\[IndentingNewLine] (*\ Now, \ 
+      the\ main\ \(routine . \)\ *) \n\n
+    indexcal[p_, g_, t_] := \n\t
+      Module[\n\t\t{B, temp, k, exponents, answer, taulist, r, R, pminus1, \n
+          \t\treducedsols, primes = {}, rlist = {}, rmatrix = {}}, 
+        \[IndentingNewLine]\n
+        \t\t (*\ First, \ 
+          set\ the\ smoothness\ bound . \ \ B\ is\ chosen\ as\ \n\t\tper\ the
+              \ discussion\ in\ the\ text\ with\ c = 
+            1/2\ for\ our\ \n\t\tslow\ smoothness\ \(test . \)*) \n\t\t
+        \[IndentingNewLine]\t\tB = Ceiling[Exp[1/2\ Log[p]\ Log[Log[p]]]]; 
+        \[IndentingNewLine]\t\tk = PrimePi[B]; \[IndentingNewLine]\t\t
+        For[\ j = 1, j <= k, \(j++\), \[IndentingNewLine]\t\t\t
+          primes = Append[primes, Prime[j]]\[IndentingNewLine]\t\t]; 
+        \[IndentingNewLine]\[IndentingNewLine]\t\t (*\ Next, \ 
+          search\ for\ general\ \(relations . \)\ *) \n\t\t
+        \[IndentingNewLine]\t\t
+        While[\ Length[rlist] < B, \[IndentingNewLine]\t\t\t
+          r = Random[Integer, {1, p - 2}]; \[IndentingNewLine]\t\t\t
+          If[Not[MemberQ[rlist, r]] && \ smooth[B, PowerMod[g, r, p]], 
+            \[IndentingNewLine]\t\t\t\t
+            rlist = Append[rlist, r]\[IndentingNewLine]\t\t\t]
+            \[IndentingNewLine]\t\t]; \n\t\t
+        \[IndentingNewLine]\t\t (*\ Next, \ 
+          although\ it\ is\ more\ efficient\ to\ construct\ these\ \n\t\tlists
+            \ during\ the\ smoothness\ test, \ 
+          \(it\ is\ cleaner\ in\ appearance\ \n\t\tfor\ us\ next\ to\ 
+                  construct\ the\ matrix\ of\ exponents\ for\ the\ \n\t\t
+                  relations\ \((true\ by\ virtue\ of\ B - smoothness)\)\ \n
+                  \t\t\t\(p1^\((r1)\)*\) ... \)*pk^\((rk)\) = 
+            g^r\ \((mod\ p)\)\ \n\t\tfor\ each\ r\ in\ \(rlist . \)\ \n\t\t*) 
+          \n\t\t\[IndentingNewLine]\t\t
+        For[j = 1, j <= B, \(j++\), \[IndentingNewLine]\t\t\t
+          temp = FactorInteger[PowerMod[g, rlist[\([j]\)], p]]; 
+          \[IndentingNewLine]\t\t\t
+          exponents = \n\t\t\t\t
+            Table[\[IndentingNewLine]\t\t\t\t\t
+              If[\ MemberQ[temp, {primes[\([i]\)], _}], 
+                \[IndentingNewLine]\t\t\t\t\t\t
+                \(Cases[temp, {primes[\([i]\)], _}]\)[\([1, 2]\)]\n
+                \t\t\t\t\t\t, 0\[IndentingNewLine]\t\t\t\t\t]
+                \[IndentingNewLine]\t\t\t\t\t, {i, 1, k}
+                \[IndentingNewLine]\t\t\t\t]; \[IndentingNewLine]\t\t\t
+          rmatrix = Append[rmatrix, exponents]; \[IndentingNewLine]\t\t]; 
+        \[IndentingNewLine]\t\t
+        solutions = specialsolve[rmatrix, rlist, p - 1]; \[IndentingNewLine]\n
+        \t\t (*\ Next, \ 
+          the\ fourth\ 
+            \(step : \ 
+              the\ search\ for\ a\ special\ \n\t\t\(relation . \)\)\ *) 
+          \[IndentingNewLine]\n\t\tR = Random[Integer, {1, p - 2}]; 
+        \[IndentingNewLine]\t\t
+        While[Not[smooth[B, Mod[t\ PowerMod[g, R, p], p]]], 
+          \[IndentingNewLine]\t\t\t\(R = Random[Integer, {1, p - 2}]; 
+          \)\[IndentingNewLine]\t\t]; \n\t\t
+        \[IndentingNewLine]\t\t (*\ Next, \ 
+          make\ a\ list\ taulist\ of\ the\ exponents\ in\ the\ \n\t\t
+            factorization\ of\ g^R\ \(t . \)\ *) \[IndentingNewLine]\n\t\t
+        temp = FactorInteger[Mod[t\ PowerMod[g, R, p], p]]; 
+        \[IndentingNewLine]\t\t
+        taulist = \n\t\t\t
+          Table[\[IndentingNewLine]\t\t\t\t
+            If[\ \ MemberQ[temp, {primes[\([i]\)], _}], 
+              \[IndentingNewLine]\t\t\t\t\t
+              \(Cases[temp, {primes[\([i]\)], _}]\)[\([1, 2]\)]\n\t\t\t\t\t, 
+              \n\t\t\t\t\t0\[IndentingNewLine]\t\t\t\t], 
+            \[IndentingNewLine]\t\t\t\t{i, 1, k}\[IndentingNewLine]\t\t\t]; \n
+        \t\t\t\[IndentingNewLine]\t\t (*\ Now, \ 
+          form\ the\ answer\ with\ the\ relation\ given\ in\ the\ 
+            \(text . \)*) \n\t\t\[IndentingNewLine]\t\t
+        Mod[\(-R\) + \n\t\t\t
+            Sum[\ Mod[taulist[\([i]\)]\ solutions[\([i]\)], p - 1], {i, 1, 
+                k}], \n\t\t\tp - 1\n\t\t]\[IndentingNewLine]\t]; 
+    \[IndentingNewLine]\)\)], "Input"],
+
+Cell[BoxData[{
+    \(\[IndentingNewLine] (*\ EXAMPLE\ *) \n
+    \n (*\ \nWe\ pick\ a\ random\ prime\ p, \ find\ its\ primitive\ root\ g, 
+      \ \npick\ a\ random\ residue\ t, \ 
+      and\ find\ log_g \((t)\) . \ \nWhen\ found, \ 
+      we\ verify\ the\ \(answer . \)\ \n*) 
+      \[IndentingNewLine]\[IndentingNewLine]p = 
+      Prime[Random[Integer, {2, 200}]]; \n
+    While[Not[SquareFreeQ[p - 1]], \[IndentingNewLine]\t
+      \(p = Prime[Random[Integer, {2, 200}]]; \)\[IndentingNewLine]]; \n
+    \[IndentingNewLine]p\n\), 
+    \(g = primroot[p]\n\), 
+    \(t = Random[Integer, {1, p - 1}]\n\), 
+    \(ans = indexcal[p, g, t]\n\), 
+    \(PowerMod[g, ans, p]\[IndentingNewLine]\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{842, 680},
+WindowMargins->{{Automatic, 46}, {8, Automatic}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 812, 16, 243, "Input"],
+Cell[2524, 67, 7035, 128, 1826, "Input"],
+Cell[9562, 197, 696, 14, 334, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

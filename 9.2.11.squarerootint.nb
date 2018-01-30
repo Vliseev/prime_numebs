@@ -1,0 +1,122 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3313,         84]*)
+(*NotebookOutlinePosition[      3950,        107]*)
+(*  CellTagsIndexPosition[      3906,        103]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 9.2  .11\ 
+        \((Integer\ part\ of\ square\ root)\) . \t\t\t\n\ Support\ code\ for\n
+        \ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\ \n\t10\ Dec\ 2000\ AH\ 
+        \((Formatting)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n*) \n
+    \[IndentingNewLine] (*\ 
+      This\ algorithm\ returns\ Floor[Sqrt[n]]\ for\ a\ positive\ integer\ 
+        \(n . \)\ *) \n\)\)], "Input"],
+
+Cell[BoxData[{
+    \(\n (*\ CODE\ *) \n
+    \n (*\ This\ function\ returns\ the\ number\ of\ bits\ in\ the\ binary\ 
+        representation\ of\ \(n . \)\ *) \n
+    bits[n_] := If[n == 0, 0, Length[IntegerDigits[n, 2]]]\n\), 
+    \(\(intsqrt[n_] := 
+      Module[{x, y}, \n\t\tIf[n\  < \ 0, \ Return[0]]; 
+        \ \  (*\ Convention . \ *) \n\t\tx = 2^Ceiling[bits[n]/2]; \n\ \ \ \ 
+        Label[Perform]; \n\t\ty = Floor[\((x + Floor[n/x])\)/2]; \n\t\ \ 
+        If[y\  >= \ x, \ Return[x]]; \n\t\tx = y; \n\ \ \ \ \ Goto[Perform]; 
+        \n\t]; \)\)}], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ EXAMPLE\ *) \n
+    \[IndentingNewLine] (*\ We\ pick\ a\ random\ integer\ n, \ 
+      compute\ the\ integer\ part\ of\ the\ square\ root\ and\ verify\ the\ 
+        \(result . \)\ *) \n\n
+    \(Do[\n\tn\  = \ Random[Integer, 2^20]; \n\t
+      Print["\<Sqrt[\>", n, "\<] = \>", N[Sqrt[n], \ 80]]; \n\t
+      \(Print["\<intsqrt[\>", n, "\<] = \>", intsqrt[n]]; \)\n\t, {11}]; 
+    \)\)\)], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowSize->{744, 551},
+WindowMargins->{{Automatic, 48}, {89, Automatic}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 605, 11, 215, "Input"],
+Cell[2317, 62, 567, 10, 213, "Input"],
+Cell[2887, 74, 422, 8, 146, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

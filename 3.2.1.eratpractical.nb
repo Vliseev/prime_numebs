@@ -1,0 +1,144 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3368,        103]*)
+(*NotebookOutlinePosition[      4071,        129]*)
+(*  CellTagsIndexPosition[      4027,        125]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell["\<\
+
+(*
+ Algorithm 3.2.1.  (Practical Eratosthenes sieve).
+ Support code for
+ R. Crandall and C. Pomerance,
+ \"Prime Numbers: a Computational Perspective,\"
+ Springer-Verlag 2001.
+ c. 2000 Perfectly Scientific, Inc.
+ All Rights Reserved.
+      
+\t30 Nov 2000 AH (code slightly altered)
+*)
+
+(* This algorithm finds all primes in (L, R), by sieving over 
+B-bit blocks.
+The practical constraints are:
+   \tB, L, R all even,
+  \tB | R - L,
+  \tL^2 > R.
+*)
+\
+\>", "Input",
+  PageWidth->Infinity],
+
+Cell[TextData[
+"(* CODE *)\n\neratosthenes[L_,B_,R_]:=\n\tModule[{primes={},b,p,q,T,\n   \t\t\
+P = Ceiling[Sqrt[R]]},\n   \t\n      (*Check the parameter conditions.*)\n \t\
+\tIf[\n        \tOr[Mod[R-L,B]\[NotEqual]0, OddQ[R], OddQ[L], OddQ[B], L\
+\[LessEqual]P],\n        \tPrint[\"Illegal parameters\"];\n        \t\
+Return[Null]\n       \t];\n      \n      \t(*Next,initialize offsets.*)\n     \
+ \tp = Table[Prime[k],{k,1,PrimePi[P]}];\n      \tq = Table[Mod[-1/2 \
+(L+1+p[[k]]),p[[k]]],{k,1,PrimePi[P]}];\n      \tT = L;\n      \n      \t\
+While[T<R,\n     \t\tDo[b[j] = 1, {j,0,B-1}];\n        \tDo[\n        \t\t\
+For[j = q[[k]], j<B, j=j+p[[k]], b[j]=0];\n          \t\tq[[k]] = \
+Mod[q[[k]]-B,p[[k]]],\n          \t\t{k,2,PrimePi[P]}\n        \t];\n        \
+\tDo[\n        \t\tIf[b[j]==1, \n        \t\tprimes = Append[primes,T+2j+1]],\
+\n        \t\t{j,0,B-1}\n        \t];\n        \tT = T+2B\n        ];\n      \
+\tprimes\n  \t];"], "Input",
+  PageWidth->Infinity],
+
+Cell["\<\
+(* EXAMPLE *)
+
+L = 1000;
+R = 8000;
+B = 70;
+eratosthenes[L, B, R]
+Length[%]
+Table[Prime[i],{i,1+PrimePi[L],PrimePi[R]}]
+Length[%]\
+\>", "Input",
+  PageWidth->Infinity]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{571, 695},
+WindowMargins->{{Automatic, 178}, {Automatic, -7}},
+ShowCellLabel->False,
+LineIndent->4
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 496, 23, 264, "Input"],
+Cell[2208, 74, 977, 14, 420, "Input"],
+Cell[3188, 90, 176, 11, 120, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

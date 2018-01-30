@@ -1,0 +1,124 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3537,         85]*)
+(*NotebookOutlinePosition[      4203,        109]*)
+(*  CellTagsIndexPosition[      4159,        105]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 5.6  .2\ 
+        \((Reduction\ for\ negative\ discriminant)\) . \t\t\t\n\ Support\ code
+        \ for\n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\t\ 3\ Dec\ 2000\ AH\ 
+        \((small\ changes\ to\ code)\)\n\t14\ Sep\ 2000\ RT\ 
+        \((Creation)\)\n*) \n
+    \n (*\ Given\ a\ quadratic\ form\ \((a, b, c)\)\ where\ a, b, 
+      c\ are\ integers\ \nwith\ b^2 - \((4\ a\ c)\) < 0\ and\ a > 0, \ 
+      this\ algorithm\ constructs\ a\ \nreduced\ quadratic\ form\ equivalent\ 
+        to\ \(\((a, b, c)\) . \)\ *) \n\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n\n
+    reduction[aout_, bout_, cout_] := \ \n\t
+      Module[{a = aout, b = bout, c = cout}, \n\t\t
+        While[\((a > c)\) || \((b > a)\) || \((b <= \(-a\))\), \n\t\t\t
+          If[a > c, \ \n\t\t\t\t{a, b, c} = {c, \(-b\), a}\ \n\t\t\t]; \n
+          \t\t\tIf[\ a <= c\ \  && \ \((\ b > a || b <= \(-a\)\ )\), \ \n
+            \t\t\t\tbs\  = \ Mod[b, 2\ a]; \n\t\t\t\t
+            If[bs > a, \ bs = bs - 2  a\ ]; \n\t\t\t\t
+            cs\  = \ \((b^2 - 4\ a\ c - bs^2)\)/\((\(-4\)\ a)\); \n
+            \t\t\t\t{a, b, c} = {a, bs, cs}\n\t\t\t]; \n\t\t]; \n\t\t
+        If[\ a == c\ \  && \ \(-a\) < b < 0, \n\t\t\t{a, \(-b\), c}\ , \n
+          \t\t\t{a, b, c}\n\t\t]\n\t]\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ EXAMPLE\ *) \n
+    \n (*\ Take\ the\ form\ \(\((21, 28, 30)\) . \)\ *) \n{a, b, c}\  = 
+      \ {21, 28, 30}; \n\n\nPrint[{anew, bnew, cnew}\  = reduction[a, b, c]]; 
+    \n (*\ Now, \ compare\ \(discriminants . \)\ *) \n\nPrint[b^2 - 4\ a\ c]; 
+    \n\nPrint[bnew^2 - 4\ anew\ cnew]; \)\)], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{709, 753},
+WindowMargins->{{Automatic, 110}, {Automatic, 33}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 760, 13, 230, "Input"],
+Cell[2472, 64, 731, 12, 271, "Input"],
+Cell[3206, 78, 327, 5, 168, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

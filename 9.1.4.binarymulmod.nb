@@ -1,0 +1,120 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3235,         82]*)
+(*NotebookOutlinePosition[      3874,        105]*)
+(*  CellTagsIndexPosition[      3830,        101]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 9.1  .4\ \((Binary\ mul - mod)\) . \n\t\t\t\n\ Support\ code
+        \ for\n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2000. \n\n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\t\n\t14\ Sep\ 2000\ RT\ 
+        \((Creation)\)\n\ *) \n
+    \n (*\ We\ are\ given\ positive\ integers\ x, y\ with\ 0 <= x, 
+      y < cn . \ This\ algorithm\ returns\ the\ composite\ operation\ 
+          \(Mod[x\ y, cn] . \)\ *) \)\)], "Input"],
+
+Cell[BoxData[
+    \(\(\n (*\ CODE\ *) \n\n
+    \(binaryMulMod[x_, y_, cn_] := \ 
+      Module[{s, cd, j, xbinary}, \n\t\ts = 0; \n\t\t
+        xbinary = Reverse[IntegerDigits[x, 2]]; \n\t\t
+        cd\  = \ Length[xbinary]; \n\t\t
+        For[j = cd - 1, j >= 0, \(j--\), \n\t\t\ts\  = \ 2  s; \n\t\t\t
+          If[s\  >= \ cn, \ s\  -= \ cn]; \n\t\t\t
+          If[xbinary[\([j + 1]\)] == 1, s = s + y]; \n\t\t\t
+          If[s >= cn, s\  -= cn]; \n\t\t]; \n\t\tReturn[s]; \n\t]; \)\n\n
+    \)\)], "Input"],
+
+Cell[BoxData[{
+    \(\[IndentingNewLine] (*\ EXAMPLE\ *) \n
+    \[IndentingNewLine] (*\ We\ pick\ random\ integers\ x, y, cn, \ 
+      compute\ x\ y\ \((mod\ cn)\)\ via\ the\ Binary\ mul - 
+        mod\ and\ verify\ our\ \(result . \)\ *) \n\n
+    x = Random[Integer, 2^30]; \ny = Random[Integer, 2^30]; \n
+    cn = Random[Integer, {Max[x, y], 2^31}]; \nbinaryMulMod[x, y, cn]\), 
+    \(Mod[x\ y, cn]\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowSize->{776, 518},
+WindowMargins->{{169, Automatic}, {Automatic, 204}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 594, 10, 228, "Input"],
+Cell[2306, 61, 508, 10, 237, "Input"],
+Cell[2817, 73, 414, 7, 161, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

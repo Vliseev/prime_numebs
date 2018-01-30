@@ -1,0 +1,156 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      4686,        116]*)
+(*NotebookOutlinePosition[      5372,        141]*)
+(*  CellTagsIndexPosition[      5328,        137]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell["\<\
+(*
+Algorithm 3.4.7 (\"Industrial-grade prime\" generation).\t\t\t
+Support code for
+R. Crandall and C. Pomerance,
+\"Prime Numbers: a Computational Perspective,\"
+Springer-Verlag 2001.
+c. 2000 Perfectly Scientific, Inc.
+All Rights Reserved.
+\t
+\t1  Dec 2000 AH (small adjustments)
+\t14 Sep 2000 RT (Creation)
+*)
+
+(* We are given an integer k>=3 and an integer T>=1.  This 
+probabilistic algorithm produces a random k-bit number (that is, 
+a number in the interval (2^(k-1),2^k)) which has not been 
+recognized as composite by T iterations of Algorithm 3.4.6, 
+the random compositeness test. *)
+\
+\>", "Input",
+  LineBreakWithin->False,
+  LineIndent->0],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \[IndentingNewLine]\n (*\ First, \ 
+      we\ include\ algorithm\ 3.4  .6, \ 
+      to\ be\ used\ in\ the\ main\ \(routine . \)\ *) \[IndentingNewLine]\n
+    compositenesstest[n_] := 
+      \[IndentingNewLine]Module[{t, s, a, b, outp}, \[IndentingNewLine]\t
+        t = n - 1; \[IndentingNewLine]\tWhile[EvenQ[t], t = t/2\ ]; 
+        \[IndentingNewLine]\ts = Log[2, \((n - 1)\)/t]; \[IndentingNewLine]\t
+        a = Random[Integer, {2, n - 2}]; \[IndentingNewLine]\t
+        b = PowerMod[a, t, n]; \[IndentingNewLine]\toutp = {a, "\<YES\>"}; 
+        \[IndentingNewLine]\t
+        If[b == Mod[\(-1\), n]\  || \ b == Mod[1, n], \n\t\t
+          outp = {a, "\<NO\>"}\[IndentingNewLine]\t]; \[IndentingNewLine]\t
+        j = 1; \[IndentingNewLine]\t
+        While[j < s, \ \[IndentingNewLine]\t\t\(j++\); \[IndentingNewLine]\t\t
+          b = Mod[b^2, n]; \n\t\t
+          If[b == n - 1, \[IndentingNewLine]\t\t\toutp = {a, "\<NO\>"}\n\t\t]
+            \n\t]; \n\toutp\n]; \n
+    \[IndentingNewLine] (*\ Now, \ the\ main\ \(routine . \)\ *) \n
+    \[IndentingNewLine]\n
+    primegen[T_, k_] := \[IndentingNewLine]\t
+      Module[{n, result}, \[IndentingNewLine]\t\tLabel[ChooseCandidate]; 
+        \[IndentingNewLine]\t\t
+        n = Random[Integer, {2^\((k - 1)\) + 1, 2^k - 1}]; 
+        \[IndentingNewLine]\t\tIf[EvenQ[n], Goto[ChooseCandidate]]; 
+        \[IndentingNewLine]\t\t
+        For[i = 1, i\  <= \ T, \(i++\), \[IndentingNewLine]\t\t\t
+          result = \(compositenesstest[n]\)[[2]]; \[IndentingNewLine]\t\t\t
+          If[result \[Equal] "\<YES\>", \ Goto[ChooseCandidate]]; 
+          \[IndentingNewLine]\t\t\tReturn[n]\[IndentingNewLine]\t\t]
+          \[IndentingNewLine]\t]; \[IndentingNewLine]\ \)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ EXAMPLE\ *) \n
+    \[IndentingNewLine] (*\ 
+      We\ pick\ a\ random\ T\ and\ a\ random\ k\ and\ test\ 10\ industrial\ 
+        \[IndentingNewLine]grade\ primes\ for\ \(primality . \)\ *) 
+      \[IndentingNewLine]\nPrint["\<T = \>", T = Random[Integer, {2, 100}]]; 
+    \nPrint["\<k = \>", k = Random[Integer, {2, 20}]]; \[IndentingNewLine]\n
+    Do[\[IndentingNewLine]Print[res = primegen[20, 10]]; 
+      \[IndentingNewLine]Print[PrimeQ[res]]\[IndentingNewLine], {10}
+        \[IndentingNewLine]]\)\)], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{712, 472},
+WindowMargins->{{Automatic, 94}, {Automatic, 4}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 660, 22, 240, "Input"],
+Cell[2372, 73, 1765, 30, 559, "Input"],
+Cell[4140, 105, 542, 9, 185, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

@@ -1,0 +1,135 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3988,         96]*)
+(*NotebookOutlinePosition[      4653,        120]*)
+(*  CellTagsIndexPosition[      4609,        116]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell["\<\
+
+(*
+Algorithm 3.2.2.  (Fancy Eratosthenes sieve).
+Support code for
+R. Crandall and C. Pomerance,\"Prime Numbers: a Computational Perspective,\"
+Springer-Verlag 2001.
+c. 2000 Perfectly Scientific, Inc.
+All Rights Reserved.
+      
+\t30 Nov 2000 AH (adjusted layout, added local variables to Module)
+*)
+
+(* This algorithm finds all primes in [1, n]. *)
+\
+\>", "Input"],
+
+Cell[TextData[
+"(* CODE *)\n\nferatosthenes[n_]:=\n    \
+Module[{t,s,Mk,m,S,p,ss,gaps,glpl,skpl},\n      \tt = N[n/Log[n]];\n     \t s \
+= N[Sqrt[n]];\n      \tMk = 1;\n      \tDo[Mk *= Prime[j];\n        \tIf[Mk > \
+t, k = j-1; Mk /= Prime[j]; Break[]],\n        \t{j,1,t}\n      \t];\n      \t\
+m=PrimePi[s];\n      \n      \t(* Next,roll the \"wheel\". *)\n      \tS={};  \
+\n      \t(* This will be the S_k of the algorithm; note that we \n      \t\
+need not waste space with indexed S_l,rather, we simply \n      \tupdate S \
+itself during recursion. *)\n      \n      \tDo[(* A crude but demonstrative \
+way to effect the wheel.\n             Note that the text algorithm uses bit \
+operations and \n             not GCDs. *)\n         \tIf[GCD[Mk,j]\[Equal]1, \
+S=Append[S,j]]\n         \t,\n        \t{j,1,n}\n        ];\n      \t\
+Print[\"k, m: \",k,\" \",m];\n      \tDo[Print[\"S: \",S];\n        \tDo[\n   \
+     \t\tIf[S[[q]]>1, p[l]=S[[q]];Break[]],\n          \t\t{q,1,Length[S]}\n  \
+      \t];\n        \tPrint[\"L, p[l]: \",l,\" \",p[l]];\n        \tss = \
+Intersection[Table[j,{j,1,Floor[n/p[l]]}],S];\n        \tPrint[\"ss: \",ss];\n\
+        \tgaps = Union[ Table[ ss[[q+1]]-ss[[q]],{q,1,Length[ss]-1}] ];\n     \
+   \tPrint[\"gaps: \",gaps];\n        \tglpl = Union[p[l]*gaps];\n        \t\
+Print[\"glpl: \",glpl];\n        \t(* Next,find skpl conveniently, noting \
+text algorithm has \n        \toptimization. *)    \n        \tskpl = \
+Intersection[p[l]*S,Table[j,{j,1,n}]]; \n        \tPrint[\"skpl: \",skpl]; \n \
+       \tS = Complement[S,skpl];\n        \t,\n        \t{l,k+1,m}\n        \
+];\n      \tPrint[\"S: \",S]; \n      \t\
+Union[Complement[S,{1}],Table[Prime[j],{j,1,m}]]\n \t]"], "Input"],
+
+Cell[BoxData[{
+    \(\n (*\ EXAMPLE\ *) \n\nn\ \  = \ 310; \nferatosthenes[n]\), 
+    \(Table[Prime[q], \ {q, 1, PrimePi[n]}]\n\)}], "Input",
+  LineBreakWithin->False]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{847, 579},
+WindowMargins->{{38, Automatic}, {Automatic, 77}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 375, 15, 180, "Input"],
+Cell[2087, 66, 1727, 23, 612, "Input"],
+Cell[3817, 91, 167, 3, 103, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

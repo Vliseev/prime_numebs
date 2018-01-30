@@ -1,0 +1,140 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      2817,        100]*)
+(*NotebookOutlinePosition[      3491,        125]*)
+(*  CellTagsIndexPosition[      3447,        121]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell["\<\
+(*
+Algorithm 2.1.2 (Euclid algorithm for greatest common divisor).\t
+Support code for
+R. Crandall and C. Pomerance,
+\"Prime Numbers: a Computational Perspective,\"
+Springer-Verlag 2001.\t\t\t\t\t\t
+c. 2000 Perfectly Scientific, Inc.
+All Rights Reserved.
+      
+   \t30 Nov 2000 AH (small changes; formatting)
+    12 Sep 2000 RT (Creation)
+*)
+ 
+(* For integers x,y with x \[GreaterEqual] y \[GreaterEqual] 0 and x \
+\[GreaterEqual] 0, 
+this algorithm gives gcd(x,y). *)
+    \
+\>", "Input",
+  TabSpacings->4],
+
+Cell["\<\
+(* CODE *)
+
+gcdAlg[x_,y_]:=
+  \tModule[{xp,yp},
+    \t{xp,yp} = {x,y};
+    \tWhile[ yp > 0, {xp,yp} = {yp, Mod[xp,yp]} ];
+     \txp
+    ]
+    \
+\>", "Input",
+  TabSpacings->4],
+
+Cell["\<\
+(* EXAMPLE *)
+
+(* We pick two random integers a,b and calculate their greatest 
+common divisor via both our routine and Mathematica's. *)
+Do[
+  \ta = Random[Integer, 2^(2^15)];
+   \tb = Random[Integer, 2^(2^15)];
+  \tIf[b>a,{a,b}={b,a}];
+   \tPrint[\"Our gcdAlg: \",Timing[gcdAlg[a, b]]];
+   \tPrint[\"M'ca's GCD[]: \",Timing[GCD[a, b]]]
+   \t,
+ \t{3}
+ ]\
+\>", "Input",
+  TabSpacings->4]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowSize->{767, 630},
+WindowMargins->{{71, Automatic}, {Automatic, 17}},
+ShowCellLabel->False,
+LineIndent->4
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 516, 19, 204, "Input"],
+Cell[2228, 70, 185, 11, 120, "Input"],
+Cell[2416, 83, 397, 15, 168, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

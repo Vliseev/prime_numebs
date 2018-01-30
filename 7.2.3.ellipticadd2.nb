@@ -1,0 +1,290 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      8381,        246]*)
+(*NotebookOutlinePosition[      9218,        275]*)
+(*  CellTagsIndexPosition[      9174,        271]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell["\<\
+
+(*
+ Algorithm 7.2.3 (Elliptic addition: modified projective coordinates).
+ Support code for
+ R. Crandall and C. Pomerance,
+ \"Prime Numbers: a Computational Perspective,\"
+ Springer-Verlag 2001.
+ c. 2000 Perfectly Scientific, Inc.
+ All Rights Reserved.
+ \t
+ \t 4 December AH (example line breaks corrected)
+ \t14 Sep 2000 RT (Creation)
+ *)
+\
+\>", "Input",
+  PageWidth->Infinity,
+  AutoIndent->True,
+  LineBreakWithin->False,
+  LineIndent->0,
+  AspectRatioFixed->True],
+
+Cell["\<\
+(* CODE *)
+
+(* We assume an elliptic curve given by the affine equation 
+\ty^2 = x^3 + a x + b (mod p), p not equal to 2 or 3.  
+A point is {X,Y,Z} with O = {1,1,0}.  
+The true (x,y) coordinates are, respectively, (X/Z^2, Y/Z^3).  
+\t<In the following code, a, b, p are global parameters.>\t\t
+*)
+
+
+(* First we define some functions to aid the coherence of the main 
+routine.*)
+
+(* A function to test if x is a possible x-coordinate for the 
+elliptic curve. *)
+pointQ[x_] := (JacobiSymbol[x^3 + c x^2 + a x + b, p] > -1);
+
+(* Next, a function for n^(-1) mod p. *)\t
+ellinv[n_] := PowerMod[n,-1,p];
+
+(* Next, a function to obtain actual x,y coords via normalization: 
+{x,y,z} := {X/Z^2, Y/Z^3, 1}. *)
+normalize[pt_] := 
+\tBlock[{z,z2,z3},
+\t\tIf[pt[[3]] == 0, Return[pt]];
+\t\tz = ellinv[pt[[3]]];
+\t\tz2 = Mod[z^2,p];
+\t\tz3 = Mod[z z2,p];
+\t\tReturn[{Mod[pt[[1]] z2, p], Mod[pt[[2]] z3, p], 1}]
+\t];
+\t\t
+(* Below, a function that negates a pt. *)
+ellneg[pt_] := Mod[pt * {1,-1,1}, p];
+
+(* Next, a function that subtracts. *)
+ellsub[pt1_, pt2_] := elladd[pt1, ellneg[pt2]];
+
+(* Below, a routine to double (special case of the main routine). *)
+elldouble[pt_] := 
+Block[{x,y,z,m,y2,s},
+\tx = pt[[1]]; y = pt[[2]]; z = pt[[3]];
+\tIf[(y==0) || (z==0), Return[{1,1,0}]];
+\tm = Mod[3 x^2 + a Mod[Mod[z^2,p]^2,p],p];
+\tz = Mod[2 y z, p];
+\ty2 = Mod[y^2, p];
+\ts = Mod[4 x y2, p]; 
+\tx = Mod[m^2 - 2s, p];
+\ty = Mod[m(s - x) - 8 y2^2,p];
+\tReturn[{x,y,z}];
+];
+
+(* Now, the main routine. *)
+elladd[pt0_, pt1_] := 
+Block[
+\t{x0,y0,z0,x1,y1,z1,
+\tt1,t2,t3,t4,t5,t6,t7},
+\tx0 = pt0[[1]]; y0 = pt0[[2]]; z0 = pt0[[3]];
+\tx1 = pt1[[1]]; y1 = pt1[[2]]; z1 = pt1[[3]];
+\tIf[z0 == 0, Return[pt1]];
+\tIf[z1 == 0, Return[pt0]];
+\tt1 = x0;
+\tt2 = y0;
+\tt3 = z0;
+\tt4 = x1;
+\tt5 = y1;
+\tIf[(z1 != 1),
+\t\tt6 = z1;
+\t\tt7 = Mod[t6^2, p];
+\t\tt1 = Mod[t1 t7, p];
+\t\tt7 = Mod[t6 t7, p];
+\t\tt2 = Mod[t2 t7, p];
+\t];
+\tt7 = Mod[t3^2, p];
+\tt4 = Mod[t4 t7, p];
+\tt7 = Mod[t3 t7, p];
+\tt5 = Mod[t5 t7, p];
+\tt4 = Mod[t1-t4, p];
+\tt5 = Mod[t2 - t5, p];
+\tIf[t4 == 0, 
+\t\tIf[t5 == 0,
+\t\t\tReturn[elldouble[pt0]],
+\t   \t\tReturn[{1,1,0}]
+\t   \t]
+\t];
+\tt1 = Mod[2t1 - t4,p];
+\tt2 = Mod[2t2 - t5, p];
+\tIf[z1 != 1, t3 = Mod[t3 t6, p]];
+\tt3 = Mod[t3 t4, p];
+\tt7 = Mod[t4^2, p];
+\tt4 = Mod[t4 t7, p];
+\tt7 = Mod[t1 t7, p];
+\tt1 = Mod[t5^2, p];
+\tt1 = Mod[t1-t7, p];
+\tt7 = Mod[t7 - 2t1, p];
+\tt5 = Mod[t5 t7, p];
+\tt4 = Mod[t2 t4, p];
+\tt2 = Mod[t5-t4, p];
+\tIf[EvenQ[t2], t2 = t2/2, t2 = (p+t2)/2];
+\tReturn[{t1, t2, t3}]
+];
+\
+\>", "Input",
+  PageWidth->Infinity,
+  AutoIndent->True,
+  LineBreakWithin->False,
+  LineIndent->0,
+  AspectRatioFixed->True],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ *) \n
+    \[IndentingNewLine] (*\ We\ first\ include\ algorithm\ 7.2  .1, \ 
+      used\ to\ find\ a\ point\ on\ a\ \nrandom\ elliptic\ \(curve . \)\ *) 
+      \[IndentingNewLine]\[IndentingNewLine] (*\ Next, \ algorithm\ 2.3  .8, 
+      \ used\ by\ 7.2 \( .1 . \)\ *) \[IndentingNewLine]sqrtmod[b_, p_] := \ 
+      \n\tModule[{a, x, c, d, cd, m, t, tst}, \n\ \ \ \t\ta\  = \ Mod[b, p]; 
+        \n\ \ \ \t\tIf[p\  == \ 2, \ Return[a]]; \n\ \ \ \ \t
+        If[MemberQ[{3, 7}, Mod[p, 8]], \n\ \ \ \ \ \ \t\t
+          Return[PowerMod[a, \((p + 1)\)/4, p]]\n\ \ \ \ \ \ \t]; \n\ \ \ \ \t
+        If[Mod[p, 8]\  == \ 5, \n\ \ \ \ \ \ \t\t
+          x\  = \ PowerMod[a, \((p + 3)\)/8, p]; \n\ \ \ \ \ \ \t\t
+          c\  = \ Mod[x^2, p]; \n\ \ \ \ \ \ \t\t
+          If[Not[c\  == \ a], \n\ \ \ \ \ \ \ \ \t\t
+            Return[Mod[x\ PowerMod[2, \((p - 1)\)/4, p], \ p]]\n
+            \ \ \ \ \ \ \ \ \t]; \n\ \ \ \ \ \ \t]; \n\ \ \ \ \t\n
+        \ \ \ \ \t (*\ Here, \ p\  = \ 1\ \(\((mod\ 8)\) . \)\ *) \n
+        \ \ \ \ \ \ \ttst\  = \ 1; \n\ \ \ \ \ \ \t
+        While[Not[tst\  == \ \(-1\)], \n\ \ \ \ \ \ \ \ \t
+          d\  = \ Random[Integer, {1, p}]; \n\ \ \ \ \ \ \ \ \t
+          tst\  = \ JacobiSymbol[d, p]\n\ \ \ \ \ \ \ \ ]; \n\ \ \ \ \ \ \t
+        t\  = \ \((p - 1)\)/2; \ s\  = \ 1; \n\ \ \ \ \ \ \t
+        While[EvenQ[t], \ t\  = \ t/2; \ \(++s\)]; \n\ \ \ \ \ \ \t
+        ca\  = \ PowerMod[a, t, p]; \n\ \ \ \ \ \ \t
+        cd\  = \ PowerMod[d, t, p]; \n\ \ \ \ \ \ \tm\  = \ 0; \n
+        \ \ \ \ \ \ \t
+        Do[\n\ \ \ \ \ \ \t\ \ \ 
+          If[PowerMod[Mod[ca\ PowerMod[cd, \ m, \ p], p], \ 
+                2^\((s - 1 - i)\), \ p]\n\ \ \ \ \ \ \t\ \ \ \t\t == \ p - 1, 
+            \ m\  += \ 2^i]\n\ \ \ \ \ \ \t\ \ \ , {i, 0, s - 1}\n
+          \ \ \ \ \ \ \t]; \ \ \ \ \ \ \t\ \ \ \ \n\ \ \ \ \ \ \t
+        Return[Mod[PowerMod[a, \ \((t + 1)\)/2, p]\ PowerMod[cd, \ m/2, p], 
+            p]]; \ \n\t]; 
+    \[IndentingNewLine]\[IndentingNewLine] (*\ Next, \ 
+      Algorithm\ 7.2 \( .1 . \)\ *) \ \n\n
+    pointFinder[a_, b_, p_] := \n\t
+      Module[{t, x}, \n\t\tLabel[loop]; \n\t\tx = Random[Integer, p - 1]; \n
+        \t\tt = Mod[\((x \((x^2 + a)\) + b)\), p]; \n\t\t
+        If[\ JacobiSymbol[t, p] == \(-1\), \ \n\t\t\tGoto[loop]\n\t\t]; \n
+        \t\t{x\ , sqrtmod[t, p]}\n\t]; 
+    \[IndentingNewLine]\[IndentingNewLine] (*\ Now, 
+      we\ find\ two\ points\ on\ a\ random\ elliptic\ curve, 
+      check\ their\ \ninverses, \ 
+      and\ check\ their\ sum\ and\ its\ \(inverse . \)\ *) \n (*
+      Assign\ values\ to\ the\ global\ parameters\ a, \ b, \ p\ *) \n\n
+    p = Prime[Random[Integer, {3, 30}]]; \n\n
+    For[a = 0; b = 0, Mod[4\ a^3 + 27\ b^2, p] == 0, \n\t
+      a = Random[Integer, {\(-30\), 30}\n]; \[IndentingNewLine]\t
+      b = Random[Integer, {\(-30\), 30}]\n]; \n\n
+    Print["\<a = \>", a, "\<, b = \>", b, "\<, p= \>", p, 
+      "\<, 4a^3+27b^2 = \>", 4\ a^3 + 27\ b^2]\n\), 
+    \(pnt1 = Append[pointFinder[a, b, p], 1]\n\), 
+    \(pnt2 = Append[pointFinder[a, b, p], 1]\n\), 
+    \(elladd[pnt1, ellneg[pnt1]]\n\), 
+    \(elladd[pnt2, ellneg[pnt2]]\n
+    \[IndentingNewLine] (*\ 
+      Don' t\ forget\ to\ normalize\ the\ points\ before\ \(adding . \)\ *) \n
+    \), 
+    \(sum = normalize[elladd[pnt1, pnt2]]\n\), 
+    \(Mod[sum[\([2]\)]^2 - sum[\([1]\)]^3 - a\ sum[\([1]\)] - b, p]\n\), 
+    \(elladd[sum, ellneg[sum]]\[IndentingNewLine]\)}], "Input",
+  PageWidth->Infinity,
+  AutoIndent->True,
+  LineBreakWithin->False,
+  LineIndent->0]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{843, 553},
+WindowMargins->{{Automatic, -94}, {Automatic, 69}},
+PrivateNotebookOptions->{"ColorPalette"->{RGBColor, -1}},
+ShowCellLabel->True,
+ShowCellTags->False,
+RenderingOptions->{"ObjectDithering"->True,
+"RasterDithering"->False}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 478, 20, 180, "Input"],
+Cell[2190, 71, 2639, 107, 1224, "Input"],
+Cell[4832, 180, 3545, 64, 1134, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

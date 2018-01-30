@@ -1,0 +1,206 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      5976,        162]*)
+(*NotebookOutlinePosition[      6812,        191]*)
+(*  CellTagsIndexPosition[      6768,        187]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n
+      Algorithm\ 7.2  .7\ 
+        \((Elliptic\ multiplication\  - \ Montgomery\ method)\) . \t\t\n
+          Support\ code\ for\nR . \ Crandall\ and\ C . \ Pomerance, \n
+      "\<Prime Numbers: a Computational Perspective,\>"\nSpringer - 
+        Verlag\ 2001. \nc . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \nAll\ Rights\ Reserved . \n\t\n\t\ 4\ Dec\ 2000\ AH\ 
+        \((formatting)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n*) \n
+    \[IndentingNewLine] (*\ With\ global\ variables\ a, b, c, 
+      p\ we\ specify\ the\ elliptic\ curve\ E\ given\ \n\ \ \ by\ y^2 = 
+        x^3 + cx^2 + ax + b\ \((mod\ p)\) . \ \ \n\ \ \ This\ algorithm, \ 
+      using\ special\ add\ and\ double\ functions, \ 
+      attempts\ to\ perform\ \n\ \ \ the\ elliptic\ multiplication\ of\ n >= 
+          0\ by\ point\ pnt = {x, any, z}\ on\ the\ elliptic\ \n\ \ \ curve\ E
+            \ with\ xz != 0, \ 
+      returning\ just\ the\ x\ and\ z\ coordinates\ of\ [n] pnt . \n\ \ \ In\ 
+        the\ following\ the\ parameters\ p, \ a, \ b, \ 
+      c\ are\ \(global . \)\ \n*) \ \ \ \n\)\)], "Input"],
+
+Cell["\<\
+(* CODE *)
+
+(* First, a function for inverting n mod p. *)
+ellinv[n_] := If[n==0,0,PowerMod[n,-1,p]];
+
+(* Next, a function for normalizing the x coordinate. *)
+ex[pt_] := Mod[pt[[1]] * ellinv[pt[[2]]], p];
+
+(* Next, the doubleh() function for doubling a point. *)
+elleven[pt_] := 
+\tBlock[{x1 = pt[[1]], z1 = pt[[2]], e, f },
+  \t\te = Mod[(x1^2 - a z1^2)^2 - 4 b (2 x1 + c z1) z1^3, p];
+  \t\tf = Mod[4 z1 (x1^3 + c x1^2 z1 + a x1 z1^2 + b z1^3), p];
+  \t\t{e,f}
+\t];
+
+(* Next, the addh() function for adding pt and pu with pv = pt-pu known 
+(x and z coordinates only of course). *)
+ellodd[pt_, pu_, pv_] := 
+\tBlock[
+\t\t{x1 = pt[[1]], z1 = pt[[2]],
+\t\t x2 = pu[[1]], z2 = pu[[2]],
+\t\t xx = pv[[1]], zz = pv[[2]], i, j
+\t\t },
+  \t     i = Mod[zz ((x1 x2 - a z1 z2)^2 -
+  \t          \t4 b(x1 z2 + x2 z1 + c z1 z2) z1 z2), 
+  \t          \tp
+  \t         ];
+  \t     j = Mod[xx (x1 z2 - x2 z1)^2, p];
+  \t\t {i,j}
+\t];
+
+(* Now, the main routine, elliptic multiply [k]pt. *)
+elliptic[pt_, k_] := 
+\tBlock[{porg, ps, pp, q},
+\t\tIf[k ==1, Return[pt]];
+\t\tIf[k ==2, Return[elleven[pt]]];
+\t\tporg = pt;
+\t\tps = elleven[pt];
+\t\tpp = pt;
+\t\tbitlist = Reverse[IntegerDigits[k,2]];
+\t\tDo[\t   
+\t   \t\tIf[bitlist[[q]] == 1,
+\t   \t   \t\tpp = ellodd[ps, pp, porg];
+\t   \t   \t\tps = elleven[ps]
+\t   \t   \t\t,
+\t   \t      \tps = ellodd[pp, ps, porg];
+\t\t     \tpp = elleven[pp]
+\t   \t\t]
+\t   \t\t,
+\t   \t\t{q, Length[bitlist]-1, 1, -1}
+    \t];
+    \tReturn[Mod[pp,p]]
+\t];\
+\>", "Input",
+  AspectRatioFixed->True],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ *) \n
+    \[IndentingNewLine] (*\ First, \ 
+      we\ find\ a\ point\ on\ a\ random\ elliptic\ \(curve . \)\ *) \n (*\ 
+      Assign\ the\ global\ parameters\ p, a, b, c\ *) \[IndentingNewLine]\n
+    p = Prime[Random[Integer, {3, 30}]]; \n\n
+    For[\ a = 0; b = 0; c = 0, 
+      Mod[4\ a^3 + 27\ b^2 - 18\ a\ b\ c - a^2\ c^2 + 4\ b\ c^3, p] == 0, 
+      \[IndentingNewLine]\ta = Random[Integer, p - 1]; \[IndentingNewLine]\t
+      b = Random[Integer, p - 1]; \[IndentingNewLine]\t
+      c = Random[Integer, p - 1]\[IndentingNewLine]]; \n\n
+    x = Random[Integer, p - 1]; \n\n
+    While[\ JacobiSymbol[x^3 + c\ x^2 + a\ x + b, p] != 1, 
+      \[IndentingNewLine]\t\(x = Random[Integer, p - 1]; 
+      \)\[IndentingNewLine]]\n\), 
+    \(pt = {x, 1}; \n
+    \[IndentingNewLine] (*\ Next, \ 
+      we\ compare\ doubling\ with\ multiplying\ by\ 2. \ *) \n\n
+    Print["\<a = \>", a, "\<, b = \>", b, \ "\<, c = \>", c, "\<, p = \>", p]
+      \n\), 
+    \(elleven[pt]\n\), 
+    \(elliptic[pt, 2]\[IndentingNewLine] (*\ Next, \ 
+      print\ out\ some\ multiples\ and\ test\ \(them . \)\ *) \n\), 
+    \(Do[\[IndentingNewLine]\t
+      Print["\<k = \>", k = Random[Integer, {1, 10}], "\<, [k]pt = \>", 
+        kprod = elliptic[pt, k]]; \[IndentingNewLine]\t
+      Print[testx = ex[kprod]]; \[IndentingNewLine]\t
+      Print[testy = Mod[testx^3 + c*testx^2 + a*testx + b, p]]; 
+      \[IndentingNewLine]\t\(Print[JacobiSymbol[testy, p]]; 
+      \)\[IndentingNewLine]\t, \n\t{3}\n]\)}], "Input",
+  PageWidth->Infinity,
+  AutoIndent->True,
+  LineBreakWithin->False,
+  LineIndent->0]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{776, 518},
+WindowMargins->{{Automatic, 5}, {Automatic, 51}},
+PrivateNotebookOptions->{"ColorPalette"->{RGBColor, -1}},
+ShowCellLabel->False,
+ShowCellTags->False,
+RenderingOptions->{"ObjectDithering"->True,
+"RasterDithering"->False}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 1114, 18, 298, "Input"],
+Cell[2826, 69, 1534, 56, 660, "Input"],
+Cell[4363, 127, 1609, 33, 525, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

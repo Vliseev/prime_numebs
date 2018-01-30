@@ -1,0 +1,377 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[     10869,        314]*)
+(*NotebookOutlinePosition[     11506,        337]*)
+(*  CellTagsIndexPosition[     11462,        333]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ \n\t\n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\ \n\t10\ Dec\ 2000\ AH\ 
+        \((Formatting)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n*) \n
+    \[IndentingNewLine] (*\ 
+      This\ algorithm\ returns\ Floor[Sqrt[n]]\ for\ a\ positive\ integer\ 
+        \(n . \)\ *) \n\)\)], "Input"],
+
+Cell[BoxData[{
+    \(\n (*\ CODE\ *) \n
+    \n (*\ This\ function\ returns\ the\ number\ of\ bits\ in\ the\ binary\ 
+        representation\ of\ \(n . \)\ *) \n
+    bits[n_] := If[n == 0, 0, Length[IntegerDigits[n, 2]]]\n\), 
+    \(\(introot[n_, \ k_] := 
+      Module[{x, y}, \ \  (*\ Determine\ \(Floor[n^\((1/k)\)] . \)\ *) \n\t\t
+        If[n\  < \ 0, \ Return[0]]; \ \  (*\ Convention . \ *) \n\t\t
+        x = 2^Ceiling[bits[n]/k]; \n\ \ \ \ Label[Perform]; \n\t\t
+        y = Floor[\((\((k - 1)\) x + Floor[n/x^\((k - 1)\)])\)/k]; \n\t\ \ 
+        If[y\  >= \ x, \ Return[x]]; \n\t\tx = y; \n\ \ \ \ \ Goto[Perform]; 
+        \n\t]; \)\)}], "Input"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+    \(\( (*\ EXAMPLE\ *) \n
+    \[IndentingNewLine] (*\ We\ pick\ a\ random\ integer\ n, \ 
+      compute\ the\ integer\ part\ of\ n^\((1/k)\)\ and\ verify\ the\ 
+        \(result . \)\ *) \n\nk\  = \ 5; \n\n
+    Do[\n\tn\  = \ Random[Integer, 2^20]; \n\t
+      Print["\<kthroot[\>", n, "\<] = \>", N[n^\((1/k)\), \ 80]]; \n\t
+      \(Print["\<introot[\>", n, "\< \>", k, "\<] = \>", introot[n, k]];\)\n
+      \t, {11}]; \)\)], "Input"],
+
+Cell[BoxData[
+    InterpretationBox[
+      \("kthroot["\[InvisibleSpace]999694
+        \[InvisibleSpace]"] = \
+"\[InvisibleSpace]15.\
+847961851233099363737585012348859213967291802973936581786600304076946059736882\
+832790911903`80\),
+      SequenceForm[ 
+      "kthroot[", 999694, "] = ", 
+        15.8479618512330993637375850123488592139672918029739365817866003040769\
+46059736883],
+      Editable->False]], "Print"],
+
+Cell[BoxData[
+    InterpretationBox[
+      \("introot["\[InvisibleSpace]999694
+        \[InvisibleSpace]" "\[InvisibleSpace]5
+        \[InvisibleSpace]"] = "\[InvisibleSpace]15\),
+      SequenceForm[ "introot[", 999694, " ", 5, "] = ", 15],
+      Editable->False]], "Print"],
+
+Cell[BoxData[
+    InterpretationBox[
+      \("kthroot["\[InvisibleSpace]608804
+        \[InvisibleSpace]"] = \
+"\[InvisibleSpace]14.\
+351440653836319469285423823768789747414860207779663197696400034908715845695826\
+105887756622`80\),
+      SequenceForm[ 
+      "kthroot[", 608804, "] = ", 
+        14.3514406538363194692854238237687897474148602077796631976964000349087\
+15845695826],
+      Editable->False]], "Print"],
+
+Cell[BoxData[
+    InterpretationBox[
+      \("introot["\[InvisibleSpace]608804
+        \[InvisibleSpace]" "\[InvisibleSpace]5
+        \[InvisibleSpace]"] = "\[InvisibleSpace]14\),
+      SequenceForm[ "introot[", 608804, " ", 5, "] = ", 14],
+      Editable->False]], "Print"],
+
+Cell[BoxData[
+    InterpretationBox[
+      \("kthroot["\[InvisibleSpace]886002
+        \[InvisibleSpace]"] = \
+"\[InvisibleSpace]15.\
+469879841870702584715660357594237365219576299537006111737526579832866595221043\
+316263141819`80\),
+      SequenceForm[ 
+      "kthroot[", 886002, "] = ", 
+        15.4698798418707025847156603575942373652195762995370061117375265798328\
+66595221043],
+      Editable->False]], "Print"],
+
+Cell[BoxData[
+    InterpretationBox[
+      \("introot["\[InvisibleSpace]886002
+        \[InvisibleSpace]" "\[InvisibleSpace]5
+        \[InvisibleSpace]"] = "\[InvisibleSpace]15\),
+      SequenceForm[ "introot[", 886002, " ", 5, "] = ", 15],
+      Editable->False]], "Print"],
+
+Cell[BoxData[
+    InterpretationBox[
+      \("kthroot["\[InvisibleSpace]762113
+        \[InvisibleSpace]"] = \
+"\[InvisibleSpace]15.\
+010801223394601614560707829301397194261044598052863495629986200043353426600233\
+790605986792`80\),
+      SequenceForm[ 
+      "kthroot[", 762113, "] = ", 
+        15.0108012233946016145607078293013971942610445980528634956299862000433\
+53426600234],
+      Editable->False]], "Print"],
+
+Cell[BoxData[
+    InterpretationBox[
+      \("introot["\[InvisibleSpace]762113
+        \[InvisibleSpace]" "\[InvisibleSpace]5
+        \[InvisibleSpace]"] = "\[InvisibleSpace]15\),
+      SequenceForm[ "introot[", 762113, " ", 5, "] = ", 15],
+      Editable->False]], "Print"],
+
+Cell[BoxData[
+    InterpretationBox[
+      \("kthroot["\[InvisibleSpace]499206
+        \[InvisibleSpace]"] = \
+"\[InvisibleSpace]13.\
+792911807092318876249512611853890715072269543005615588359758611665007749382730\
+526566689494`80\),
+      SequenceForm[ 
+      "kthroot[", 499206, "] = ", 
+        13.7929118070923188762495126118538907150722695430056155883597586116650\
+07749382731],
+      Editable->False]], "Print"],
+
+Cell[BoxData[
+    InterpretationBox[
+      \("introot["\[InvisibleSpace]499206
+        \[InvisibleSpace]" "\[InvisibleSpace]5
+        \[InvisibleSpace]"] = "\[InvisibleSpace]13\),
+      SequenceForm[ "introot[", 499206, " ", 5, "] = ", 13],
+      Editable->False]], "Print"],
+
+Cell[BoxData[
+    InterpretationBox[
+      \("kthroot["\[InvisibleSpace]367097
+        \[InvisibleSpace]"] = \
+"\[InvisibleSpace]12.\
+970483545268554223589256530498266715466637041297347494592280760822188506105974\
+669182439231`80\),
+      SequenceForm[ 
+      "kthroot[", 367097, "] = ", 
+        12.9704835452685542235892565304982667154666370412973474945922807608221\
+88506105975],
+      Editable->False]], "Print"],
+
+Cell[BoxData[
+    InterpretationBox[
+      \("introot["\[InvisibleSpace]367097
+        \[InvisibleSpace]" "\[InvisibleSpace]5
+        \[InvisibleSpace]"] = "\[InvisibleSpace]12\),
+      SequenceForm[ "introot[", 367097, " ", 5, "] = ", 12],
+      Editable->False]], "Print"],
+
+Cell[BoxData[
+    InterpretationBox[
+      \("kthroot["\[InvisibleSpace]173727
+        \[InvisibleSpace]"] = \
+"\[InvisibleSpace]11.\
+167950080187984206773875152622681173759453383123192941850639443647595732556356\
+119452027934`80\),
+      SequenceForm[ 
+      "kthroot[", 173727, "] = ", 
+        11.1679500801879842067738751526226811737594533831231929418506394436475\
+95732556356],
+      Editable->False]], "Print"],
+
+Cell[BoxData[
+    InterpretationBox[
+      \("introot["\[InvisibleSpace]173727
+        \[InvisibleSpace]" "\[InvisibleSpace]5
+        \[InvisibleSpace]"] = "\[InvisibleSpace]11\),
+      SequenceForm[ "introot[", 173727, " ", 5, "] = ", 11],
+      Editable->False]], "Print"],
+
+Cell[BoxData[
+    InterpretationBox[
+      \("kthroot["\[InvisibleSpace]397936
+        \[InvisibleSpace]"] = \
+"\[InvisibleSpace]13.\
+181433592605715085571256889179641024916751606783938458952778789536656373030360\
+135889900774`80\),
+      SequenceForm[ 
+      "kthroot[", 397936, "] = ", 
+        13.1814335926057150855712568891796410249167516067839384589527787895366\
+5637303036],
+      Editable->False]], "Print"],
+
+Cell[BoxData[
+    InterpretationBox[
+      \("introot["\[InvisibleSpace]397936
+        \[InvisibleSpace]" "\[InvisibleSpace]5
+        \[InvisibleSpace]"] = "\[InvisibleSpace]13\),
+      SequenceForm[ "introot[", 397936, " ", 5, "] = ", 13],
+      Editable->False]], "Print"],
+
+Cell[BoxData[
+    InterpretationBox[
+      \("kthroot["\[InvisibleSpace]821567
+        \[InvisibleSpace]"] = \
+"\[InvisibleSpace]15.\
+238022037226979215859599238946955163528083045667267164373665400523715847272522\
+115803507364`80\),
+      SequenceForm[ 
+      "kthroot[", 821567, "] = ", 
+        15.2380220372269792158595992389469551635280830456672671643736654005237\
+15847272522],
+      Editable->False]], "Print"],
+
+Cell[BoxData[
+    InterpretationBox[
+      \("introot["\[InvisibleSpace]821567
+        \[InvisibleSpace]" "\[InvisibleSpace]5
+        \[InvisibleSpace]"] = "\[InvisibleSpace]15\),
+      SequenceForm[ "introot[", 821567, " ", 5, "] = ", 15],
+      Editable->False]], "Print"],
+
+Cell[BoxData[
+    InterpretationBox[
+      \("kthroot["\[InvisibleSpace]953239
+        \[InvisibleSpace]"] = \
+"\[InvisibleSpace]15.\
+697856708242170068419550185431305860318029385241007974769828163540489073204071\
+394784184829`80\),
+      SequenceForm[ 
+      "kthroot[", 953239, "] = ", 
+        15.6978567082421700684195501854313058603180293852410079747698281635404\
+89073204071],
+      Editable->False]], "Print"],
+
+Cell[BoxData[
+    InterpretationBox[
+      \("introot["\[InvisibleSpace]953239
+        \[InvisibleSpace]" "\[InvisibleSpace]5
+        \[InvisibleSpace]"] = "\[InvisibleSpace]15\),
+      SequenceForm[ "introot[", 953239, " ", 5, "] = ", 15],
+      Editable->False]], "Print"],
+
+Cell[BoxData[
+    InterpretationBox[
+      \("kthroot["\[InvisibleSpace]798023
+        \[InvisibleSpace]"] = \
+"\[InvisibleSpace]15.\
+149666819697102619842572572452705754187821214972610972591215805967127611556068\
+638598480602`80\),
+      SequenceForm[ 
+      "kthroot[", 798023, "] = ", 
+        15.1496668196971026198425725724527057541878212149726109725912158059671\
+27611556069],
+      Editable->False]], "Print"],
+
+Cell[BoxData[
+    InterpretationBox[
+      \("introot["\[InvisibleSpace]798023
+        \[InvisibleSpace]" "\[InvisibleSpace]5
+        \[InvisibleSpace]"] = "\[InvisibleSpace]15\),
+      SequenceForm[ "introot[", 798023, " ", 5, "] = ", 15],
+      Editable->False]], "Print"]
+}, Open  ]]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowSize->{744, 551},
+WindowMargins->{{Automatic, 48}, {89, Automatic}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 355, 6, 172, "Input"],
+Cell[2067, 57, 656, 11, 213, "Input"],
+
+Cell[CellGroupData[{
+Cell[2748, 72, 450, 8, 170, "Input"],
+Cell[3201, 82, 416, 11, 33, "Print"],
+Cell[3620, 95, 274, 6, 20, "Print"],
+Cell[3897, 103, 416, 11, 33, "Print"],
+Cell[4316, 116, 274, 6, 20, "Print"],
+Cell[4593, 124, 416, 11, 33, "Print"],
+Cell[5012, 137, 274, 6, 20, "Print"],
+Cell[5289, 145, 416, 11, 33, "Print"],
+Cell[5708, 158, 274, 6, 20, "Print"],
+Cell[5985, 166, 416, 11, 33, "Print"],
+Cell[6404, 179, 274, 6, 20, "Print"],
+Cell[6681, 187, 416, 11, 33, "Print"],
+Cell[7100, 200, 274, 6, 20, "Print"],
+Cell[7377, 208, 416, 11, 33, "Print"],
+Cell[7796, 221, 274, 6, 20, "Print"],
+Cell[8073, 229, 415, 11, 33, "Print"],
+Cell[8491, 242, 274, 6, 20, "Print"],
+Cell[8768, 250, 416, 11, 33, "Print"],
+Cell[9187, 263, 274, 6, 20, "Print"],
+Cell[9464, 271, 416, 11, 33, "Print"],
+Cell[9883, 284, 274, 6, 20, "Print"],
+Cell[10160, 292, 416, 11, 33, "Print"],
+Cell[10579, 305, 274, 6, 20, "Print"]
+}, Open  ]]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

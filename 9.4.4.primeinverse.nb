@@ -1,0 +1,125 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3458,         87]*)
+(*NotebookOutlinePosition[      4095,        110]*)
+(*  CellTagsIndexPosition[      4051,        106]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 9.4  .4\ 
+        \((Inversion\ \((mod\ p)\)\ for\ p\ prime)\) . \t\t\t\n\ Support\ code
+        \ for\n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \t\t\n\t\t\t\n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\t10\ Dec\ 2000\ AH\ 
+        \((Formatting)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n\ *) \n\ 
+    \n (*\ For\ modulus\ p\ and\ x\  != \ 0\ \((mod\ p)\), 
+      this\ algorithm\ returns\ \nx^\((\(-1\))\)\ mod\ \(p . \)\ *) \n\)\)], 
+  "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n\n
+    \(primeinverse[x_, p_] := 
+      Module[{z, a, q}, \n\t\ta = 1; \n\t\tz = Mod[x, p]; \n\t\t
+        While[Not[z == 1], \n
+          \t\t\t (*\ 
+            The\ next\ line\ is\ the\ bottle - 
+              neck . \ \ For\ the\ sake\ of\ brevity, \ 
+            we\ have\ used\ Mathematica' s\ Floor[] . \ There\ are\ other\n
+              \t\t\t\tmeans\ to\ compute\ this\ floor\ rapidly, \ 
+            especially\ for\ ecrtain\ \(p . \)\ *) \n\t\t\t
+          q = \(-Floor[p/z]\); \n\t\t\tz = p + q\ z; \n\t\t\t
+          a = \ Mod[q\ a, \ p]; \n\t\t]; \n\t\tReturn[a]; \n\t]; \)\)\)], 
+  "Input"],
+
+Cell[BoxData[
+    \(\( (*\ EXAMPLE\ *) \n
+    \[IndentingNewLine] (*\ We\ pick\ a\ random\ x\ and\ p, \ 
+      compute\ the\ inverse\ and\ verify\ \(it . \)\ *) \n\n
+    \(Do[\n\tx\  = \ Random[Integer, \ 2^20]; \n\t
+      p\  = \ Prime[Random[Integer, \ 2^20]]; \n\tx\  = \ x/GCD[x, p]; \n\t
+      Print["\<x = \>", x, \ "\< p = \>", p]; \n\t
+      Print[inv = primeinverse[x, p]]; \n\t\(Print[Mod[x\ inv, p]]; 
+      \)\[IndentingNewLine], {3}]; \)\n\)\)], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowSize->{744, 551},
+WindowMargins->{{Automatic, 37}, {Automatic, 15}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 628, 11, 229, "Input"],
+Cell[2340, 62, 644, 13, 213, "Input"],
+Cell[2987, 77, 467, 8, 187, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

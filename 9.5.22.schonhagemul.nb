@@ -1,0 +1,201 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      7456,        160]*)
+(*NotebookOutlinePosition[      8135,        185]*)
+(*  CellTagsIndexPosition[      8091,        181]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\(\n (*\n
+      Algorithm\ 9.5  .22\ 
+        \((Fast\ multiplication\ \((mod\ 2^n + 1)\)\ \((Schoenhage)\))\) . \n
+          Support\ code\ for\nR . \ Crandall\ and\ C . \ Pomerance, \n
+      "\<Prime Numbers: a Computational Perspective,\>"\nSpringer - 
+        Verlag\ 2001. \nc . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \nAll\ Rights\ Reserved . \n\t\n\t10\ Dec\ 2000\ AH\ 
+        \((Formatting)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n*) \n
+    \n (*\ The\ mod\ steps\ in\ the\ respective\ FFTs\ are\ to\ be\ done, \ 
+      for\ maximum\nspeed\ in\ compiled\ implementations, \ 
+      with\ bit - circulation\ methods\ as\ \nopposed\ to\ hard\ divide; \ 
+      in\ fact, \ 
+      that\ is\ how\ the\ Schoenhage\ algorithm\ \nachieves\ such\ low\ 
+        \(complexity . \)\ *) \n\n\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n\nd = 2^5; \nM = 2^6; \nm = 2^3; 
+    \[IndentingNewLine] (*\ d\ m\  \[GreaterEqual] \ 2  M\  + \ Log[d]\ *) \n
+    \n (*\ Now, \ the\ Cooley - Tukey, \ without\ \(scramble . \)\ *) \n\n\n
+    fftDecInTime[y_List] := \n\t
+      Module[{x, n, k, a, g, i, j}, \n\t\tx = y; \n\t\tn = Length[x]; \n\t\t
+        g = Mod[2^\((2  d\ m\  - \ 2\ m)\), 2^\((d\ m)\) + 1]; \n\t\t
+        For[k = 1, k < n, k = 2  k, \n\t\t\t
+          For[j = 0, j < k, \(j++\), \n\t\t\t\t
+            a = g^\((\(+\((j\ n)\)\)/\((2\ k)\))\); \n\t\t\t\t
+            For[i = j, i < n, i = i + 2  k, \n
+              \t\t\t\t\t{x[\([i + 1]\)], x[\([i + k + 1]\)]} = \n
+                \t\t\t\t\t{\ 
+                  Mod[x[\([i + 1]\)] + a\ x[\([i + k + 1]\)], 
+                    2^\((d\ m)\) + 1], \n\t\t\t\t\t\ \ \ \ 
+                  Mod[x[\([i + 1]\)] - a\ x[\([i + k + 1]\)], 
+                    2^\((d\ m)\) + 1]}\n\t\t\t\t]\n\t\t\t]\n\t\t]; \n\t\tx\n
+        \t]; \n\n (*\ Now, \ the\ Gentleman - Sande, \ 
+      without\ \(scramble . \)\ *) \n\n
+    fftDecInFreq[y_List] := \n\t
+      Module[{x, n, k, j, i, a, g}, \n\t\tx = y; \n\t\tn = Length[x]; \n\t\t
+        g = Mod[2^\((2  d\ m\  - 2\ m)\), 2^\((d\ m)\) + 1]; \n\t\t
+        For[k = Floor[n/2], k > 0, k = Floor[k/2], \n\t\t\t
+          For[j = 0, j < k, \(j++\), \n\t\t\t\t
+            a = g^\((\(+\((j\ n)\)\)/\((2\ k)\))\); \n\t\t\t\t
+            For[i = j, i < n, i = i + \ 2  k, \n
+              \t\t\t\t\t{x[\([i + 1]\)], x[\([i + k + 1]\)]} = \n
+                \t\t\t\t\t{
+                  Mod[x[\([i + 1]\)] + \ x[\([i + 1 + k]\)], 
+                    2^\((d\ m)\) + 1], \n\t\t\t\t\t\ \ 
+                  Mod[a\ \((x[\([i + 1]\)] - x[\([i + k + 1]\)])\), 
+                    2^\((d\ m)\) + 1]}\n\t\t\t\t]\n\t\t\t]\n\t\t]; \n\t\tx\n
+        \t]; \[IndentingNewLine]\n
+    makearray[x_] := \n\t
+      Module[{j, A, y}, \[IndentingNewLine]\t\tA = Table[0, {j, 0, d - 1}]; 
+        \[IndentingNewLine]\t\ty = x; \[IndentingNewLine]\t\t
+        For[j = 1, j <= d, \(++j\), \[IndentingNewLine]\t\t\t
+          A[\([j]\)] = Mod[y, 2^M]; \[IndentingNewLine]\t\t\ty -= A[\([j]\)]; 
+          \[IndentingNewLine]\t\t\ty /= 2^M\[IndentingNewLine]\t\t]; 
+        \[IndentingNewLine]\t\tA\[IndentingNewLine]\t]; \n\n\n
+    unmakearray[A_] := Sum[A[\([j + 1]\)]*2^\((M\ j)\), {j, 0, d - 1}]; \n\n\n
+    Schoenhage[x_, y_] := \n\t
+      Module[{A, B, C}, \[IndentingNewLine]\t\tA = makearray[x]; 
+        \[IndentingNewLine]\t\tB = makearray[y]; \[IndentingNewLine]\t\t
+        C = makearray[0]; \[IndentingNewLine]\t\t
+        For[j = 0, j < d, \(++j\), \[IndentingNewLine]\t\t\t
+          A[\([j + 1]\)] = 
+            Mod[2^\((j\ m)\)\ A[\([j + 1]\)], 2^\((d\ m)\) + 1]; 
+          \[IndentingNewLine]\t\t\t
+          B[\([j + 1]\)] = 
+            Mod[2^\((j\ m)\)\ B[\([j + 1]\)], 2^\((d\ m)\) + 1]
+              \[IndentingNewLine]\t\t]; 
+        \[IndentingNewLine]\[IndentingNewLine]\t\tA = fftDecInFreq[A]; 
+        \[IndentingNewLine]\t\tB = fftDecInFreq[B]; \[IndentingNewLine]\t\t
+        For[j = 0, j < d, \(++j\), \[IndentingNewLine]\t\t\t
+          A[\([j + 1]\)] = 
+            Mod[A[\([j + 1]\)]\ B[\([j + 1]\)], 2^\((d\ m)\) + 1]
+              \[IndentingNewLine]\t\t]; 
+        \[IndentingNewLine]\[IndentingNewLine]\t\tA = fftDecInTime[A]; 
+        \[IndentingNewLine]\t\t
+        For[j = 0, j < d, \(++j\), \[IndentingNewLine]\t\t\t
+          C[\([j + 1]\)] = \n\t\t\t\t
+            Mod[\n\t\t\t\t\t
+              A[\([Mod[d - j, \ d]\  + \ 1]\)]*\ 
+                2^\((2\ d\ m - Log[2, d] - j\ m)\), \n\t\t\t\t\t
+              2^\((d\ m)\) + 1\n\t\t\t\t]; \[IndentingNewLine]\t\t\t
+          If[C[\([j + 1]\)] > \((j + 1)\)\ 2^\((2\ M)\), \ Print["\<did!\>"]; 
+            \[IndentingNewLine]\t\t\t
+            C[\([j + 1]\)] = 
+              C[\([j + 1]\)] - 
+                \((2^\((d\ m)\) + 1)\)\[IndentingNewLine]\t\t]; 
+          \[IndentingNewLine]\t]; \[IndentingNewLine]\t
+        Mod[Sum[C[\([j + 1]\)]*2^\((M\ j)\), {j, 0, d - 1}], 2^\((M\ d)\) + 1]
+          \[IndentingNewLine]]; \n\)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ 1\ *) \n
+    \[IndentingNewLine] (*\ Schoenhage\ used\ as\ an\ integer\ multiply\ *) \n
+    \[IndentingNewLine]x = Random[Integer, 2^\((d\ m/2)\)]\), 
+    \(y = Random[Integer, 2^\((d\ m/2)\)]\), 
+    \(\(Timing[z1 = x\ y]\)[\([1]\)]\), 
+    \(\(Timing[z2 = Schoenhage[x, y]]\)[\([1]\)]\), 
+    \(z1\), 
+    \(z1 - z2\)}], "Input"],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ 2\ *) \n (*\ Schoenhage\ used\ as\ negacyclic\ convolver, 
+      \n\t\ \ i . e . \ to\ multiply\ in\ the\ ring\ Z_ \((2^n + 1)\)\ *) 
+      \[IndentingNewLine]\nx = Random[Integer, 2^\((d\ m)\)]\), 
+    \(y = Random[Integer, 2^\((d\ m)\)]\), 
+    \(\(Timing[z1 = Mod[x\ y, 2^\((d\ M)\) + 1]]\)[\([1]\)]\), 
+    \(\(Timing[z2 = Schoenhage[x, y]]\)[\([1]\)]\), 
+    \(z\), 
+    \(z1 - z2\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{732, 553},
+WindowMargins->{{Automatic, 79}, {Automatic, 46}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 828, 14, 283, "Input"],
+Cell[2540, 65, 4106, 73, 1277, "Input"],
+Cell[6649, 140, 366, 8, 146, "Input"],
+Cell[7018, 150, 434, 8, 147, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

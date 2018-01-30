@@ -1,0 +1,147 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      4816,        107]*)
+(*NotebookOutlinePosition[      5496,        132]*)
+(*  CellTagsIndexPosition[      5452,        128]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\(\n (*\n
+      Algorithm\ 9.5  .6\ 
+        \((FFT, \ "\<ping-pong\>"\ variant, \ in - order, \ 
+            no\ bit - scramble)\) . \nSupport\ code\ for\nR . \ Crandall\ and
+        \ C . \ Pomerance, \n
+      "\<Prime Numbers: a Computational Perspective,\>"\nSpringer - 
+        Verlag\ 2001. \nc . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \nAll\ Rights\ Reserved . \n\n\t10\ Dec\ 2000\ AH\ 
+        \((Formatting)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n*) \n
+    \n (*\ Given\ a\ D = 2^d\ element\ signal\ x, \ 
+      a\ Stockham\ FFT\ is\ performed, \ \n
+      but\ with\ the\ original\ x\ and\ external\ data\ copy\ y\ used\ in\ an
+        \ \nalternating\ fashion . \ \ For\ convenience, \ 
+      we\ also\ include\ the\ inverse\ \(FFT . \)\ *) \n\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n\n
+    PingPongFFT[x_, d_] := \n\t
+      Module[{X = x, Y, Xptr, Yptr, i, j, m, D = 2^d}, \n
+        \t\t (*\ First, \ \(initialize . \)\ *) \n\t\t
+        Y = Table[0, {i, 1, 2^d}]; \n\t\tJ = \(Yptr = \(Xptr = 1\)\); \n\n\t\t
+        For[i = d, i > 0, \(i--\), \n\t\t\tm = 0; \n\t\t\t
+          While[m < D/2, \n\t\t\t\ta = Exp[\(-2\)\ Pi\ I\ m/D]; \n\t\t\t\t
+            For[j = J, j > 0, \(j--\), \n\t\t\t\t\t
+              Y[[Yptr]] = X[[Xptr]] + X[[Xptr + D/2]]; \n\t\t\t\t\t
+              Y[[Yptr + J]] = a\ \((X[[Xptr]] - X[[Xptr + D/2]])\); \n
+              \t\t\t\t\t\(Yptr++\); \n\t\t\t\t\t\(Xptr++\)\n\t\t\t\t]; \n
+            \t\t\t\tYptr += J; \n\t\t\t\tm += J\n\t\t\t]; \n\t\t\tJ *= 2; \n
+          \t\t\tXptr -= D/2; \n\t\t\tYptr -= D; \n\t\t\ttemp = X; \n\t\t\t
+          X = Y; \n\t\t\tY = temp; \n\t\t]; \n\t\tX\n\t]; \n\n\n
+    PingPongFFTInv[x_, d_] := \n\t
+      Module[{X = x, Y, Xptr, Yptr, i, j, m, D = 2^d}, \n
+        \t\t (*\ Initialize\ *) \n\t\tY = Table[0, {i, 1, 2^d}]; \n\t\t
+        J = \(Yptr = \(Xptr = 1\)\); \n\n\t\t
+        For[i = d, i > 0, \(i--\), \n\t\t\tm = 0; \n\t\t\t
+          While[m < D/2, \n\t\t\t\ta = Exp[\(+2\)\ Pi\ I\ m/D]; \n\t\t\t\t
+            For[j = J, j > 0, \(j--\), \n\t\t\t\t\t
+              Y[[Yptr]] = X[[Xptr]] + X[[Xptr + D/2]]; \n\t\t\t\t\t
+              Y[[Yptr + J]] = a\ \((X[[Xptr]] - X[[Xptr + D/2]])\); \n
+              \t\t\t\t\t\(Yptr++\); \n\t\t\t\t\t\(Xptr++\)\n\t\t\t\t]; \n
+            \t\t\t\tYptr += J; \n\t\t\t\tm += J\n\t\t\t]; \n\t\t\tJ *= 2; \n
+          \t\t\tXptr -= D/2; \n\t\t\tYptr -= D; \n\t\t\ttemp = X; \n\t\t\t
+          X = Y; \n\t\t\tY = temp; \n\t\t]; \n\t\t\((2^\(-d\))\)*X\n\t]\)\)], 
+  "Input"],
+
+Cell[BoxData[{
+    \(\n (*\ EXAMPLE\ *) \n
+    \n (*\ We\ create\ a\ random\ table\ of\ complex\ numbers\ of\ length\ 
+        2^d . \ \ \nWe\ then\ perform\ our\ FFT\ and\ inverse\ to\ return\ to
+        \ the\ same\ table\ \nof\ values . \ \ Next, \ 
+      we\ perform\ our\ FFT\ and\ compare\ with\ Mathematica' \(s . \)\ *) \n
+    \nd = 4; \n\nx = Table[Random[Complex], {j, 1, 2^d}]\n\), 
+    \(PingPongFFTInv[PingPongFFT[x, d], d]\n\), 
+    \(PingPongFFT[x, d]\n\), 
+    \(Chop[PingPongFFT[x, d] - 2^\((d/2)\) InverseFourier[x], 10^\(-12\)]\n\n
+    \)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{694, 580},
+WindowMargins->{{150, Automatic}, {Automatic, 31}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 796, 14, 256, "Input"],
+Cell[2508, 65, 1732, 28, 819, "Input"],
+Cell[4243, 95, 569, 10, 252, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

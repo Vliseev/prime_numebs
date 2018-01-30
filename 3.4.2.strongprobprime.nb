@@ -1,0 +1,150 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      4006,        110]*)
+(*NotebookOutlinePosition[      4694,        135]*)
+(*  CellTagsIndexPosition[      4650,        131]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell["\<\
+(*
+Algorithm 3.4.2 (Strong probable prime test).\t\t\t
+Support code for
+R. Crandall and C. Pomerance,
+\"Prime Numbers: a Computational Perspective,\"
+Springer-Verlag 2001.\t\t\t\t\t\t
+c. 2000 Perfectly Scientific, Inc.
+All Rights Reserved.
+
+\t31 Nov 2000 AH (adjusted layout; changed Return[n, \"..\"] 
+\t \t\t\t\tto Return[{n, \"..\"}])
+\t14 Sep 2000 RT (Creation)
+*)
+
+(* We are given an odd integer n>3, which will be represented as 
+n = 1 + t 2^s, t odd, and another integer a satisfying 1<a< n-1.  
+This algorithm decides whether n is composite or a strong probable 
+prime to the base a. *)
+  \
+\>", "Input",
+  PageWidth->Infinity,
+  AutoIndent->True,
+  LineIndent->0],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n\n
+    strongprobprime[s_, t_, a_] := \ \[IndentingNewLine]\t
+      \(Module[{n, b, j}, \[IndentingNewLine]\t\tn\  = 1 + t\ 2^s; 
+          \[IndentingNewLine]\t\tb\  = \ PowerMod[a, t, n]; 
+          \[IndentingNewLine]\t\t
+          If[Or[b == 1, b == n - 1], \ \[IndentingNewLine]\t\t\t
+            \(Return[{n, \ \ "\< is a strong probable prime to base a\>"}]; 
+            \)\[IndentingNewLine]\t\t]; \[IndentingNewLine]\t\tj = 1; 
+          \[IndentingNewLine]\t\t
+          While[j < s, \[IndentingNewLine]\t\t\t\(j++\); 
+            \[IndentingNewLine]\t\t\tb\  = \ Mod[b^2, n]; 
+            \[IndentingNewLine]\t\t\t
+            If[b == n - 1, \[IndentingNewLine]\t\t\t\t
+              \(Return[{n\ , \ 
+                  "\< is a strong probable prime to base a\>"\ }]; 
+              \)\[IndentingNewLine]\t\t\t]; \[IndentingNewLine]\t\t]; 
+          \[IndentingNewLine]\t\tReturn[{n\ , "\< is composite. \>"}]; 
+          \[IndentingNewLine]\t]\n\)\t\t\ \)\)], "Input",
+  PageWidth->Infinity,
+  LineIndent->0],
+
+Cell[BoxData[{
+    \(\n (*\ EXAMPLE\ *) \n
+    \n (*\ We\ create\ random\ s, t, 
+      a\ satisfying\ the\ stipulations\ and\ apply\ \[IndentingNewLine]the\ 
+        strong\ probable\ prime\ test . \ \ We\ then\ test\ our\ 
+        \(answer . \)\ *) \nt = Random[Integer, {3, 101}]; \n\n
+    If[EvenQ[t], \(t++\)]; \[IndentingNewLine]t\), 
+    \(s = Random[Integer, {1, 6}]\), 
+    \(a = Random[Integer, {2, t\ 2^s - 1}]\), 
+    \(strongprobprime[s, t, a]\), 
+    \(FactorInteger[1 + t\ 2^s]\)}], "Input",
+  PageWidth->Infinity,
+  LineIndent->0]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{662, 694},
+WindowMargins->{{104, Automatic}, {-2, Automatic}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 682, 23, 240, "Input"],
+Cell[2394, 74, 1060, 20, 279, "Input"],
+Cell[3457, 96, 545, 12, 187, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

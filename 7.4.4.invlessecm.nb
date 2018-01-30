@@ -1,0 +1,265 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[     10536,        221]*)
+(*NotebookOutlinePosition[     11374,        250]*)
+(*  CellTagsIndexPosition[     11330,        246]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\(\[IndentingNewLine] (*\n
+      Algorithm\ 7.4  .4 . \ \ \((Inversionless\ ECM)\) . \nSupport\ code\ for
+        \nR . \ Crandall\ and\ C . \ Pomerance, \n
+      "\<Prime Numbers: a Computational Perspective,\>"\nSpringer - 
+        Verlag\ 2001. \nc . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \nAll\ Rights\ Reserved . \n\t\n\t3\ Dec\ 2000\ AH\ 
+        \((formatting)\)\t\n*) \n
+    \[IndentingNewLine] (*\ Given\ a\ composite\ number\ n\ to\ be\ factored, 
+      \ with\ GCD[n, 6] == 1, \ \n
+      this\ algorithm\ attempts\ to\ uncover\ a\ nontrivial\ factor\ of\ 
+          n . \ \ \nThis\ algorithm\ is\ inversion - free, \ 
+      needing\ only\ large - integer\ \nmultiply - and - 
+        mod . \ \nIncluded\ are\ various\ elliptic\ algebra\ functions, 
+      using\ Montgomery\ \ncoordinates\ and\ points\ {X/Z}\ where\ the\ actual
+        \ \((affine)\)\ x\ coordinate\ \nis\ X/Z\ mod\ p . \ \ \nThe\ program
+        \ here\ is\ arranged\ so\ that\ one\ may\ watch\ ECM\ statistics\ 
+        unfold; \ \ni . e . , 
+      how\ many\ curves\ succeed\ and\ in\ what\ respective\ stages\ 1\ or\ 
+        2, \(etc . \)\ *) \n
+    \n (*\ BUG\ 
+        \(NOTE : \ 
+          The\ implementation\ is\ slightly\ different\ from\ the\ pseudocode
+            \n\tof\ the\ textbook\), \ 
+      due\ to\ some\ notational\ bugs\ in\ the\ \(latter . \)\ *) \)\)], 
+  "Input",
+  PageWidth->Infinity,
+  AutoIndent->True,
+  LineBreakWithin->False,
+  LineIndent->0],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n
+    \n (*\ Next, for\ factoring\ per\ se, 
+      the\ curves\ y^2 = x^3 + c\ x^2 + x\ are\ known\ \nto\ work, \ 
+      so\ we\ simply\ force\ the\ global\ curve\ parameters\ a, \(b . \)\ *) 
+      \ \n\na = 1; \nb = 0; \n
+    \[IndentingNewLine] (*\ 
+      The\ functions\ below\ are\ taken\ from\ Algorithm\ 7.2  .7, \ \n\ \ \ 
+      Montgomery\ \(multiplication . \)*) \n\[IndentingNewLine]\n
+    ellinv[n_] := PowerMod[n, \(-1\), p]; \n
+    \[IndentingNewLine]ex[pt_] := Mod[pt[\([1]\)]*ellinv[pt[\([2]\)]], p]; \n
+    \[IndentingNewLine] (*\ Next, \ 
+      the\ doubleh \(()\)\ function\ for\ doubling\ a\ \(point . \)\ *) \n
+    elleven[pt_]\  := \ \n\t
+      Block[{x1\  = \ pt[\([1]\)], \ z1\  = \ pt[\([2]\)], \ e, \ f\ }, \n
+        \ \ \t\t (*\ 
+          e\  = \ Mod[
+              \((x1^2\  - \ a\ z1^2)\)^2\  - \ 
+                4\ b\ \((2\ x1\  + \ c\ z1)\)\ z1^3, \ p]; \ *) \n\t\t\ \ 
+        e\  = \ Mod[Mod[\((x1 + z1)\) \((x1 - z1)\), p]^2, p]; \n
+        \ \ \t\t (*\ 
+          f\  = \ Mod[
+              4\ z1\ \((
+                  x1^3\  + \ c\ x1^2\ z1\  + \ a\ x1\ z1^2\  + \ b\ z1^3)\), 
+              \ p]; \ *) \n\t\t\ \ 
+        f\  = \ Mod[
+            Mod[4\ z1\ x1, p]\ \ Mod[x1^2\  + \ c\ x1\ z1\  + \ z1^2, p], p]; 
+        \n\ \ \t\t{e, f}\n\t]; \n
+    \n (*\ Next, \ 
+      the\ addh \(()\)\ function\ for\ adding\ pt\ and\ pu\ with\ pv\  = \ 
+        pt - pu\ known\ \n
+            \(\((x\ and\ z\ coordinates\ only\ of\ course)\) . \)\ *) \n
+    ellodd[pt_, \ pu_, \ pv_]\  := \ \n\t
+      Block[\n\t\t{x1\  = \ pt[\([1]\)], \ z1\  = \ pt[\([2]\)], \n\t\t\ 
+          x2\  = \ pu[\([1]\)], \ z2\  = \ pu[\([2]\)], \n\t\t\ 
+          xx\  = \ pv[\([1]\)], \ zz\  = \ pv[\([2]\)], \ i, \ j\n\t\t\ }, \n
+        \ \ \t\ \ \ \  (*\ \ 
+          i\  = \ Mod[
+              zz\ \((\((x1\ x2\  - \ a\ z1\ z2)\)^2\  - 
+                    4\ b \((x1\ z2\  + \ x2\ z1\  + \ c\ z1\ z2)\)\ z1\ z2)
+                  \), \ p]; \ *) \n\t\t\ 
+        i\  = \ Mod[zz\ Mod[Mod[x1\ x2\  - \ \ z1\ z2, p]^2, p]\ , \ p]; \n
+        \ \ \t\ \ \ \ \ 
+        j\  = \ Mod[xx\ Mod[Mod[x1\ z2\  - \ x2\ z1, p]^2, p], \ p]; \n
+        \ \ \t\t\ {i, j}\n\t]; \n
+    \n (*\ Next, \ elliptic\ multiply, \ returning\ [k] \(pt . \)\ *) \n
+    elliptic[pt_, \ k_]\  := \ \n\t
+      Block[{porg, \ ps, \ pp, \ q}, \n\t\tIf[k\  == 1, \ Return[pt]]; \n\t\t
+        If[k\  == 2, \ Return[elleven[pt]]]; \n\t\tporg\  = \ pt; \n\t\t
+        ps\  = \ elleven[pt]; \n\t\tpp\  = \ pt; \n\t\t
+        bitlist\  = \ Reverse[IntegerDigits[k, 2]]; \n\t\t
+        Do[\t\ \ \ \n\t\ \ \ \t\t
+          If[bitlist[\([q]\)]\  == \ 1, \n\t\ \ \ \t\ \ \ \t\t
+            pp\  = \ ellodd[ps, \ pp, \ porg]; \n\t\ \ \ \t\ \ \ \t\t
+            ps\  = \ elleven[ps]\n\t\ \ \ \t\ \ \ \t\t, \n
+            \t\ \ \ \t\ \ \ \ \ \ \tps\  = \ ellodd[pp, \ ps, \ porg]; \n
+            \t\t\ \ \ \ \ \tpp\  = \ elleven[pp]\n\t\ \ \ \t\t]\n
+          \t\ \ \ \t\t, \n
+          \t\ \ \ \t\t{q, \ Length[bitlist] - 1, \ 1, \ \(-1\)}\n\ \ \ \ \t]; 
+        \n\ \ \ \ \tReturn[Mod[pp, p]]\n\t]; \)\)], "Input",
+  PageWidth->Infinity,
+  AutoIndent->True,
+  LineBreakWithin->False,
+  LineIndent->0],
+
+Cell[BoxData[
+    \(\( (*\ EXAMPLE\ *) \n
+    \n (*\ Next, \ we\ carry\ out\ Algorithm\ 7.4  .4, \ 
+      using\ variable' p'\ as\ the\ \n\ composite, 
+      for\ consistency\ with\ previous, 
+      elliptic - 
+          curve\ code\ over\ \n\ actual\ fields\ F_p\ 
+            \((as\ opposed\ to\ rings\ Z_p, p\ composite)\) . \n\ The\ curves
+            \ are\ y^2 = x^3 + c\ x^2 + x . \n\ The\ cubic' s\ a, 
+      b\ parameters\ are\ forced\ globally, \ 
+      above . \n\ It\ is\ known\ that\ no\ more\ generality\ or\ curve - 
+        overspecification\ is\ \n\ needed\ for\ factoring\ per\ se . \ The\ 
+          factorer\ below\ continues\ to\ run, \n\ 
+      so\ as\ to\ reveal\ typical\ curve\ statistics . \ One\ may\ alter\ the
+        \ outer\ \n\ loop\ over\ curves\ to\ Break[]\ whenever\ the\ GCD\ 
+        value\ g\ are\ \(nontrivial . \)\n\ *) \n\nB1 = 10000; 
+    \ \  (*\ Stage\ limits; \ both\ B1, \ B2\ must\ be\ \(even . \)\ *) \n
+    B2 = 500000; 
+    \[IndentingNewLine]\n (*\ Next, \ 
+      the\ n\ we\ are\ trying\ to\ \(factor . \)\ *) \n
+    \[IndentingNewLine]n = 2^128\  + \ 1; \n\np = n; 
+    \ \  (*\ Just\ so\ we\ can\ use\ older, \ 
+      elliptic\ routines\ that\ assume\ symbol\ \(p . \)\ *) \ncurve = 0; \n
+    dd = 30; \[IndentingNewLine]\n (*\ Next, \ loop\ over\ \(curves . \)\ *) 
+      \n\[IndentingNewLine]While[True, \[IndentingNewLine]\t
+      sig = Random[Integer, {6, n - 1}]; \[IndentingNewLine]\t
+      Print["\<Commencing curve \>", \(++curve\), "\<, stage 1:\>"]; 
+      \[IndentingNewLine]\tu = Mod[sig^2 - 5, n]; \[IndentingNewLine]\t
+      v = Mod[4\ sig, n]; 
+      \[IndentingNewLine]\t (*\ Next, the\ curve\ parameter\ \(c . \)\ *) \n\t
+      c = Mod[PowerMod[v - u, 3, n] 
+              Mod[\((3  u + v)\)\ PowerMod[\((4\ u^3\ v)\), \(-1\), n], n] - 
+            2, n]; \[IndentingNewLine]\t\n
+      \t (*\ Next, the\ initial\ \(point . \)\ *) \n\t
+      pt = Mod[{u^3, v^3}, n]; \ \ \n\t
+      Print["\<Mystery number = \>", n, "\<, seed = \>", sig, 
+        "\<, B1 B2 = \>", B1, "\< \>", B2]; \[IndentingNewLine]\t
+      Do[\ \  (*\ Stage - one\ \(loop . \)\ *) \n\t\tq\  = \ Prime[i]; \n
+        \ \ \ \ \ If[Mod[i, 100] == 0, \ Print[{i, q}]]; \n\t\t
+        pt\  = \ elliptic[pt, \ q^Floor[N[Log[n]/Log[q]]]]\n\t\t, \n
+        \t\t{i, 1, PrimePi[B1]}\n\t]; \[IndentingNewLine]\t
+      If[\((g = GCD[pt[\([2]\)], n])\) > 1, \n\t\t\(Print["\<FOUND1: \>", g]; 
+        \)\  (*\ Break[]\ here\ to\ \(exit . \)\ *) \n\t]; \ \n\t
+      Print["\<Commencing stage 2...\>"]; \ \ \ \ \n\t\n
+      \t (*\ Next, \ 
+        make\ a\ table\ of\ fixed - difference\ \(points . \)\ *) \n\t\n\t
+      S[1]\  = \ elleven[pt]; \n\tS[2]\  = \ elleven[S[1]]; \n\t
+      Do[\ \ S[d]\  = \ ellodd[S[d - 1], \ S[1], \ S[d - 2]], \n
+        \t\t{d, 3, dd}\n\t]; \n\t
+      Do[\ beta[d]\  = \ Mod[\(S[d]\)[\([1]\)]\ \(S[d]\)[\([2]\)], \ n], 
+        \ {d, 1, dd}]; \  (*\ Textbook\ loop\ not\ wide\ \(enough . \)\ *) \n
+      \t\[IndentingNewLine]\t (*\ Next, 
+        loop\ over\ intervals\ each\ of\ width\ 2 \( dd . \)\ *) \n\t\t\n\t
+      g\  = \ 1; \n\tB\  = \ B1 - 1; 
+      \ \  (*\ Textbook\ missed\ this\ \(decrement . \)\ *) \n\t
+      T\  = \ elliptic[pt, \ B - 2  dd]; \ \n\tR\  = \ elliptic[pt, \ B]; \n\t
+      \n\ For[\ r\  = \ B, \ r\  < \ B2, \ r\  += \ 2  dd, \ \n\t\t
+        alpha\  = \ Mod[\ R[\([1]\)]\ R[\([2]\)], \ n]; \n\t\t
+        Do[\ \n\t\t\tIf[\(! PrimeQ[q]\), Continue[]]; 
+          \[IndentingNewLine]\t\t\tdel = \((q - r)\)/2; \ 
+          \[IndentingNewLine]\t\t\t
+          g = Mod[g*
+                \((\((R[\([1]\)] - \(S[del]\)[\([1]\)])\)*
+                      \((R[\([2]\)] + \(S[del]\)[\([2]\)])\) - alpha + 
+                    beta[del])\), n]\n\t\t\t, \n
+          \t\t\t{q, r + 2, r + 2  dd, 2}\n\t\t]; \n
+        \t\t{R, \ T}\  = \ {ellodd[R, \ S[dd], T], \ R}; \n\t]; 
+      \[IndentingNewLine]\t
+      If[\ \((g = GCD[g, n])\) > 1, \n\t\t\(Print["\<FOUND2: \>", g]; 
+        \)\ \ \  (*\ Break[]\ here\ to\ \(exit . \)\ *) \n\t]; \n]; \)\)], 
+  "Input",
+  PageWidth->Infinity,
+  AutoIndent->True,
+  LineBreakWithin->False,
+  LineIndent->0]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{953, 580},
+WindowMargins->{{Automatic, -65}, {29, Automatic}},
+PrivateNotebookOptions->{"ColorPalette"->{RGBColor, -1}},
+ShowCellLabel->False,
+ShowCellTags->False,
+RenderingOptions->{"ObjectDithering"->True,
+"RasterDithering"->False}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 1482, 29, 354, "Input"],
+Cell[3194, 80, 3208, 63, 856, "Input"],
+Cell[6405, 145, 4127, 74, 1093, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

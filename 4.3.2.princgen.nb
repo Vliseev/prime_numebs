@@ -1,0 +1,158 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      5160,        118]*)
+(*NotebookOutlinePosition[      5847,        143]*)
+(*  CellTagsIndexPosition[      5803,        139]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 4.3  .2\ 
+        \((Finding\ principal\ generator)\) . \t\t\t\n\ Support\ code\ for\n\ 
+        R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \[IndentingNewLine]\n\t\ 03\ Dec\ 2000
+        \ AH\ \((
+          Expand[f] === 0\ used\ in\ place\ of\ ZeroCheck[f] \[Equal] 1)\)\n\t
+        14\ Sep\ 2000\ RT\ \((Creation)\)\n\ *) \n
+    \n (*\ Given\ an\ integer\ n > 1\ and\ f, g\ in\ Z_n[x]\ with\ g\ monic, 
+      \ degree \((f)\)\  <= \ \[IndentingNewLine]degree \((g)\), 
+      this\ algorithm\ produces\ either\ a\ nontrivial\ factorization\ 
+        \[IndentingNewLine]of\ n, \ 
+      or\ a\ monic\ element\ h\ in\ Z_n[x]\ such\ that\ h\  = 
+        \(gcd[f, g] . \ We\ assume\ \[IndentingNewLine]that\ either\ f = 
+          0\ or\ deg \((f)\) <= \ deg \(\((g)\) . \)\)\ *) \)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n\n
+    \(principalgenerator[fout_, gout_, n_] := 
+      \  (*\ Returns\ length - 2\ list\ if\ n\ composite, \n\t\t\ \ \ \ \ 
+        else\ returns\ \({GCD\ polynomial} . \)\ *) \[IndentingNewLine]\t
+      Module[{c, r, gcd, f = fout, g = gout}, \[IndentingNewLine]\t\t
+        Label[ZeroP]; 
+        \[IndentingNewLine]\t\t (*\ Next, \ the\ zero\ polynomial\ check\ *) 
+          \[IndentingNewLine]\t\t
+        If[Expand[f] === 0, \ Return[{g}]; \ Print["\<Zero\>"]]; 
+        \[IndentingNewLine]\[IndentingNewLine]\t\t (*\ Next, \ 
+          the\ Euclid\ \(step . \)\ *) \[IndentingNewLine]\t\t
+        If[Exponent[f, x] == 0, \[IndentingNewLine]\t\t\t
+          c = f\[IndentingNewLine]\t\t\t, \[IndentingNewLine]\t\t\t
+          c = Coefficient[f, x^Exponent[f, x]]\[IndentingNewLine]\t\t]; 
+        \[IndentingNewLine]\t\tgcd\  = \ ExtendedGCD[c, n]; 
+        \[IndentingNewLine]\t\t
+        If[gcd[[1]] != 1, Return[{gcd[[1]], n/gcd[[1]]}]]; 
+        \[IndentingNewLine]\t\tcInv\  = gcd[[2, 1]]; \[IndentingNewLine]\t\t
+        f\  = \ PolynomialMod[Expand[cInv\ *\ f], n]; \[IndentingNewLine]\t\t
+        r\  = \ PolynomialMod[PolynomialRemainder[g, f, x], n]; 
+        \[IndentingNewLine]\t\t{f, g} = \ {r, f}; \[IndentingNewLine]\t\t
+        Goto[ZeroP]; \[IndentingNewLine]\t]; \)\[IndentingNewLine]\)\)], 
+  "Input"],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ *) \n
+    \[IndentingNewLine] (*\ We\ pick\ three\ random\ polynomials, f, g, 
+      k\ and\ \[IndentingNewLine]\(a\ random\ integer\ n . \ We\ first\ apply
+          \ the\ algorithm\ to\ f, g, n, \ 
+        then\ \[IndentingNewLine]\((since\ GCD[f, g]\ is\ most\ likely\ 1)\)\ 
+          we\ apply\ the\ algorithm\ to\ fk, gk, \(n . \)\)\ *) \n\n
+    n = Random[Integer, {2, 2^10}]\), 
+    \(f = 
+      PolynomialMod[
+        Sum[Random[Integer, {\(-200\), 200}]*x^i, {i, 0, 
+            Random[Integer, {1, 20}]}], n]\), 
+    \(g = 
+      PolynomialMod[
+        Sum[Random[Integer, {\(-200\), 200}]*x^i, {i, 0, 
+            Random[Integer, {1, 20}]}], n]; \n
+    g\  += \ x^\((Exponent[g, x] + Random[Integer, {1, 6}])\)\ \ \  (*\ 
+      To\ force\ monic\ \(property . \)\ *) \), 
+    \(k = 
+      PolynomialMod[
+        Sum[Random[Integer, {\(-200\), 200}]*x^i, {i, 0, 
+            Random[Integer, {1, 20}]}], n]\), 
+    \(principalgenerator[f, g, n]\), 
+    \(principalgenerator[Expand[f\ k], Expand[g\ k], n]\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{765, 518},
+WindowMargins->{{Automatic, 51}, {92, Automatic}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 1013, 17, 244, "Input"],
+Cell[2725, 68, 1365, 23, 337, "Input"],
+Cell[4093, 93, 1063, 23, 190, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

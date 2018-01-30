@@ -1,0 +1,221 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      8870,        181]*)
+(*NotebookOutlinePosition[      9559,        206]*)
+(*  CellTagsIndexPosition[      9515,        202]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 7.5  .3\ 
+        \((Shanks - Mestre\ assessment\ of\ curve\ order)\) . \t\t\n\ Support
+          \ code\ for\n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2000. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\ \n\ \t04\ Dec\ 2000\ AH\ 
+        \((Formatting)\)\n\ \t14\ Sep\ 2000\ RT\ \((Creation)\)\n*) 
+      \[IndentingNewLine]\[IndentingNewLine] (*\ 
+      Given\ an\ elliptic\ curve\ E_ \((a, b)\) \((F_p)\), \ 
+      this\ algorithm\ returns\ the\ order\ # \( E . \)\ *) \n\)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ CODE\ *) \n
+    \n (*\ We\ start\ with\ code\ from\ Algorithm\ 7.2  .7\ 
+        \((Elliptic\ multiplication\  - \ Montgomery\ \(method . \)\ \)*) 
+      \n (*\ First, \ a\ function\ for\ inverting\ n\ mod\ \(p . \)\ *) \n
+    ellinv[n_]\  := \ If[n == 0, 0, PowerMod[n, \(-1\), p]]; \n
+    \n (*\ Next, \ 
+      a\ function\ for\ normalizing\ the\ x\ \(coordinate . \)\ *) \n\n\n
+    \(ex[pt_]\  := \ Mod[pt[\([1]\)]\ *\ ellinv[pt[\([2]\)]], \ p]; \)\n
+    \n (*\ Next, \ 
+      the\ doubleh \(()\)\ function\ for\ doubling\ a\ \(point . \)\ *) \), 
+    \(\n\n\(elleven[pt_]\  := \ \n\t
+      Block[{x1\  = \ pt[\([1]\)], \ z1\  = \ pt[\([2]\)], \ e, \ f\ }, \n
+        \ \ \t\te\  = \ 
+          Mod[\((x1^2\  - \ a\ z1^2)\)^2\  - \ 
+              4\ b\ \((2\ x1\  + \ c\ z1)\)\ z1^3, \ p]; \n\ \ \t\t
+        f\  = \ Mod[
+            4\ z1\ \((x1^3\  + \ c\ x1^2\ z1\  + \ a\ x1\ z1^2\  + \ b\ z1^3)
+                \), \ p]; \n\ \ \t\t{e, f}\n\t]; \)\n
+    \n (*\ Next, \ 
+      the\ addh \(()\)\ function\ for\ adding\ pt\ and\ pu\ with\ pv = 
+        pt - pu\ known\ 
+            \(\((x\ and\ z\ coordinates\ only\ of\ course)\) . \)\ *) \), 
+    \(\n\n\(ellodd[pt_, \ pu_, \ pv_]\  := \ \n\t
+      Block[\n\t\t{x1\  = \ pt[\([1]\)], \ z1\  = \ pt[\([2]\)], \n\t\t\ 
+          x2\  = \ pu[\([1]\)], \ z2\  = \ pu[\([2]\)], \n\t\t\ 
+          xx\  = \ pv[\([1]\)], \ zz\  = \ pv[\([2]\)], \ i, \ j}, \n\t\t
+        i\  = \ Mod[
+            zz\ \((\((x1\ x2\  - \ a\ z1\ z2)\)^2\  - \n\t\t\t\t
+                  4\ b \((x1\ z2\  + \ x2\ z1\  + \ c\ z1\ z2)\)\ z1\ z2)\), 
+            \ \n\t\t\t\tp\n\t\t\ \ \ \ \ \ \ \ ]; \n\ \ \t\t
+        j\  = \ Mod[xx\ \((x1\ z2\  - \ x2\ z1)\)^2, \ p]; \n\t\t{i, j}\n\t]; 
+    \)\n\n (*\ Now, \ the\ main\ routine, \ 
+      elliptic\ multiply\ [k] \(pt . \)\ *) \), 
+    \(\n\nelliptic[pt_, \ k_]\  := \ \n\t
+      Block[{porg, \ ps, \ pp, \ q}, \n\t\tIf[k\  == 1, \ Return[pt]]; \n\t\t
+        If[k\  == 2, \ Return[elleven[pt]]]; \n\t\tporg\  = \ pt; \n\t\t
+        ps\  = \ elleven[pt]; \n\t\tpp\  = \ pt; \n\t\t
+        bitlist\  = \ Reverse[IntegerDigits[k, 2]]; \n\t\t
+        Do[\t\ \ \ \n\t\t\t
+          If[bitlist[\([q]\)]\  == \ 1, \n\t\t\t\t
+            pp\  = \ ellodd[ps, \ pp, \ porg]; \n\t\t\t\t
+            ps\  = \ elleven[ps]\n\t\t\t\t, \n\t\t\t\t
+            ps\  = \ ellodd[pp, \ ps, \ porg]; \n\t\t\t\t
+            pp\  = \ elleven[pp]\n\t\t\t], \n
+          \t\t\t{q, Length[bitlist] - 1, \ 1, \ \(-1\)}\n\t\t]; \n\t\t
+        Return[Mod[pp, p]]\n\t]; \n\n
+    \n (*\ Next, \ a\ function\ from\ Algorithm\ 7.5 \( .1 . \)\ *) \n\n
+    listIntersection[aout_List, bout_List] := \n
+      Module[{a = aout, b = bout, i, j, s}, 
+        \[IndentingNewLine]\t (*\ First, \ 
+          sort\ the\ lists\ and\ \(initialize . \)\ *) \[IndentingNewLine]\t
+        a = Sort[a]; \[IndentingNewLine]\tb = Sort[b]; \[IndentingNewLine]\t
+        i = \ \(j\  = 1\); \[IndentingNewLine]\ts = {}; 
+        \[IndentingNewLine]\t (*\ Next, \ the\ tracking\ \(stage . \)\ *) 
+          \[IndentingNewLine]\t
+        While[i <= Length[a]\  && \ j <= Length[b], \[IndentingNewLine]\t\t
+          If[a[\([i]\)] <= b[\([j]\)], \[IndentingNewLine]\t\t\t
+            If[a[\([i]\)] == b[\([j]\)], \[IndentingNewLine]\t\t\t\t
+              \(s = Append[s, a[\([i]\)]\ ]; \)\[IndentingNewLine]\t\t\t]; 
+            \[IndentingNewLine]\t\t\t\(i++\); \[IndentingNewLine]\t\t\t
+            \(While[\((
+                \((i < \((Length[a] - 1)\))\) && 
+                  \((a[\([i]\)] == a[\([i - 1]\)])\))\), \(i++\)]; 
+            \)\[IndentingNewLine]\t\t\t, \[IndentingNewLine]\t\t\t\(j++\); 
+            \[IndentingNewLine]\t\t\t
+            While[\((
+                \((j < \((Length[b] - 1)\))\) && 
+                  \((b[\([j]\)] == b[\([j - 1]\)])\))\), \ \(j++\)]
+              \[IndentingNewLine]\t\t]\[IndentingNewLine]\t]; 
+        \[IndentingNewLine]\ts\[IndentingNewLine]]; \n\n
+    shanks[pt_]\  := \ \ \n\t
+      Module[{}, 
+        \  (*\ alis\ and\ blis, \ below, \ 
+          are\ \(global : \ 
+              They\ are\ \n\t\t\t\tpassed\ out\ in\ the\ next\ function\), \ 
+          smorder\ *) \n\t\t
+        alis\  = \ 
+          Table[ex[elliptic[pt, \ p\  + \ 1\  + \ beta]], 
+            \ {beta, 0, w - 1}]; \n\t\t
+        blis\  = \ Table[ex[elliptic[pt, \ gamma\ w]], \ {gamma, 0, w}]; \n
+        \t\tlistIntersection[alis, \ blis]\n\t]; \n\t\n
+    smorder[aa_, \ bb_, \ pp_, \ test_]\  := \ \n\t
+      Module[{beta, \ gamma, \ sig, \ x, \ s, \ t, \ po}, \n\t\t
+        If[\((pp\  <= \ 229)\)\  || \ test, \ \n\t\t\t
+          Return[pp\  + \ 1\  + \ \n\t\t\t\t
+              Sum[JacobiSymbol[x^3\  + \ aa\ x\  + \ bb, \ pp], 
+                \ {x, 0, pp - 1}]\n\t\t\t]\n\t\t]; \n\t\tp\  = \ pp; \n\t\t
+        While[True, \ \n\t\t\t
+          If[JacobiSymbol[g\  = \ Random[Integer, {2, p - 1}], \ p]\  == \ 
+              \(-1\), \ \n\t\t\t\tBreak[]\n\t\t\t]\n\t\t]; \n\t\t
+        w\  = \ Floor[N[p^\((1/4)\)\ Sqrt[2]]]; \n
+        \t\t{cc, dd}\  = \ Mod[{g^2\ aa, \ g^3\ bb}, \ p]; \n\t\t
+        Label[Mestre\ loop]; \n\t\tx\  = \ Random[Integer, \ {0, p - 1}]; \n
+        \t\tsig\  = \ JacobiSymbol[x^3\  + \ aa\ x\  + \ bb, \ p]; \n\t\t
+        If[sig\  == \ 0, \ Goto[Mestre\ loop]]; \n\t\t
+        If[sig\  == \ 1, \ \n\t\t\ta\  = \ aa; \ b\  = \ bb; \ c\  = \ 0\n
+          \t\t\t, \ \ \ \n\t\t\tx\  = \ Mod[g\ x, \ p]; \ a\  = \ cc; \ 
+          b\ \  = \ dd; \ c\  = \ 0\n\t\t]; 
+        \ \  (*\ Elliptic\ curve\ now\ \(selected . \)\ *) \n\t\t
+        point\  = \ {x, \ 1}; \n\t\ts\  = \ shanks[point]; \n\t\t
+        If[Length[s]\  != \ 1, \ Goto[Mestre\ loop]]; \n\t\t
+        beta\  = \ 
+          \(\(Position[alis, \ s[\([1]\)]]\)[\([1]\)]\)[\([1]\)] - 1; \n\t\t
+        gamma\  = \ 
+          \(\(Position[blis, \ s[\([1]\)]]\)[\([1]\)]\)[\([1]\)] - 1; \n\t\t
+        t\  = \ beta\  + \ gamma\ w; \n\t\t
+        po\  = \ elliptic[point, \ p\  + \ 1\  + \ t]; \n\t\t
+        If[po[\([2]\)]\  == \ 0, \ \n\t\t\tReturn[\ p\  + \ 1\  + \ sig\ t], 
+          \ \n\t\t\tReturn[p\  + \ 1\  + \ sig\ \((beta\  - \ gamma\ w)\)]\n
+          \t\t]\n\t]; \t\t\t\ \ \ \ \ \ \ \ \n\t\t\t\)}], "Input"],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ *) \n
+    \n (*\ We\ try\ first\ the\ true\ Shanks - Mestre, \ 
+      then\ test\ this\n\ \ \ against\ literal\ character\ 
+        \(summation . \)\ *) \n\nsmorder[255, \ 311, \ 70001, \ False]\n\), 
+    \(smorder[255, \ 311, \ 70001, \ True]\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{896, 638},
+WindowMargins->{{Automatic, -62}, {-30, Automatic}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 666, 11, 215, "Input"],
+Cell[2378, 62, 6193, 110, 1815, "Input"],
+Cell[8574, 174, 292, 5, 117, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

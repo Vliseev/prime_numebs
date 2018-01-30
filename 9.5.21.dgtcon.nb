@@ -1,0 +1,169 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      5788,        129]*)
+(*NotebookOutlinePosition[      6469,        154]*)
+(*  CellTagsIndexPosition[      6425,        150]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 9.5  .21\ 
+        \((Convolution\ via\ DGT \((Crandall)\))\) . \t\t\t\n\ Support\ code\ 
+        for\n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\t\n\t10\ Dec\ 2000\ AH\ 
+        \((Formatting, \ simplified\ dft)\)\n\t14\ Sep\ 2000\ RT\ 
+        \((Creation)\)\n\ *) \n
+    \n (*\ Given\ two\ signals\ x, y\ each\ of\ length\ 2^k, \ k > 0, \ 
+      this\ algorithm\ \ncomputes\ the\ integer\ convolution\ x\ X\ 
+        y . \ \ The\ method\ used\ is\ \nconvolution\ via\ 
+        "\<discrete Galois transform.\>"\ *) \n\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n
+    \n (*\ First, \ a\ function\ to\ perform\ the\ \(transform . \)\ *) \n\n
+    dft[x_List, h_, p_] := \n\t
+      With[{dc\  = \ Length[x]}, \n\t\t
+        Mod[\ Table[\ \ 
+            Mod[\n\t\t\t
+              Sum[x[[j]]\ PowerMod[h, \((\((j - 1)\)\ \((k - 1)\))\), p], {j, 
+                  1, dc}], \n\t\tp], {k, 1, dc}], p]\n\t]; \n\t
+    \n (*\ Now, \ the\ main\ \(routine . \)\ *) \n\n
+    dgtcon[xin_List, yin_List] := \n\t
+      Module[{x, y, j, p, q, mc, nc, h, g, k, xhat, yhat, zhat, z}, \n\t\t
+        nc = Length[xin]; \n\t\tk = Log[2, nc]; \n\t\t
+        mc\ \  = \ Max[Append[xin, yin]]; \n\n
+        \t\t (*\ First, \ 
+          find\ the\ Mersenne\ prime\ and\ construct\ root\ \(g . \)\ *) \n
+        \t\tj = 1; \n\t\t
+        While[\n\t\t\t
+          Not[PrimeQ[2^Prime[j] - 1] && \n\t\t\t\t
+              2^Prime[j] - 1 > nc\ mc^2\  && \ \n\t\t\t\tPrime[j] > k\n
+            \t\t\t], \n\t\t\t\(j++\)\n\t\t]; \n\t\tq = Prime[j]; \n\t\t
+        p = 2^q - 1; \n\n\t\t
+        g = PowerMod[2, 2^\((q - 2)\), p]\  + \ 
+            I\ PowerMod[\((\(-3\))\), 2^\((q - 2)\), p]; \n\t\t
+        h = PowerMod[g, 2^\((q + 2 - k)\), p]; \n\n\t\t
+        dcinverse\  = \ \(ExtendedGCD[nc/2, p]\)[[2, 1]]; \n\t\t
+        hinverse = \(ExtendedGCD[h, p]\)[[2, 1]]; \n\n
+        \t\t (*\ Next, \ fold\ the\ \(signals . \)\ *) \n\t\t
+        x = Table[
+            xin[[2\ k + 1]]\  + \ I\ xin[[2\ k + 2]], {k, 0, nc/2 - 1}]; \n
+        \t\ty = Table[
+            yin[[2  k + 1]]\  + \ I\ yin[[2  k + 2]], {k, 0, nc/2 - 1}]; \n\n
+        \t\t (*\ Next, \ perform\ the\ \(transform . \)\ *) \n\t\t
+        xhat = Mod[dft[x, hinverse, p], p]; \n\t\t
+        yhat = Mod[dft[y, hinverse, p], p]; \n\n\t\t
+        xhatstar = \n\t\t\t
+          Conjugate[Prepend[Reverse[Take[xhat, {2, nc/2}]], \ xhat[[1]]\ ]]; 
+        \n\t\tyhatstar = \n\t\t\t
+          Conjugate[Prepend[Reverse[Take[yhat, {2, nc/2}]], \ yhat[[1]]\ ]]; 
+        \t\t\n\n\t\t (*\ Next, \ the\ special\ dyadic\ \(product . \)\ *) \n
+        \t\tzhat\  = \n\t\t\t
+          PowerMod[4, \(-1\), p] 
+            \((\ \n\t\t\t
+              \((xhat\  + xhatstar)\)*\((yhat\  + \ yhatstar)\)\  + \n\t\t\t
+                2 \((xhat\ yhat\  - xhatstar\ yhatstar)\) - \n\t\t\t
+                Table[PowerMod[hinverse, k, p], {k, 0, nc/2 - 1}]*\n\t\t\t
+                  \((xhat - xhatstar)\) \((yhat - yhatstar)\))\); \n\n\t\t
+        z = dcinverse\ dft[zhat, h, p]; \n\t\t
+        zout = Table[{Re[z[[k]]\ ], Im[z[[k]]]}, {k, 1, nc/2}]; \n\t\t
+        Flatten[Mod[zout, p]]\n]; \n\t\)\)], "Input"],
+
+Cell[BoxData[{
+    \(\n (*\ EXAMPLE\ *) \n
+    \n (*\ We\ perform\ a\ cyclic\ convolution\ via\ the\ DGT\ then\ literal\ 
+        and\ compare . \ \ \nIt\ is\ interesting\ to\ compare\ the\ timing\ 
+        and\ results\ on\ the\ same\ cyclic\ \nconvolution\ as\ performed\ by
+        \ Algorithm\ 9.5  .19, \ CRT\ \(convolution . \)\ *) \n\nd = 5; \n\n
+    x = Table[Random[Integer, {1, 200}], {j, 1, 2^d}]\n\), 
+    \(y = Table[Random[Integer, {1, 200}], {j, 1, 2^d}]\n\), 
+    \(Timing[result1 = dgtcon[x, y]]\n\), 
+    \(result2 = \n\t
+      Table[Sum[x[[i + 1]]\ y[[Mod[m - i, Length[x]] + 1]], \n
+          \t\t{i, 0, Length[x] - 1}], {m, 0, Length[x] - 1}\n\t]\n\), 
+    \(result1 - result2\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{924, 695},
+WindowMargins->{{Automatic, 14}, {-159, Automatic}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 761, 13, 242, "Input"],
+Cell[2473, 64, 2597, 49, 868, "Input"],
+Cell[5073, 115, 711, 12, 292, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

@@ -1,0 +1,215 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      7828,        175]*)
+(*NotebookOutlinePosition[      8516,        200]*)
+(*  CellTagsIndexPosition[      8472,        196]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    RowBox[{\( (*\n\ 
+        Algorithm\ 7.2  .8\ \((Sum/difference\ detection\ sans\ y - 
+                coordinates\ \((Crandall)\))\) . \t\t\t\n\ 
+            Support\ code\ for\n\ 
+          R . \ Crandall\ and\ C . \ 
+            Pomerance, \n\ "\<Prime Numbers: a Computational Perspective,\>"\n\
+\ Springer - Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+        Inc . \n\ 
+            All\ Rights\ Reserved . \n\t\ 4\ Dec\ 2000\ AH\ \((formatting)\)\n\
+\t14\ Sep\ 2000\ RT\ \((Creation)\)\n\ *) \), "\n", "\n", 
+      RowBox[{"(*", " ", 
+        RowBox[{
+          RowBox[{
+          "For", " ", "an", " ", "elliptic", " ", "curve", " ", "E", " ", 
+            "determined", " ", "by", " ", "global", 
+            StyleBox[" ",
+              FontSlant->"Italic"], "variables", " ", "a"}], ",", "b", ",", 
+          "c", ",", \(p\ \n
+          
+          defining\ the\ cubic\ y^2\  = 
+            x^3\  + \ cx^2\  + \ ax\  + \ 
+              b\ \((mod\ p)\)\ we\ are\ given\ the\ \n
+          unequal\ x - coordinates\ x1\), 
+          ",", \(x2\ of\ two\ affine\ points\), ",", 
+          " ", \(P1\ and\ P2\ respectively . \ \ \n
+              This\ algorithm\ then\ returns\ a\ quadratic\ polynomial\ whose\
+\ roots\ are\ the\ \n
+          x - coordinates\ of\ P1\ plus\ or\ minus\ \(\(P2\)\(.\)\)\)}], " ", 
+        "*)"}], "\n"}]], "Input",
+  PageWidth->Infinity,
+  AutoIndent->True,
+  LineBreakWithin->False,
+  LineIndent->0],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n
+    \n (*\ Now\ the\ main\ \(routine . \)\ *) 
+      \[IndentingNewLine]sumdiff[x1_, x2_] := \n\t
+      Module[{g, alpha, beta}, \n\t\tg = x1 - x2; \n\t\t
+        alpha = \((x1\ x2 + a)\) \((x1 + x2)\) + 2 \((c\ x1\ x2\  + b)\); \n
+        \t\tbeta = \((x1\ x2 - a)\)^2\  - 4  b \((x1 + x2 + c)\); \n\t\t
+        g^2\ X^2\  - \ 2\ alpha\ X\  + \ beta\n\t]; 
+    \[IndentingNewLine]\[IndentingNewLine] (*\ Next, \ 
+      a\ routine\ for\ explicit\ calculation\ of\ the\ x\ coordinates, \ 
+      based\ \non\ the\ same\ idea\ as\ above . \ We\ include\ first\ 
+        Algorithm\ 2.3 \( .8 . \)\ *) \n
+    \[IndentingNewLine]sqrtmod[b_, p_] := \ \n\t
+      Module[{a, x, c, d, cd, m, t, tst}, \n\ \ \ \t\ta\  = \ Mod[b, p]; \n
+        \ \ \ \t\tIf[p\  == \ 2, \ Return[a]]; \n\ \ \ \ \t
+        If[MemberQ[{3, 7}, Mod[p, 8]], \n\ \ \ \ \ \ \t\t
+          Return[PowerMod[a, \((p + 1)\)/4, p]]\n\ \ \ \ \ \ \t]; \n\ \ \ \ \t
+        If[Mod[p, 8]\  == \ 5, \n\ \ \ \ \ \ \t\t
+          x\  = \ PowerMod[a, \((p + 3)\)/8, p]; \n\ \ \ \ \ \ \t\t
+          c\  = \ Mod[x^2, p]; \n\ \ \ \ \ \ \t\t
+          If[Not[c\  == \ a], \n\ \ \ \ \ \ \ \ \t\t
+            Return[Mod[x\ PowerMod[2, \((p - 1)\)/4, p], \ p]]\n
+            \ \ \ \ \ \ \ \ \t]; \n\ \ \ \ \ \ \t]; \n\ \ \ \ \t\n
+        \ \ \ \ \t (*\ Here, \ p\  = \ 1\ \(\((mod\ 8)\) . \)\ *) \n
+        \ \ \ \ \ \ \ttst\  = \ 1; \n\ \ \ \ \ \ \t
+        While[Not[tst\  == \ \(-1\)], \n\ \ \ \ \ \ \ \ \t
+          d\  = \ Random[Integer, {1, p}]; \n\ \ \ \ \ \ \ \ \t
+          tst\  = \ JacobiSymbol[d, p]\n\ \ \ \ \ \ \ \ ]; \n\ \ \ \ \ \ \t
+        t\  = \ \((p - 1)\)/2; \ s\  = \ 1; \n\ \ \ \ \ \ \t
+        While[EvenQ[t], \ t\  = \ t/2; \ \(++s\)]; \n\ \ \ \ \ \ \t
+        ca\  = \ PowerMod[a, t, p]; \n\ \ \ \ \ \ \t
+        cd\  = \ PowerMod[d, t, p]; \n\ \ \ \ \ \ \tm\  = \ 0; \n
+        \ \ \ \ \ \ \t
+        Do[\n\ \ \ \ \ \ \t\ \ \ 
+          If[PowerMod[Mod[ca\ PowerMod[cd, \ m, \ p], p], \ 
+                2^\((s - 1 - i)\), \ p]\n\ \ \ \ \ \ \t\ \ \ \t\t == \ p - 1, 
+            \ m\  += \ 2^i]\n\ \ \ \ \ \ \t\ \ \ , {i, 0, s - 1}\n
+          \ \ \ \ \ \ \t]; \ \ \ \ \ \ \t\ \ \ \ \n\ \ \ \ \ \ \t
+        Return[
+          Mod[PowerMod[a, \ \((t + 1)\)/2, p]\ PowerMod[cd, \ m/2, p], p]]; \ 
+        \n\t]; \[IndentingNewLine]\n
+    \[IndentingNewLine]ellXadd[x1_, x2_] := \n\t
+      Block[{u2, v}, \[IndentingNewLine]\t\tg = x1 - x2; 
+        \[IndentingNewLine]\t\tden = PowerMod[g, \(-2\), p]; 
+        \[IndentingNewLine]\t\t
+        alpha = Mod[
+            \((\((x1\ x2 + a)\) \((x1 + x2)\) + 2  c\ x1\ x2 + 2  b)\), p]; 
+        \[IndentingNewLine]\t\t
+        beta = Mod[\((\((x1\ x2 - a)\)^2 - 4  b \((x1 + x2 + c)\))\), p]; 
+        \[IndentingNewLine]\t\tdisc = Mod[alpha^2 - beta\ g^2, p]; 
+        \[IndentingNewLine]\t\t{\ \ 
+          Mod[\ den*\((alpha + sqrtmod[disc, p])\), p], \ \n\t\t\ \ \ \ 
+          Mod[den*\((alpha - sqrtmod[disc, p])\), p]\n\t\t}
+          \[IndentingNewLine]\t]; \)\)], "Input",
+  PageWidth->Infinity,
+  AutoIndent->True,
+  LineBreakWithin->False,
+  LineIndent->0],
+
+Cell[BoxData[{
+    \( (*\ Now, \ an\ \(example . \)\ *) \[IndentingNewLine] (*\ 
+      First\ we\ pick\ a\ random\ elliptic\ curve\ and\ find\ two\ x\ 
+        \(coordinates . \)\ *) \n (*\ Assign\ the\ global\ parameters\ a, b, 
+      c, d\ *) \[IndentingNewLine]\(p = Prime[Random[Integer, {30, 100}]]; 
+    \)\), 
+    \(\[IndentingNewLine]\n
+    For[a = 0; b = 0; \(c = 0; \), 
+      Mod[4\ a^3 + 27\ b^2 - 18\ a\ b\ c - a^2\ c^2 + 4\ b\ c^3, p] == 0, 
+      \[IndentingNewLine]\ta = Random[Integer, p - 1]; \[IndentingNewLine]\t
+      b = Random[Integer, p - 1]; \[IndentingNewLine]\t
+      c = Random[Integer, p - 1]\[IndentingNewLine]]; \n
+    \[IndentingNewLine]x0 = Random[Integer, p - 1]; \n
+    \[IndentingNewLine]x1 = Random[Integer, p - 1]; \n
+    \[IndentingNewLine]While[\ \ \ \ 
+      Or[\ \ JacobiSymbol[x^3 + c\ x^2 + a\ x + b, p] != 1, \n\t\t\t
+        JacobiSymbol[x^3 + c\ x^2 + a\ x + b, p] != 1\ , \n
+        \t\t\ \ \ \ \ \ \ \ \ x0 == x1\n\t\t], \[IndentingNewLine]\t
+      x0 = Random[Integer, p - 1]; \[IndentingNewLine]\t
+      x1 = Random[Integer, p - 1]; \[IndentingNewLine]]\n\), 
+    \(Print["\<a = \>", a, "\<, b = \>", b, "\<, c = \>", c, "\<, p = \>", p]
+      \n\), 
+    \(Print["\<x0 = \>", x0, "\<, x1 = \>", x1]; 
+    \[IndentingNewLine] (*\ 
+      Now\ we\ find\ the\ polynomial\ and\ the\ explicit\ 
+        \(coordinates . \)\ *) \n\nf = sumdiff[x0, x1]\n\), 
+    \(ellXadd[x0, x1]\)}], "Input",
+  PageWidth->Infinity,
+  AutoIndent->True,
+  LineBreakWithin->False,
+  LineIndent->0]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{757, 550},
+WindowMargins->{{Automatic, 60}, {Automatic, -12}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 1464, 33, 258, "Input"],
+Cell[3176, 84, 3123, 57, 822, "Input"],
+Cell[6302, 143, 1522, 30, 443, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

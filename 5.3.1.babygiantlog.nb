@@ -1,0 +1,176 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      6393,        136]*)
+(*NotebookOutlinePosition[      7080,        161]*)
+(*  CellTagsIndexPosition[      7036,        157]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n
+      Algorithm\ 5.3  .1\ 
+        \((Baby - steps, \ giant - steps\ for\ discrete\ logarithms)\) . 
+          \t\t\t\nSupport\ code\ for\nR . \ Crandall\ and\ C . \ Pomerance, \n
+      "\<Prime Numbers: a Computational Perspective,\>"\nSpringer - 
+        Verlag\ 2000. \t\nc . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \nAll\ Rights\ Reserved . \n\t\n\t03\ Dec\ 2000\ AH\ 
+        \((formatting)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n\ *) \n
+    \n (*\ We\ are\ given\ a\ cyclic\ group\ G\ with\ generator\ g, \ 
+      an\ upper\ \nbound\ n\ for\ the\ order\ of\ G, \ 
+      and\ an\ element\ t\ in\ G . \ \ \nThis\ algorithm\ returns\ l\ such\ 
+          that\ g^l\  = \ \(t . \)\ *) \n\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n
+    \[IndentingNewLine] (*\ First, \ we\ include\ Algorithm\ 7.5  .1, \ 
+      modified\ for\ use\ in\ the\ \nmain\ \(routine . \)\ *) \n
+    \[IndentingNewLine]listIntersection[aout_List, bout_List] := \n\t
+      Module[{a = aout, b = bout, i, j, s}, 
+        \[IndentingNewLine]\t\t (*\ First, \ 
+          sort\ the\ lists\ and\ \(initialize . \)\ *) 
+          \[IndentingNewLine]\t\t{a, b} = {Sort[a], Sort[b]}; 
+        \[IndentingNewLine]\t\ti = \(j = 1\); \[IndentingNewLine]\t\ts = {}; 
+        \[IndentingNewLine]\t\t (*\ Next, \ the\ tracking\ \(stage . \)\ *) 
+          \[IndentingNewLine]\t\t
+        While[\ i <= Length[a]\  && \ j <= Length[b], 
+          \[IndentingNewLine]\t\t\t
+          If[\ a[\([i, 1]\)] <= b[\([j, 1]\)], \[IndentingNewLine]\t\t\t\t
+            If[a[\([i, 1]\)] == b[\([j, 1]\)], \n\t\t\t\t\t
+              s = Append[s, a[\([i]\)]]; \[IndentingNewLine]\t\t\t\t\t
+              s = Append[s, b[\([j]\)]]\[IndentingNewLine]\t\t\t\t]; 
+            \[IndentingNewLine]\t\t\t\t\(i++\); \[IndentingNewLine]\t\t\t\t
+            While[\ i < \((Length[a] - 1)\)\  && \ 
+                a[\([i, 1]\)] == a[\([i - 1, 1]\)], \(i++\)]
+              \[IndentingNewLine]\t\t\t\t, \[IndentingNewLine]\t\t\t\t
+            \(j++\); \[IndentingNewLine]\t\t\t\t
+            While[\ j < \((Length[b] - 1)\)\  && \ 
+                b[\([j, 1]\)] == b[\([j - 1, 1]\)], \ \(j++\)]
+              \[IndentingNewLine]\t\t\t]\[IndentingNewLine]\t\t]; 
+        \[IndentingNewLine]\t\ts\[IndentingNewLine]\t]; \n\n
+    primroot[p_]\  := 
+      \  (*\ Return\ the\ least\ positive\ primitive\ root\ 
+          \(\((mod\ p)\) . \)\ *) \n\t\ \ \ \ 
+      Module[{fa, \ q, \ k, \ v, \ r, \ rt}, \n\t\t\ \ \ \ \ \ \ \ 
+        If[p == 2, \ Return[1]]; \n\t\t\t\t\ \ \ 
+        fa\  = \ FactorInteger[p - 1]; \n\t\t\t\t\ \ \ \ 
+        Do[\n\t\t\t\ \ \ \ \ \ \ \ \ \ \ 
+          Do[\n\t\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
+            q\  = \ \(fa[\([k]\)]\)[\([1]\)]; \n
+            \t\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 
+            v\  = \ PowerMod[r, \ \((p - 1)\)/q, \ p]; \n
+            \t\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(If[v == 1, \ Break[]]; 
+            \)\n\t\t\t\t\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ , {k, 1, Length[fa]}\n
+            \t\t\t\t\ \ \ \ \ \ \ \ \ ]; \n\t\t\t\ \ \ \ \ \ \ \ \ \ \ 
+          If[v == 1, \ Continue[]]; \n\t\t\t\ \ \ \ \ \ \ \ \ \ \ rt\  = \ r; 
+          \ \(Break[]; \)\n\t\t\t\ \ \ \ \ \ \ \ \ \ \ , {r, 2, p - 1}\n
+          \t\t\t\ \ \ \ \ \ \ ]; \t\n\t\t\t\ \ \ \ \ \ \ rt\t\t\t\n\t\t\t\t]; 
+    \t\t\t\t\n\n (*\ Now, \ the\ main\ \(routine . \)\ *) \n\n
+    babygiantlog[g_, n_, t_]\  := \ \n\t
+      Module[{b, h, A, B, i, j, ABint}, 
+        \[IndentingNewLine]\t\t (*\ First, \ set\ the\ \(limits . \)\ *) 
+          \[IndentingNewLine]\t\tb\  = \ Ceiling[Sqrt[n]]; 
+        \[IndentingNewLine]\t\th\  = \ PowerMod[g, \(-b\), n]; \n\t
+        \[IndentingNewLine]\t\t (*\ Next, \ construct\ the\ \(lists . \)\ *) 
+          \[IndentingNewLine]\t\t
+        A\  = \ Table[{Mod[g^i, n], i}, {i, 0, b - 1}]; 
+        \[IndentingNewLine]\t\t
+        B\  = \ Table[{Mod[t\ h^j, n], j}, {j, 0, b - 1}]; \n\t
+        \[IndentingNewLine]\t\t (*\ Next, \ 
+          sort\ the\ list\ and\ find\ the\ intersection . \ \n\t\tNote\ that\ 
+            the\ sort\ is\ done\ in\ the\ intersection\ \(routine . \)\ *) 
+          \[IndentingNewLine]\t\tABint = listIntersection[A, B]; 
+        \[IndentingNewLine]\t\t
+        ABint[\([1, 2]\)] + b\ ABint[\([2, 2]\)]\[IndentingNewLine]\t]; \n
+    \)\)], "Input"],
+
+Cell[BoxData[{
+    \(\[IndentingNewLine] (*\ EXAMPLE\ *) \n\n
+    p = Prime[Random[Integer, {2, 200}]]\), 
+    \(t = Random[Integer, {1, p - 1}]\), 
+    \(g = primroot[p]\[IndentingNewLine]\n (*\ 
+      Now\ we\ apply\ our\ algorithm\ and\ test\ the\ \(answer . \)\ *) \n
+    \), 
+    \(l = babygiantlog[g, p, t]\), 
+    \(Mod[g^l, p]\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{648, 679},
+WindowMargins->{{Automatic, 84}, {27, Automatic}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 738, 12, 242, "Input"],
+Cell[2450, 63, 3588, 61, 869, "Input"],
+Cell[6041, 126, 348, 8, 160, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

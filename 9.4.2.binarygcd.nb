@@ -1,0 +1,130 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3656,         90]*)
+(*NotebookOutlinePosition[      4335,        115]*)
+(*  CellTagsIndexPosition[      4291,        111]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 9.4  .2\ \((Binary\ gcd)\) . \t\t\t\n\ Support\ code\ for\n\ 
+        R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\t10\ Dec\ 2000\ AH\ 
+        \((Formatting)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n\ *) \n
+    \n (*\ This\ algorithm\ returns\ the\ greatest\ common\ divisor\ of\ two\ 
+        \npositive\ integers\ x, \(y . \)\ *) \n\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n
+    \n (*\ The\ following\ function\ returns\ the\ number\ of\ low\ order\ 
+        zeros\ \nin\ the\ binary\ representation\ of\ \(x . \)\ *) \n\n
+    v2[x_] := \n\t
+      Module[{xbinary, c}, \n\t\txbinary = Reverse[IntegerDigits[x, 2]]; \n
+        \t\tc = 0; \n\t\tWhile[xbinary[[c + 1]] == 0, \(c++\)]; \n\t\tc\n\t]; 
+    \n\n (*\ Now\ the\ main\ \(routine . \)\ *) \n\n
+    binarygcd[x_, y_] := \ \n\t
+      Module[{b, xprime, yprime}, 
+        \[IndentingNewLine]\t\t (*\ Next, \ 
+          2' s\ power\ in\ the\ \(gcd . \)\ *) \n\t\t
+        beta = Min[v2[x], v2[y]]; \n\t\txprime\  = \ x/\((2^v2[x])\); \n\t\t
+        yprime\  = \ y/\((2^v2[y])\); 
+        \[IndentingNewLine]\t\t (*\ Next, \ the\ binary\ \(gcd . \)\ *) \n\t\t
+        While[Not[xprime == yprime], \n\t\t\t
+          \({xprime, yprime} = \n
+            \t\t\t\t{Min[xprime, yprime], 
+              Abs[yprime - xprime]/\n\t\t\t\t\t
+                \((2^v2[Abs[yprime - xprime]])\)}; \)\n\t\t]; \n\t\t
+        2^beta\ xprime\n\t]; \n\t\)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ *) \n
+    \[IndentingNewLine] (*\ We\ pick\ random\ x, y, \ compute\ the\ GCD, \ 
+      and\ verify\ \(it . \)\ *) \n
+    \[IndentingNewLine]x = Random[Integer, {1, 2^10}]; \n
+    y = Random[Integer, {1, 2^10}]; \n\nbinarygcd[x, y]\n\), 
+    \(GCD[x, y]\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{751, 551},
+WindowMargins->{{Automatic, 35}, {Automatic, 67}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 572, 9, 216, "Input"],
+Cell[2284, 60, 1063, 20, 418, "Input"],
+Cell[3350, 82, 302, 6, 146, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

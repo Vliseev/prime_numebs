@@ -1,0 +1,122 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3321,         82]*)
+(*NotebookOutlinePosition[      4009,        107]*)
+(*  CellTagsIndexPosition[      3965,        103]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 4.2  .7\ 
+        \((Lucas - Lehmer\ test\ for\ Mersenne\ primes)\) . \n\ Support\ code
+        \ for\n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \[IndentingNewLine]\t\n\t\t03\ Dec\ 
+        2000\ AH\ \((cleaned\ up\ code)\)\n\t14\ Sep\ 2000\ RT\ 
+        \((Creation)\)\[IndentingNewLine]*) \n
+    \n (*\ We\ are\ given\ an\ odd\ prime\ p . \ \ This\ algorithm\ decides\ 
+          if\ 2^p - 
+        1\ \[IndentingNewLine]is\ prime\ \((YES)\)\ or\ composite\ 
+          \(\((NO)\) . \)\ *) \[IndentingNewLine]\n\)\)], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ CODE\ *) \n
+    \[IndentingNewLine]lucaslehmer[p_]\  := \ \[IndentingNewLine]\t
+      Module[{v\  = \ 4, k, \ q\  = \ 2^p - 1}, \n\t\ \ \ \ 
+        Do[\n\t\t\t\ \ v\  = \ Mod[v^2 - 2, q], \n\t\t\t\ {k, 1, p - 2}\n
+          \t\t\ ]; \n\t\tIf[v == 0, "\<YES\>", "\<NO\>"]\n\t]\)\)], "Input"],
+
+Cell[BoxData[
+    \(\(\n (*\ EXAMPLE\ *) \n
+    \n (*\ We\ can\ verify\ that\ 2^127 - 1\ and\ 2^521 - 
+        1\ are\ consectuve\ Mersenne\ primes . \[IndentingNewLine]We\ use\ the
+          \ fact\ that\ 127\ is\ the\ 31  st\ prime\ and\ 521\ is\ the\ 98  th
+          \ prime . \ \[IndentingNewLine]First, \ 
+      we\ verify\ that\ indeed\ 127\ and\ 521\ do\ \(work . \)\ *) \n\n
+    \(Do[\n\t\ \ If[\(! PrimeQ[p]\), \ Continue[]]; \n\t\ 
+      Print[{p, \ lucaslehmer[p]}]\n\t\ \ , {p, 127, 521, 2}\n\t]; \)\n\)\)], 
+  "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{647, 631},
+WindowMargins->{{136, Automatic}, {24, Automatic}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 752, 13, 242, "Input"],
+Cell[2464, 64, 318, 5, 145, "Input"],
+Cell[2785, 71, 532, 9, 186, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

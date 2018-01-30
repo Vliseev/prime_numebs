@@ -1,0 +1,53 @@
+EXTRAS
+
+   An extra support-code directory for the textbook
+
+  "Prime numbers: A computational perspective,"
+        by R. Crandall and C. Pomerance,
+        Springer-Verlag 2001, New York.
+
+Release 00.09.30
+
+Code (Mathematica and C source):
+c. 2000, 2001, 2002 Perfectly Scientific
+________________________________________________________
+
+OVERVIEW
+
+"Extras" contains examples of (faster or especially elegant
+or variant) renditions of textbook algorithms.  Typically what you
+find herein are C sources, for which the Mathematica analogues
+in the main PrimeKit directory were prototypical.
+
+CONTENTS
+
+4.1.6(theorem).konpom.nb : Special implementation by expert
+     S. Wagon.
+
+8.1.10.embedNoY.nb : Special direct-embedding, no-Y-coordinate
+     implementation (not for commercial use; as there could be
+     legal crypto issues; educational only). 
+
+ellaffi.[ch] : Affine-coordinate elliptic algebra library.
+ellmont.[ch] : Montgomerypparemeter elliptic algebra library.
+ellproj.[ch] : Projective (IEEE) coordinate elliptic algebra library.
+fmodule.[ch] : Factoring utilities, for moderate factors.
+giants.[ch]  : General-purpose lartge-integer library.
+tools.[ch]   : General number-theoretical tools library; it is
+               this library that has some C manifestations
+               of textbook algorithms.
+
+factor.c     : General-purpose factoring program, uses "gears" of
+               sieving, Pollard-rho, Pollard-(p-1), ECM.
+
+schoof.[ch]  : Complete implementation of the Schoof point-counting
+               algorithm for elliptic curves.  Handles curves over
+               F_p, p an odd prime < 2^256.
+
+tutorX.[ch] (various X)  : Tutoring programs, to show how one
+               uses the various libraries.
+
+AKS.c        : Implementation of the new AKS primality test.
+________________________________________________________ 
+END
+ 

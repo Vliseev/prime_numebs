@@ -1,0 +1,149 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      4660,        108]*)
+(*NotebookOutlinePosition[      5340,        133]*)
+(*  CellTagsIndexPosition[      5296,        129]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n\ 
+      Algorithm\ 9.6  .4\ \((Fast\ polynomial\ mod)\) . \t\t\t\n\ Support\ 
+        code\ for\n\ R . \ Crandall\ and\ C . \ Pomerance, \n\ 
+      "\<Prime Numbers: a Computational Perspective,\>"\n\ Springer - 
+        Verlag\ 2001. \n\ c . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \n\ All\ Rights\ Reserved . \n\t11\ Dec\ 2000\ AH\ 
+        \((Code\ adjustments, \ formatting)\)\n\t14\ Sep\ 2000\ RT\ 
+        \((Creation)\)\n*) \n
+    \n (*\ For\ x \((t)\)\ and\ y \((t)\)\ polynomials\ with\ y \((t)\)\ 
+        monic, \ this\ algorithm\ \nreturns\ the\ polynomial\ remainder\ x\ 
+        mod\ \(y . \)\ *) \n\)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ CODE\ *) \n\n
+    Clear[t]\ \  (*\ t\ is\ the\ insdeterminate\ for\ the\ polynomials\ *) 
+      \n (*\ We\ include\ some\ functions\ required\ by\ the\ main\ 
+        \(routine . \)\ *) \n (*\ First, \ 
+      the\ reversal\ of\ x\ by\ degree\ \(d . \)\ *) \n\), 
+    \(rev[x_, d_] := \ Sum[Coefficient[x, t, d - j]\ t^j, {j, 0, d}]; 
+    \n (*\ Next, \ the\ index\ of\ x\ for\ degree\ \(d . \)\ *) \n\n
+    ind[x_, d_] := \ \n\t
+      Module[{xl, j}, \n\t\txl = CoefficientList[x, t]; \n\t\tj = d; \n\t\t
+        While[xl[[j + 1]] == 0, \(j++\)]; \n\t\tj\n\t]; \n
+    \n (*\ Next, \ algorithm\ 9.6  .2, \ 
+      inversion\ of\ x\ for\ degree\ \(d . \)\ *) \ \n\n
+    newtonpolyinv[x_, nc_] := \n\t
+      Module[{g, n}, \n\t\tg = 1; \n\t\tn = 1; \n\t\t
+        While[n < nc + 1, \n\t\t\tn = 2\ n; \n\t\t\t
+          If[n > nc + 1, n = nc + 1]; \n\t\t\th = PolynomialMod[x, t^n]; \n
+          \t\t\th = PolynomialMod[h\ g, t^n]; \n\t\t\t
+          g\  = PolynomialMod[g\ \((2 - h)\), t^n]; \n\t\t\t]; \n\t\t
+        Return[g]; \n\t\t]; \)}], "Input"],
+
+Cell[BoxData[
+    \(\( (*\ Now, \ the\ main\ \(routine . \)\ *) \n
+    \(newtonpolyrem[x_, y_] := \n\t
+      Module[{d, xc, yc, q, r, i}, \n\t\tIf[Exponent[y, t] == 0, Return[0]]; 
+        \n\t\td = Exponent[x, t] - Exponent[y, t]; \n\t\t
+        If[d < 0, \(Return[x]; \)]; \n\t\txc = rev[x, Exponent[x, t]]; \n\t\t
+        yc = rev[y, Exponent[y, t]]; \n\t\tq = newtonpolyinv[yc, d]; \n\t\t
+        q = PolynomialMod[Expand[q\ xc], t^\((d + 1)\)]; \n\t\t
+        r = xc - q\ yc; \n\t\ti = ind[r, d + 1]; \n\t\tr = Expand[r/t^i]; \n
+        \t\trev[r, Exponent[x, t] - i]\n\t]; \)\n\t\n\)\)], "Input"],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ *) \n
+    \n (*\ We\ create\ random\ polynomials\ x \((t)\), y \((t)\), \ 
+      y \((t)\)\ monic, \ and\ \ncalculate\ x \((t)\)\ mod\ y \((t)\), \ 
+      then\ verify\ the\ \(answer . \)\ *) \n\n
+    xdeg = Random[Integer, {1, 20}]; \nydeg = Random[Integer, {1, 20}]; \n
+    If[ydeg > xdeg, {ydeg, xdeg} = {xdeg, ydeg}]; \n\n
+    x = Sum[Random[Integer, {\(-200\), 200}]*t^i, {i, 0, xdeg}]\n\), 
+    \(y = 
+      Sum[Random[Integer, {\(-200\), 200}]*t^i, {i, 0, ydeg - 1}] + t^ydeg\n
+    \), 
+    \(newtonpolyrem[x, y]\n\), 
+    \(PolynomialMod[x, y]\)}], "Input"]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->{},
+WindowSize->{732, 753},
+WindowMargins->{{Automatic, 58}, {Automatic, 151}},
+ShowCellLabel->False
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 662, 11, 216, "Input"],
+Cell[2374, 62, 1074, 19, 444, "Input"],
+Cell[3451, 83, 602, 9, 243, "Input"],
+Cell[4056, 94, 600, 12, 228, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

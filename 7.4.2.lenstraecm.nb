@@ -1,0 +1,223 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      8604,        179]*)
+(*NotebookOutlinePosition[      9440,        208]*)
+(*  CellTagsIndexPosition[      9396,        204]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[BoxData[
+    \(\( (*\n
+      Algorithm\ 7.4  .2\ 
+        \((Lenstra\ elliptic\ curve\ method\ \((ECM)\))\) . \t\t\t\nSupport\ 
+        code\ for\nR . \ Crandall\ and\ C . \ Pomerance, \n
+      "\<Prime Numbers: a Computational Perspective,\>"\nSpringer - 
+        Verlag\ 2001. \t\t\nc . \ 2000\ Perfectly\ Scientific, \ 
+      Inc . \nAll\ Rights\ Reserved . \n\t\n\t04\ Dec\ 2000\ AH\ 
+        \((Formatted)\)\n\t14\ Sep\ 2000\ RT\ \((Creation)\)\n*) \n\ 
+    \n (*\ Given\ a\ composite\ number\ n\ to\ be\ factored, \ 
+      GCD[n, 6] == 1, \ and\ n\ not\ a\ \nproper\ power, \ 
+      this\ algorithm\ attempts\ to\ uncover\ a\ nontrivial\ factor\ of\ 
+        n . \ \ \nThere\ is\ a\ tunable\ parameter\ B\ called\ the\ 
+        "\<stage one limit\>"\ in\ view\ of\ \nfurther\ algorithmic\ stages\ 
+        in\ the\ modern\ ECM\ to\ follow . \ \nIncluded\ are\ various\ 
+        elliptic\ algebra\ functions, 
+      using\ affine\ coordinates\ and\ \nthe\ point\ 
+          representation {x, y, z}\ where\ z\ is\ just\ a\ Boolean\ indicating
+          \ \nsingularity\ \((illegal\ inversion\ signaling\ a\ factor)\)\ or
+          \ point - at - infinity . \ \n\nSince, \ 
+      in\ this\ Lenstra - 
+        ECM\ scenario\ the\ illegal\ inversions\ are\ the\ key, \ \n
+      the\ elliptic\ functions\ below\ have\ been\ modified\ in\ various\ 
+        places\ to\ interrupt\ \nthe\ program\ flow\ upon\ such\ 
+        illegalities, \ 
+      so\ that\ when\ a\ factor\ is\ found\ the\ \nprocess\ halts\ soon\ 
+        thereafter . \n\nNote\ that\ Algorithm\ 7.4  .3\ is\ more\ efficient, 
+      \ for\ several\ 
+        \(reasons : \n
+          Montgomery\ arithmetic\ with\ less\ total\ operations\), 
+      and\ easier\ technique\ for\ \naborting\ upon\ factor\ discovery, 
+      etc . \ \nNote\ that\ the\ parameters\ a, b, 
+      p\ must\ be\ \(global . \)\ \n*) \[IndentingNewLine]\)\)], "Input",
+  PageWidth->Infinity,
+  AutoIndent->True,
+  LineBreakWithin->False,
+  LineIndent->0],
+
+Cell[BoxData[{
+    \(\  (*\ CODE\ *) \ \n\n
+    \  (*\ The\ following\ functions\ are\ all\ taken\ from\ Algorithm\ 7.2 
+        \( .2 . \), \ \n\ \ 
+      with\ some\ modifications \(\((see\ above)\) . \)\ *) \n\ \ \n
+    ellinv[n_] := PowerMod[n, \(-1\), p]; \n
+    \[IndentingNewLine]ellneg[pt_] := {pt[\([1]\)], \(-pt[\([2]\)]\), 
+        pt[\([3]\)]}; \n
+    \[IndentingNewLine]ellsub[pt1_, pt2_] := elladd[pt1, ellneg[pt2]]; \n
+    \[IndentingNewLine]elldouble[pt_] := elladd[pt, pt]; \n\n
+    elladd[pt1_, pt2_] := \n\t
+      Module[{x1, y1, x2, y2, h, m, x3, y3}, \n\t\t
+        If[pt1[\([3]\)] \[Equal] 0, Return[pt2]]; \[IndentingNewLine]\t\t
+        If[pt2[\([3]\)] \[Equal] 0, Return[pt1]]; \[IndentingNewLine]\t\t
+        x1 = pt1[\([1]\)]; \ y1 = pt1[\([2]\)]; \[IndentingNewLine]\t\t
+        x2 = pt2[\([1]\)]; \ y2 = pt2[\([2]\)]; \[IndentingNewLine]\t\t
+        If[x1 \[Equal] x2, \n\t\t\t
+          If[Mod[y1 + y2, p] \[Equal] 0, \n\t\t\t\tPrint["\<PAF\>"]; \ 
+            Return[{1, 1, 0}]\n\t\t\t]; \[IndentingNewLine]\t\t\t
+          If[\((h = GCD[2  y1, p])\) > 1, \n\t\t\t\tPrint["\<FOUNDy: \>", h]; 
+            Return[{1, 1, 0}]\n\t\t\t]; \[IndentingNewLine]\t\t\t
+          m = Mod[\((3\ x1^2 + a)\)*ellinv[2  y1], p], \n\t\t\t
+          If[\((h = GCD[x2 - x1, p])\) > 1, \n\t\t\t\t
+            Print["\<FOUNDx: \>", h]; Return[{1, 1, 0}]\n\t\t\t]; 
+          \[IndentingNewLine]\t\t\t
+          m = Mod[\((y2 - y1)\)\ ellinv[x2 - x1], p]\n\t\t]; 
+        \[IndentingNewLine]\t\tx3 = Mod[m^2 - x1 - x2, p]; 
+        \[IndentingNewLine]\t\ty3 = Mod[m \((x1 - x3)\) - y1, p]; 
+        \[IndentingNewLine]\t\tReturn[{x3, y3, 1}]\n\t]\n
+    \[IndentingNewLine] (*\ Next, 
+      elliptic - multiply\ a\ pt\ by\ \(k . \)\ *) \n\), 
+    \(elliptic[pt_, k_] := \n\t
+      Module[{pt2, hh, kk, hb, kb, lenh, lenk}, \n\t\t
+        If[\ k \[Equal] 0, Return[{1, 1, 0}]]; \[IndentingNewLine]\t\t
+        hh = Reverse[IntegerDigits[3  k, 2]]; \[IndentingNewLine]\t\t
+        kk = Reverse[IntegerDigits[k, 2]]; \[IndentingNewLine]\t\tpt2 = pt; 
+        \[IndentingNewLine]\t\tlenh = Length[hh]; \[IndentingNewLine]\t\t
+        lenk = Length[kk]; \[IndentingNewLine]\t\t
+        Do[\ pt2 = elldouble[pt2]; \[IndentingNewLine]\t\t\t
+          If[\ pt2[\([3]\)] \[Equal] 0, Break[]]; \[IndentingNewLine]\t\t\t
+          hb = hh[\([b]\)]; \[IndentingNewLine]\t\t\t
+          If[\ b \[LessEqual] lenk, kb = kk[\([b]\)], kb = 0]; 
+          \[IndentingNewLine]\t\t\t
+          If[{hb, kb} \[Equal] {1, 0}, \n\t\t\t\tpt2 = elladd[pt2, pt]\n
+            \t\t\t\t, \n\t\t\t\t
+            If[{hb, kb} \[Equal] {0, 1}, \n\t\t\t\t\tpt2 = ellsub[pt2, pt]\n
+              \t\t\t\t]\n\t\t\t]\n\t\t\t, \n\t\t\t{b, lenh - 1, 2, \(-1\)}\n
+          \t\t]; \[IndentingNewLine]\t\tReturn[pt2]\n\t]; \n\t
+    \[IndentingNewLine] (*\ Next, the\ main\ routine, the\ \(ECM . \)\ *) \n
+    \[IndentingNewLine]ECM[B_] := \n\t
+      Block[{g, curve}, \n\t\tcurve = 0; 
+        \[IndentingNewLine]\t\t (*Next, loop\ over\ \(curves . \)*) \n\t\t
+        While[True, \n\t\t\t
+          Print["\<Commencing curve \>", \(++curve\), "\<:\>"]; 
+          \[IndentingNewLine]\t\t\tx = Random[Integer, {0, p - 1}]; 
+          \[IndentingNewLine]\t\t\ty = Random[Integer, {0, p - 1}]; 
+          \[IndentingNewLine]\t\t\ta = Random[Integer, {0, p - 1}]; 
+          \[IndentingNewLine]\t\t\tb = Mod[y^2 - x^3 - a\ x, p]; 
+          \[IndentingNewLine]\t\t\t
+          If[\((g = GCD[4  a^3 + 27\ b^2, p])\) \[Equal] p, Continue[]]; 
+          \[IndentingNewLine]\t\t\t
+          If[\ g > 1, \n\t\t\t\tPrint["\<FOUNDd: \>", g]; \ Break[]\n\t\t\t]; 
+          \[IndentingNewLine]\t\t\t (*
+            We\ now\ have\ an\ appropriate\ pseudocurve\ \n\t\t\t\ \ y^2 = 
+              x^3 + a\ x + b\ \((mod\ p)\)\ with\ p\ assumed\ composite*) \n
+          \t\t\tpt = {x, y, 1}; \[IndentingNewLine]\t\t\t
+          Do[\ q = Prime[i]; \[IndentingNewLine]\t\t\t\t
+            pow = Ceiling[N[Log[p]/Log[q]]]; \[IndentingNewLine]\t\t\t\t
+            pt = elliptic[pt, q^pow]; \[IndentingNewLine]\t\t\t\t
+            If[pt[\([3]\)] \[Equal] 0, Break[]]\n\t\t\t\t, \n
+            \t\t\t\t{i, 1, PrimePi[B]}\n\t\t\t]; \[IndentingNewLine]\t\t\t
+          If[pt[\([3]\)] \[Equal] 0, Break[]]\n\t\t]\n\t]; \)}], "Input",
+  PageWidth->Infinity,
+  AutoIndent->True,
+  LineBreakWithin->False,
+  LineIndent->0],
+
+Cell[BoxData[{
+    \( (*\ EXAMPLE\ *) \n
+    \[IndentingNewLine] (*\ \n\ We\ pick\ two\ large\ primes, \ 
+      form\ their\ product, \ 
+      and\ attempt\ \n\ to\ factor\ using\ the\ \(ECM . \)\ \n\ *) 
+      \[IndentingNewLine]\[IndentingNewLine]B = 10000; \n
+    \[IndentingNewLine]p1 = Prime[Random[Integer, {10000, 11000}]]\n\), 
+    \(p2 = Prime[Random[Integer, {10000, 11000}]]\n\), 
+    \(p = p1*p2\n\), 
+    \(ECM[B]\)}], "Input",
+  PageWidth->Infinity,
+  AutoIndent->True,
+  LineBreakWithin->False,
+  LineIndent->0]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{713, 669},
+WindowMargins->{{Automatic, 99}, {Automatic, -6}},
+PrivateNotebookOptions->{"ColorPalette"->{RGBColor, -1}},
+ShowCellLabel->True,
+ShowCellTags->False,
+RenderingOptions->{"ObjectDithering"->True,
+"RasterDithering"->False}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 1996, 36, 449, "Input"],
+Cell[3708, 87, 4363, 75, 1271, "Input"],
+Cell[8074, 164, 526, 13, 224, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+

@@ -1,0 +1,155 @@
+(***********************************************************************
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used on any computer system with Mathematica 3.0,
+MathReader 3.0, or any compatible application. The data for the notebook 
+starts with the line of stars above.
+
+To get the notebook into a Mathematica-compatible application, do one of 
+the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing the 
+word CacheID, otherwise Mathematica-compatible applications may try to 
+use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+***********************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      3559,        116]*)
+(*NotebookOutlinePosition[      4224,        140]*)
+(*  CellTagsIndexPosition[      4180,        136]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell["\<\
+
+(*
+Algorithm 2.2.2 (Extended gcd for polynomials).\t
+Support code for
+R. Crandall and C. Pomerance,
+\"Prime Numbers: a Computational Perspective,\"
+Springer-Verlag 2001.\t
+c. 2000 Perfectly Scientific, Inc.
+All Rights Reserved.
+\t
+  \t30 Nov 2000 AH (avoided polynomial norm, simplified code, formatted)
+   \t14 Sep 2000 RT (Creation)
+*)
+
+(* For given polynomials f,g not both 0 with either deg(f) \[GreaterEqual] \
+deg(g) or g=0, 
+ this algorithm returns {s,t,d} such that sg + tf = d = gcd(f,g). 
+           
+\t< Remember to observe that the indeterminate of given polynomials 
+\tmust be'x'. Before starting, clear any existing value for x with Clear[x] >
+*)
+\
+\>", "Input",
+  PageWidth->Infinity],
+
+Cell["\<\
+(*CODE*)
+
+extendedgcdpoly[f_,g_] := 
+  \tModule[{s,t,d,u,v,w},
+    \t{s,t,d,u,v,w} = {1,0,f,0,1,g} ;
+    \tWhile[w=!=0,
+      \tq = PolynomialQuotient[d,w,x];
+      \t{s,t,d,u,v,w} =
+        \tExpand[{u,v,w,s-q u,t-q v,d-q w}]
+      ];
+    \t{s,t,d} /Last[CoefficientList[d,x]]
+ \t]
+  \
+\>", "Input",
+  PageWidth->Infinity],
+
+Cell["\<\
+(* EXAMPLE *)
+
+(* We create three random polynomials, f,g,k. Since it is unlikely we 
+will get anything but 1 for a gcd(f,g), we perform both gcd(f,g) 
+and gcd(f k, g k) to keep it interesting. We then verify that our 
+answers satisfy the condition of the linear combination. *)
+Clear[x];
+fdeg=Random[Integer,{1,7}];
+gdeg=Random[Integer,{1,7}];
+If[fdeg>gdeg,{fdeg,gdeg}={fdeg,gdeg};]
+kdeg=Random[Integer,{1,7}];
+f=Sum[Random[Integer,{-200,200}]*x^i,{i,0,fdeg}]
+g=Sum[Random[Integer,{-200,200}]*x^i,{i,0,gdeg}]
+result =Simplify[extendedgcdpoly[f,g]]
+Simplify[result[[1]]*f + result[[2]]*g]
+k=Sum[Random[Integer,{-200,200}]*x^i,{i,0,kdeg}]
+fk=Expand[f*k]
+gk=Expand[g*k]
+result=Simplify[extendedgcdpoly[fk,gk]]
+Simplify[result[[1]]*fk + result[[2]]*gk]\
+\>", "Input",
+  PageWidth->Infinity]
+},
+FrontEndVersion->"NeXT 3.0",
+ScreenRectangle->{{0, 957}, {0, 768}},
+WindowToolbars->"RulerBar",
+WindowSize->{670, 723},
+WindowMargins->{{78, Automatic}, {Automatic, -8}}
+]
+
+
+(***********************************************************************
+Cached data follows.  If you edit this Notebook file directly, not using
+Mathematica, you must remove the line containing CacheID at the top of 
+the file.  The cache data will then be recreated when you save this file 
+from within Mathematica.
+***********************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1709, 49, 710, 24, 264, "Input"],
+Cell[2422, 75, 333, 15, 168, "Input"],
+Cell[2758, 92, 797, 22, 252, "Input"]
+}
+]
+*)
+
+
+
+
+(***********************************************************************
+End of Mathematica Notebook file.
+***********************************************************************)
+
